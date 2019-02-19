@@ -16,7 +16,8 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "clean": "rm -r dist/* && rm -r artifacts/*",
     "rebuild": "npm run clean && npm run build",
-    "cp-assets": "ts-node copyStaticAssets.ts"
+    "cp-assets": "ts-node copyStaticAssets.ts",
+    "postinstall": "sh postinstall.sh"
   },
   "author": "",
   "license": "ISC",
