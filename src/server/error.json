@@ -1,0 +1,68 @@
+{
+  "errors": [
+    {
+      "message": "XML-RPC fault: Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/odoo/service/wsgi_server.py\", line 124, in wsgi_xmlrpc\n    result = odoo.http.dispatch_rpc(service, method, params)\n  File \"/usr/lib/python3/dist-packages/odoo/http.py\", line 118, in dispatch_rpc\n    result = dispatch(method, params)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 39, in dispatch\n    res = fn(db, uid, *params)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 153, in execute_kw\n    return execute(db, uid, obj, method, *args, **kw or {})\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 97, in wrapper\n    return f(dbname, *args, **kwargs)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 160, in execute\n    res = execute_cr(cr, uid, obj, method, *args, **kw)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 149, in execute_cr\n    return odoo.api.call_kw(recs, method, args, kw)\n  File \"/usr/lib/python3/dist-packages/odoo/api.py\", line 687, in call_kw\n    return call_kw_model(method, model, args, kwargs)\n  File \"/usr/lib/python3/dist-packages/odoo/api.py\", line 672, in call_kw_model\n    result = method(recs, *args, **kwargs)\n  File \"/usr/lib/python3/dist-packages/odoo/models.py\", line 1480, in search\n    res = self._search(args, offset=offset, limit=limit, order=order, count=count)\n  File \"/usr/lib/python3/dist-packages/odoo/addons/base/res/res_partner.py\", line 644, in _search\n    count=count, access_rights_uid=access_rights_uid)\n  File \"/usr/lib/python3/dist-packages/odoo/models.py\", line 3769, in _search\n    if expression.is_false(self, args):\n  File \"/usr/lib/python3/dist-packages/odoo/osv/expression.py\", line 224, in is_false\n    elif token[1] == 'in' and not token[2]:\nTypeError: 'bool' object is not subscriptable\n",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": [
+        "partners"
+      ],
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR",
+        "exception": {
+          "code": 1,
+          "faultCode": 1,
+          "faultString": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/odoo/service/wsgi_server.py\", line 124, in wsgi_xmlrpc\n    result = odoo.http.dispatch_rpc(service, method, params)\n  File \"/usr/lib/python3/dist-packages/odoo/http.py\", line 118, in dispatch_rpc\n    result = dispatch(method, params)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 39, in dispatch\n    res = fn(db, uid, *params)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 153, in execute_kw\n    return execute(db, uid, obj, method, *args, **kw or {})\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 97, in wrapper\n    return f(dbname, *args, **kwargs)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 160, in execute\n    res = execute_cr(cr, uid, obj, method, *args, **kw)\n  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 149, in execute_cr\n    return odoo.api.call_kw(recs, method, args, kw)\n  File \"/usr/lib/python3/dist-packages/odoo/api.py\", line 687, in call_kw\n    return call_kw_model(method, model, args, kwargs)\n  File \"/usr/lib/python3/dist-packages/odoo/api.py\", line 672, in call_kw_model\n    result = method(recs, *args, **kwargs)\n  File \"/usr/lib/python3/dist-packages/odoo/models.py\", line 1480, in search\n    res = self._search(args, offset=offset, limit=limit, order=order, count=count)\n  File \"/usr/lib/python3/dist-packages/odoo/addons/base/res/res_partner.py\", line 644, in _search\n    count=count, access_rights_uid=access_rights_uid)\n  File \"/usr/lib/python3/dist-packages/odoo/models.py\", line 3769, in _search\n    if expression.is_false(self, args):\n  File \"/usr/lib/python3/dist-packages/odoo/osv/expression.py\", line 224, in is_false\n    elif token[1] == 'in' and not token[2]:\nTypeError: 'bool' object is not subscriptable\n",
+          "stacktrace": [
+            "Error: XML-RPC fault: Traceback (most recent call last):",
+            "  File \"/usr/lib/python3/dist-packages/odoo/service/wsgi_server.py\", line 124, in wsgi_xmlrpc",
+            "    result = odoo.http.dispatch_rpc(service, method, params)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/http.py\", line 118, in dispatch_rpc",
+            "    result = dispatch(method, params)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 39, in dispatch",
+            "    res = fn(db, uid, *params)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 153, in execute_kw",
+            "    return execute(db, uid, obj, method, *args, **kw or {})",
+            "  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 97, in wrapper",
+            "    return f(dbname, *args, **kwargs)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 160, in execute",
+            "    res = execute_cr(cr, uid, obj, method, *args, **kw)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/service/model.py\", line 149, in execute_cr",
+            "    return odoo.api.call_kw(recs, method, args, kw)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/api.py\", line 687, in call_kw",
+            "    return call_kw_model(method, model, args, kwargs)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/api.py\", line 672, in call_kw_model",
+            "    result = method(recs, *args, **kwargs)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/models.py\", line 1480, in search",
+            "    res = self._search(args, offset=offset, limit=limit, order=order, count=count)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/addons/base/res/res_partner.py\", line 644, in _search",
+            "    count=count, access_rights_uid=access_rights_uid)",
+            "  File \"/usr/lib/python3/dist-packages/odoo/models.py\", line 3769, in _search",
+            "    if expression.is_false(self, args):",
+            "  File \"/usr/lib/python3/dist-packages/odoo/osv/expression.py\", line 224, in is_false",
+            "    elif token[1] == 'in' and not token[2]:",
+            "TypeError: 'bool' object is not subscriptable",
+            "",
+            "    at createFault (/www/react/odoo-extension/node_modules/xmlrpc/lib/deserializer.js:83:21)",
+            "    at Deserializer.onDone (/www/react/odoo-extension/node_modules/xmlrpc/lib/deserializer.js:89:21)",
+            "    at SAXStream.emit (events.js:160:13)",
+            "    at SAXParser.SAXStream._parser.onend (/www/react/odoo-extension/node_modules/sax/lib/sax.js:190:10)",
+            "    at emit (/www/react/odoo-extension/node_modules/sax/lib/sax.js:624:35)",
+            "    at end (/www/react/odoo-extension/node_modules/sax/lib/sax.js:667:5)",
+            "    at SAXParser.end (/www/react/odoo-extension/node_modules/sax/lib/sax.js:154:24)",
+            "    at SAXStream.end (/www/react/odoo-extension/node_modules/sax/lib/sax.js:248:18)",
+            "    at IncomingMessage.onend (_stream_readable.js:602:10)",
+            "    at Object.onceWrapper (events.js:255:19)"
+          ]
+        }
+      }
+    }
+  ],
+  "data": {
+    "partners": null
+  }
+}

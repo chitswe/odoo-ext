@@ -1,0 +1,46 @@
+{
+  // "awesomeTypescriptLoaderOptions": {
+  //   "useBabel": true,
+  // },
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": false,
+    // "module": "es2015",
+    // "target": "es2016",
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "react",
+    "outDir": "artifacts",
+    "baseUrl": ".",
+    //"noImplicitReturns": true,
+    //"noUnusedParameters": true,
+    //"noUnusedLocals": true,
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    },
+    "lib": [
+      "es5",
+      "es6",
+      "es2017",
+      "dom",
+      "es2015.core",
+      "es2015.collection",
+      "es2015.generator",
+      "es2015.iterable",
+      "es2015.promise",
+      "es2015.proxy",
+      "es2015.reflect",
+      "es2015.symbol",
+      "es2015.symbol.wellknown",
+      "esnext.asynciterable"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
