@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import App from "./app";
+import App from "./App";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { ApolloProvider } from "react-apollo";
 import { Provider } from "react-redux";
