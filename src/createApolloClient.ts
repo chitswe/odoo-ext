@@ -12,7 +12,9 @@ let activeRequests = 0;
 const createApolloClient = (
   store: Store<RootState>,
   isSSR: boolean = false,
-  graphqlEndPoint: string = "http://localhost:3030/graphql"
+  graphqlEndPoint: string = isSSR
+    ? "http://localhost:3030/graphql"
+    : "http://odoo.mt.com.mm:3030/graphql"
 ) => {
   const middleWare = new ApolloLink((operation, forward) => {
     if (activeRequests === 0) {
