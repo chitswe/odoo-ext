@@ -7,7 +7,9 @@ const server = new ApolloServer({
   resolvers: resolver,
   context: async (options: any) => {
     return options.req.user;
-  }
+  },
+  introspection: true,
+  playground: true
 });
 
 export default server;

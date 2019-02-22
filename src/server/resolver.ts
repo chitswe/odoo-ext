@@ -7,13 +7,24 @@ import {
   stockPickingCount,
   stockPickingFindAll
 } from "./Picking/StockPicking";
-import { resolver as product_resolver } from "./MasterData/Product";
+import {
+  resolver as product_resolver,
+  productFind,
+  productFindAll,
+  productCount
+} from "./MasterData/Product";
 import {
   resolver as stock_move_resolver,
   stockMoveFindAll
 } from "./Picking/StockMove";
 import { resolver as master_name_resolver } from "./MasterData/MasterName";
 import { resolver as stock_move_line_resolver } from "./Picking/StockMoveLine";
+import {
+  resolver as product_pricelist_resolver,
+  productPriceListFindAll,
+  productPriceListCount,
+  productPriceListGetPrice
+} from "./PriceList";
 import { AuthResult } from "./auth";
 const resolver = {
   DateTime: new GraphQLScalarType({
@@ -82,6 +93,55 @@ const resolver = {
       });
       const [stockMove] = stockMoves;
       return stockMove;
+    },
+    pricelists: async (parent: any, params: any, context: AuthResult) => {
+      const { pageSize = 20, page = 1, order, filter } = params;
+      const offset = (page - 1) * pageSize;
+      const edges = await productPriceListFindAll(context.odoo, {
+        offset,
+        limit: pageSize,
+        order,
+        filter
+      });
+      const count = await productPriceListCount(context.odoo, filter);
+      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+      return {
+        edges,
+        pageInfo,
+        aggregate: {
+          count
+        }
+      };
+    },
+    getprice: async (parent: any, params: any, context: AuthResult) => {
+      const { productId, priceListId, partnerId } = params;
+      return productPriceListGetPrice(context.odoo, {
+        priceListId,
+        productId,
+        partnerId
+      });
+    },
+    product: (parent: any, params: any, context: AuthResult) => {
+      return productFind(context.odoo, params.id);
+    },
+    products: async (parent: any, params: any, context: AuthResult) => {
+      const { pageSize = 20, page = 1, order, filter } = params;
+      const offset = (page - 1) * pageSize;
+      const edges = await productFindAll(context.odoo, {
+        offset,
+        limit: pageSize,
+        order,
+        filter
+      });
+      const count = await productCount(context.odoo, filter);
+      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+      return {
+        edges,
+        pageInfo,
+        aggregate: {
+          count
+        }
+      };
     }
   },
   Customer: {
@@ -92,7 +152,8 @@ const resolver = {
   ...product_resolver,
   ...stock_move_resolver,
   ...master_name_resolver,
-  ...stock_move_line_resolver
+  ...stock_move_line_resolver,
+  ...product_pricelist_resolver
 };
 
 export default resolver;

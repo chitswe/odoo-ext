@@ -4,15 +4,19 @@ type Odoo = {
   execute_kwAsync: (
     model: string,
     method: string,
-    filter: [[[any]]] | [any],
+    filter: any ,
     options?: any
   ) => Promise<any>;
 };
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 const Odoo = (creditional: { username: string; password: string }) => {
+  const url = env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm";
   const oodoo = new oOdoo({
-    url: env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm",
+    url,
     db: "Tri-Treasure",
+
+    // url: "http://127.0.0.1:8069",
+    // db: "mt",
     username: creditional.username,
     password: creditional.password
   });

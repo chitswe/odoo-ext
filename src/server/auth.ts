@@ -44,7 +44,7 @@ async function verifySession(token: string) {
   try {
     decoded = jwt.decode(token, secret.auth_secret);
   } catch (e) {
-    console.log(e);
+    /** */
   }
   let result: AuthResult = null;
   if (!decoded) result = { error: "Invalid Token!", authenticated: false };
