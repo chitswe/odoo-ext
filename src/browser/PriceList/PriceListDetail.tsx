@@ -24,7 +24,6 @@ import update from "immutability-helper";
 import { RootState, RootAction } from "../reducer";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import { auto } from "async";
 import CurrencyEditor from "../component/CurrencyEditor";
 
 const styles = (theme: Theme) =>
