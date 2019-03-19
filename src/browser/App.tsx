@@ -16,6 +16,9 @@ import { Button } from "@material-ui/core";
 import { compose } from "react-apollo";
 import { RootState } from "./reducer";
 import { connect } from "react-redux";
+import PriceList from "./PriceList";
+import NumberEditor from "./component/NumberEditor";
+import Test from "./test";
 
 type Props = { authenticated: boolean } & RouteComponentProps;
 class App extends React.PureComponent<Props> {
@@ -28,6 +31,7 @@ class App extends React.PureComponent<Props> {
         <LoadingBar style={{ zIndex: 200000 }} />
         {authenticated ? (
           <Switch>
+            <Route path="/price" component={PriceList} />
             <Route path="/inventory" component={Inventory} />
             <Route path="/setting" component={Setting} />
             <Redirect

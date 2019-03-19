@@ -10,8 +10,10 @@ const schema = `
     }
 
     type ProductPrice{
-      PriceList:ProductPriceList!
+      id:Int!
+      priceList:ProductPriceList!
       price:Float!
+      productId: Int!
     }
 
     type Product{
@@ -20,7 +22,7 @@ const schema = `
         default_code:String!
         barcode:String
         tracking:ProductTracking!
-        price(priceListIds:[Int!]!):[ProductPrice]
+        priceLists(priceListIds:[Int!]!):[ProductPrice]
     }
 
     type ProductConnection implements WithPagination & WithAggregateResult{
@@ -37,11 +39,11 @@ const resolver = {
     default_code: property("default_code"),
     barcode: property("barcode"),
     tracking: property("tracking"),
-    price: (product: any, params: any, context: AuthResult) => {
+    priceLists: (product: any, params: any, context: AuthResult) => {
       return priceListRead(context.odoo, params.priceListIds).then(
         (result: any[]) => {
-          return result.map(pricelist => ({
-            PriceList: pricelist,
+          return result.map(priceList => ({
+            priceList,
             productId: product.id
           }));
         }
@@ -49,11 +51,16 @@ const resolver = {
     }
   },
   ProductPrice: {
-    PriceList: property("PriceList"),
+    id: (productPrice: any, params: any, context: AuthResult) => {
+      const { priceList, productId } = productPrice;
+      const textId = `${priceList.id}${productId}`;
+      return Number.parseInt(textId, 10);
+    },
+    priceList: property("priceList"),
     price: (productPrice: any, params: any, context: AuthResult) => {
-      const { PriceList, productId } = productPrice;
+      const { priceList, productId } = productPrice;
       return productPriceListGetPrice(context.odoo, {
-        priceListId: PriceList.id,
+        priceListId: priceList.id,
         productId,
         partnerId: 1
       });
@@ -89,7 +96,7 @@ const productFindAll = (
   return odoo.execute_kwAsync("product.product", "search_read", filter, {
     offset,
     limit,
-    fields:  ["id", "name", "default_code", "barcode", "tracking"],
+    fields: ["id", "name", "default_code", "barcode", "tracking"],
     order
   });
 };
@@ -98,4 +105,4 @@ const productCount = (odoo: Odoo, filter: any = [[]]) => {
   return odoo.execute_kwAsync("product.product", "search_count", filter);
 };
 
-export { schema, resolver, productFind , productFindAll, productCount};
+export { schema, resolver, productFind, productFindAll, productCount };

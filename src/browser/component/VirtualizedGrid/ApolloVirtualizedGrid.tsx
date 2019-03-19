@@ -43,6 +43,7 @@ interface Props<T> {
   selectedAll?: boolean;
   setSelectedAll?: (items: number[]) => void;
   clearSelectedAll?: () => void;
+  debugname?: string;
 }
 
 type State = {
@@ -69,7 +70,8 @@ class ApolloVirtualizedGrid<T> extends React.Component<Props<T>> {
       if (this.loaderCacheResetor) {
         this.loaderCacheResetor();
       }
-    } else if (scrollToIndex !== this.props.scrollToIndex) {
+    }
+    if (scrollToIndex !== this.state.scrollToIndex) {
       this.setState({ scrollToIndex });
     }
   }
@@ -99,7 +101,8 @@ class ApolloVirtualizedGrid<T> extends React.Component<Props<T>> {
       setSelectedItems,
       selectedAll,
       setSelectedAll,
-      clearSelectedAll
+      clearSelectedAll,
+      debugname
     } = this.props;
     const { scrollToIndex } = this.state;
     return (
@@ -143,7 +146,7 @@ class ApolloVirtualizedGrid<T> extends React.Component<Props<T>> {
           return (
             <VirtualizedGrid
               registerForLoaderCacheReset={(resetor: () => void) => {
-                this.loaderCacheResetor =  resetor;
+                this.loaderCacheResetor = resetor;
               }}
               checkBoxColumnMode={checkBoxColumnMode}
               setSelectedItems={setSelectedAll}

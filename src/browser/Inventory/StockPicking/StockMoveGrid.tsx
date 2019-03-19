@@ -132,6 +132,7 @@ class StockMoveGrid extends React.Component<Props, State> {
     } = this.props;
     return (
       <ApolloVirtualizedGrid
+        debugname="stockmovegrid"
         rootClassName={rootClassName}
         scrollToIndex={scrollToIndex}
         selectedItems={selectedItems}

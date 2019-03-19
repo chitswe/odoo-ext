@@ -1,19 +1,21 @@
 import * as React from "react";
-import { List } from "react-virtualized";
+import NumberEditor from "./component/NumberEditor";
+import CurrencyEditor from "./component/CurrencyEditor";
 
 export default class Test extends React.Component {
+  state: { value: number } = {
+    value: null
+  };
   render() {
+    const { value } = this.state;
     return (
-      <List
-        rowCount={100}
-        width={200}
-        height={500}
-        rowHeight={56}
-        rowRenderer={({ index, style }) => (
-          <div style={style} key={index}>
-            {index}
-          </div>
-        )}
+      <CurrencyEditor
+        currencySymbol="MMK"
+        value={value}
+        numberPrecision={2}
+        onChanged={(v: number) => {
+          this.setState({ value: v });
+        }}
       />
     );
   }

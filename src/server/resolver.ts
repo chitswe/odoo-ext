@@ -23,9 +23,28 @@ import {
   resolver as product_pricelist_resolver,
   productPriceListFindAll,
   productPriceListCount,
-  productPriceListGetPrice
+  productPriceListGetPrice,
+  priceListFind
 } from "./PriceList";
 import { AuthResult } from "./auth";
+import {
+  resolver as purchase_order_line_resolver,
+  purchaseOrderLineFindAll,
+  purchaseOrderLineCount
+} from "./PurchaseOrder/OrderLine";
+
+const coerceAnyString = (value: any) => {
+  if (Array.isArray(value)) {
+    throw new TypeError(
+      `IntString cannot represent an array value: [${String(value)}]`
+    );
+  }
+  if (!Number.isNaN(value)) {
+    return value;
+  }  
+  return String(value);
+};
+
 const resolver = {
   DateTime: new GraphQLScalarType({
     name: "DateTime",
@@ -57,6 +76,26 @@ const resolver = {
         return new Date(ast.value); // ast value is always in string format
       }
       return null;
+    }
+  }),
+  AnyString: new GraphQLScalarType({
+    name: "AnyString",
+    parseValue: coerceAnyString,
+    serialize: coerceAnyString,
+    parseLiteral(ast: any) {
+      if (ast.kind === Kind.INT) {
+        return coerceAnyString(parseInt(ast.value, 10));
+      }
+      if (ast.kind === Kind.FLOAT) {
+        return coerceAnyString(parseFloat(ast.value));
+      }
+      if (ast.kind === Kind.BOOLEAN) {
+        return coerceAnyString(ast.value === "true");
+      }
+      if (ast.kind === Kind.STRING) {
+        return ast.value;
+      }
+      return undefined;
     }
   }),
   Query: {
@@ -142,8 +181,32 @@ const resolver = {
           count
         }
       };
+    },
+    purchase_order_lines: async (
+      parent: any,
+      params: any,
+      context: AuthResult
+    ) => {
+      const { pageSize = 20, page = 1, order, filter } = params;
+      const offset = (page - 1) * pageSize;
+      const edges = await purchaseOrderLineFindAll(context.odoo, {
+        offset,
+        limit: pageSize,
+        order,
+        filter
+      });
+      const count = await purchaseOrderLineCount(context.odoo, filter);
+      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+      return {
+        edges,
+        pageInfo,
+        aggregate: {
+          count
+        }
+      };
     }
   },
+
   Customer: {
     id: property("id"),
     name: property("name")
@@ -153,7 +216,50 @@ const resolver = {
   ...stock_move_resolver,
   ...master_name_resolver,
   ...stock_move_line_resolver,
-  ...product_pricelist_resolver
+  ...product_pricelist_resolver,
+  ...purchase_order_line_resolver,
+
+  Mutation: {
+    changePrice: async (parent: any, params: any, context: AuthResult) => {
+      const { productId, priceListId, price } = params;
+      const priceListItems = await context.odoo.execute_kwAsync(
+        "product.pricelist.item",
+        "search",
+        [
+          [
+            ["pricelist_id", "=", priceListId],
+            ["product_id", "=", productId],
+            ["applied_on", "=", "0_product_variant"],
+            ["base", "=", "list_price"]
+          ]
+        ]
+      );
+      const [itemId] = priceListItems;
+      if (itemId) {
+        const result = await context.odoo.execute_kwAsync(
+          "product.pricelist.item",
+          "write",
+          [[itemId], { fixed_price: price }]
+        );
+      } else {
+        const result = await context.odoo.execute_kwAsync(
+          "product.pricelist.item",
+          "create",
+          [
+            {
+              applied_on: "0_product_variant",
+              pricelist_id: priceListId,
+              product_id: productId,
+              fixed_price: price,
+              base: "list_price"
+            }
+          ]
+        );
+      }
+      const priceList = await priceListFind(context.odoo, priceListId);
+      return { priceList, productId };
+    }
+  }
 };
 
 export default resolver;

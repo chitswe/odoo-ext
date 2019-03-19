@@ -24,7 +24,7 @@ const createApolloClient = (
     return forward(operation).map(response => {
       activeRequests--;
       if (activeRequests === 0) {
-        store.dispatch(hideLoading());
+        store.dispatch(hideLoading());  
       }
       return response;
     });

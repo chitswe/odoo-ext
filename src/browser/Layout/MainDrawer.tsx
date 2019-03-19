@@ -13,7 +13,7 @@ import {
   Typography,
   Button
 } from "@material-ui/core";
-import { Settings, Lock } from "@material-ui/icons";
+import { Settings, Lock, AttachMoney } from "@material-ui/icons";
 import { GoPackage } from "react-icons/go";
 import { siteActions } from "../reducer/site";
 import { connect } from "react-redux";
@@ -123,6 +123,17 @@ class MainDrawer extends React.PureComponent<Props & RouteComponentProps> {
               </div>
             </div>
             <List>
+              <ListItem
+                button
+                onClick={() => {
+                  history.push("/price");
+                }}
+              >
+                <ListItemIcon>
+                  <AttachMoney />
+                </ListItemIcon>
+                <ListItemText>Price List</ListItemText>
+              </ListItem>
               <ListItem
                 button
                 onClick={() => {

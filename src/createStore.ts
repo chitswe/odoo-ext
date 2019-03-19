@@ -48,7 +48,8 @@ export const createServerStore = (authResult: AuthResult) => {
       site: undefined,
       loadingBar: undefined,
       stockPicking: undefined,
-      labelPrintSetting: undefined
+      labelPrintSetting: undefined,
+      priceList: undefined
     },
     { type: "" }
   );
@@ -91,9 +92,7 @@ export const createClientStore = () => {
     key: "root",
     storage: storage.default,
     whitelist: ["labelPrintSetting"],
-    transforms: [
-      createWhitelistFilter("labelPrintSetting", ["url"])
-    ],
+    transforms: [createWhitelistFilter("labelPrintSetting", ["url"])],
     stateReconciler: autoMergeLevel2.default
   };
 
