@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/server/server.tsx",
     "build": "npm run build-ts && npm run tslint && npm run cp-assets && webpack --config webpack.dev.js",
-    "build:dist": "tsc -p tsconfig.prod.json && npm run cp-assets && webpack --config webpack.prod.js --env=prod --progress --profile --colors",
+    "build:dist": "tsc -p tsconfig.prod.json && tsc && npm run cp-assets && webpack --config webpack.prod.js --env=prod --progress --profile --colors",
     "build-ts": "tsc",
     "watch-ts": "TSC_NONPOLLING_WATCHER='1' tsc -w",
     "webpack-watch": "webpack --config webpack.dev.js --watch",
