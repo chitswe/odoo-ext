@@ -3,7 +3,7 @@ import ApolloVirtualizedGrid from "../component/VirtualizedGrid/ApolloVirtualize
 import { GridColumn } from "../component/VirtualizedGrid";
 import { OrderLineType } from "./resolvedTypes";
 import { purchaseOrderLinesQuery } from "./graphql";
-import accounting = require("accounting");
+import * as accounting from "accounting";
 
 type Props = {
   productId: number;
