@@ -115,7 +115,13 @@ class PriceListGrid extends React.Component<Props, State> {
     }
     if (newProps.search !== this.props.search) {
       const filter = newProps.search
-        ? [[["default_code", "ilike", newProps.search]]]
+        ? [
+            [
+              "|",
+              ["default_code", "ilike", newProps.search],
+              ["name", "ilike", newProps.search]
+            ]
+          ]
         : [[]];
       this.setState({
         variables: update(this.state.variables, {
@@ -162,7 +168,7 @@ class PriceListGrid extends React.Component<Props, State> {
               selectedItems={selectedIndex}
               listModeBreakPoint={0}
               scrollToIndex={scrollToIndex}
-              columns={columns}
+              columns={columns} 
               graphqlQuery={productsPriceListQuery}
               variables={variables}
               listPropsName="products"

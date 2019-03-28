@@ -74,9 +74,17 @@ const productFind = (odoo: Odoo, id: number) => {
     .execute_kwAsync("product.product", "search_read", params, {
       offset: 0,
       limit: 1,
-      fields: ["id", "name", "default_code", "barcode", "tracking"]
+      fields: [
+        "id",
+        "name",
+        "default_code",
+        "barcode",
+        "tracking",
+      ]
     })
-    .then(([p]: [any]) => p);
+    .then(([p]: [any]) => {
+      return p;
+    });
 };
 
 const productFindAll = (
@@ -96,7 +104,13 @@ const productFindAll = (
   return odoo.execute_kwAsync("product.product", "search_read", filter, {
     offset,
     limit,
-    fields: ["id", "name", "default_code", "barcode", "tracking"],
+    fields: [
+      "id",
+      "name",
+      "default_code",
+      "barcode",
+      "tracking",
+    ],
     order
   });
 };

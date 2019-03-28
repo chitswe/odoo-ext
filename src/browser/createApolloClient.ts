@@ -4,9 +4,9 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import { ApolloLink, from } from "apollo-link";
 import { showLoading, hideLoading } from "react-redux-loading-bar";
 import { Store } from "redux";
-import { RootState } from "./browser/reducer";
+import { RootState } from "./reducer";
 import { onError } from "apollo-link-error";
-import { siteActions } from "./browser/reducer/site";
+import { siteActions } from "./reducer/site";
 let activeRequests = 0;
 
 const createApolloClient = (
@@ -24,7 +24,7 @@ const createApolloClient = (
     return forward(operation).map(response => {
       activeRequests--;
       if (activeRequests === 0) {
-        store.dispatch(hideLoading());  
+        store.dispatch(hideLoading());
       }
       return response;
     });
@@ -58,13 +58,10 @@ const createApolloClient = (
       }
     }
   });
-  const cache = isSSR
-    ? new InMemoryCache()
-    : new InMemoryCache().restore(window.__APOLLO_STATE__);
   return new ApolloClient({
-    ssrMode: isSSR,
+    ssrMode: true,
     link: from([middleWare, errorLink, httpLink]),
-    cache
+    cache: new InMemoryCache().restore(window.__APOLLO_STATE__)
   });
 };
 export default createApolloClient;

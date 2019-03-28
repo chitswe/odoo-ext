@@ -369,7 +369,7 @@
                               "name": null,
                               "ofType": {
                                 "kind": "SCALAR",
-                                "name": "String",
+                                "name": "AnyString",
                                 "ofType": null
                               }
                             }
@@ -1771,6 +1771,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "AnyString",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "ProductConnection",
           "description": "",
@@ -1845,16 +1855,6 @@
               "ofType": null
             }
           ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "SCALAR",
-          "name": "AnyString",
-          "description": null,
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -3011,16 +3011,6 @@
               "deprecationReason": null
             }
           ],
-          "possibleTypes": null
-        },
-        {
-          "kind": "SCALAR",
-          "name": "Upload",
-          "description": "The `Upload` scalar type represents a file upload.",
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": null,
           "possibleTypes": null
         }
       ],

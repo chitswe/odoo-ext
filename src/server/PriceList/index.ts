@@ -1,5 +1,6 @@
 import { property } from "lodash";
 import Odoo from "../odoo";
+import { productFindAll, productCount } from "../MasterData/Product";
 const schema = `
 type ProductPriceList{
     id:Int!
@@ -79,6 +80,47 @@ const priceListRead = (odoo: Odoo, ids: number[]) => {
   });
 };
 
+const generateCSVFile = async (search: string, odoo: Odoo) => {
+  const priceLists = await productPriceListFindAll(odoo, {
+    offset: 0,
+    limit: 100
+  });
+  const filter = search
+    ? [["|", ["default_code", "ilike", search], ["name", "ilike", search]]]
+    : [[]];
+  const count = 20; // await productCount(odoo, filter);
+  const pageSize = 10;
+  const newLine = "\r\n";
+  let csv =
+    "id,Code,Name" + priceLists.map((p: any) => p.name).join(",") + newLine;
+  for (let i = 0; i < count; i += pageSize) {
+    const products = await productFindAll(odoo, {
+      offset: i,
+      limit: i + pageSize,
+      filter
+    });
+    products.forEach((p: any) => {
+      csv += p.id + ",";
+      csv += p.default_code + ",";
+      csv += p.name + ",";
+
+      csv += priceLists
+        .map(async (price: any) => {
+          const value = await productPriceListGetPrice(odoo, {
+            partnerId: 1,
+            priceListId: price.id,
+            productId: p.id
+          });
+          return value;
+        })
+        .join(",");
+
+      csv += newLine;
+    });
+  }
+  return csv;
+};
+
 export {
   schema,
   resolver,
@@ -86,5 +128,6 @@ export {
   productPriceListCount,
   productPriceListGetPrice,
   priceListFind,
-  priceListRead
+  priceListRead,
+  generateCSVFile
 };

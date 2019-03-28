@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import { ApolloProvider } from "react-apollo";
 import { Provider } from "react-redux";
 import { createClientStore } from "../createStore";
-import createApolloClient from "../createApolloClient";
+import createApolloClient from "./createApolloClient";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { IconContext } from "react-icons";
 import {

@@ -9,7 +9,8 @@ const server = new ApolloServer({
     return options.req.user;
   },
   introspection: true,
-  playground: true
+  playground: true,
+  uploads: false
 });
 
 export default server;

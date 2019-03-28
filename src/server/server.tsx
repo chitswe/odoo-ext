@@ -8,7 +8,7 @@ import { StaticRouter } from "react-router-dom";
 import { ApolloProvider } from "react-apollo";
 import { Provider } from "react-redux";
 import { createServerStore } from "../createStore";
-import createApolloClient from "../createApolloClient";
+import createApolloClient from "./createApolloClient";
 import App from "../browser/App";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import server from "./graphqlServer";
@@ -35,6 +35,7 @@ import { AuthResult, login } from "./auth";
 import bugsnag from "@bugsnag/js";
 import bugsnagExpress from "@bugsnag/plugin-express";
 import secret from "../secret";
+import { generateCSVFile } from "./PriceList";
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 console.log(`Running with ${env} mode.`);
 const app = express();
@@ -73,6 +74,19 @@ app.use(bodyParser());
 app.use(passport.initialize());
 app.use(express.static(path.join(__dirname, "../../dist/public")));
 app.use(device.capture());
+app.get(
+  "/pricelist/csv",
+  passport.authenticate("bearer-graphql", { session: false }),
+  async (request, response) => {
+    const csv = await generateCSVFile("", request.user.odoo);
+    response.setHeader(
+      "Content-disposition",
+      "attachment; filename=testing.csv"
+    );
+    response.set("Content-Type", "text/csv");
+    response.status(200).send(csv);
+  }
+);
 app.post(
   "/graphql",
   passport.authenticate("bearer-graphql", { session: false })
@@ -104,7 +118,7 @@ app.get(
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
     const authResult: AuthResult = req.user;
     const persistStore = await createServerStore(authResult);
-    const apolloClient = createApolloClient(persistStore.store, true);
+    const apolloClient = createApolloClient(req.user);
     const context: { url: string; status: number } = {
       url: undefined,
       status: undefined

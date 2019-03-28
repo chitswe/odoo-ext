@@ -11,19 +11,24 @@ import {
   Typography,
   IconButton,
   withStyles,
-  InputBase
+  InputBase,
+  CircularProgress,
+  LinearProgress
 } from "@material-ui/core";
 import OpenDrawerButton from "../component/AppBar/OpenDrawerButton";
-import { FaBarcode } from "react-icons/fa";
+import { FaFileCsv } from "react-icons/fa";
 import PriceListGrid from "./PriceListGrid";
-import { compose } from "react-apollo";
+import { compose, ApolloConsumer } from "react-apollo";
 import { connect } from "react-redux";
 import { RootState, RootAction } from "../reducer";
 import { Dispatch } from "redux";
-import { ProductType } from "./resolvedTypes";
+import { ProductType, MasterPriceList } from "./resolvedTypes";
 import PriceListInfoTab from "./PriceListInfoTab";
 import SearchIcon from "@material-ui/icons/Search";
 import { fade } from "@material-ui/core/styles/colorManipulator";
+import ApolloClient from "apollo-client";
+import { productsPriceListQuery as Query } from "./graphql";
+import { productPriceListQuery, productPriceListQueryVariables } from "./types";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -103,12 +108,37 @@ const styles = (theme: Theme) =>
           width: 250
         }
       }
+    },
+    backDrop: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      backgroundColor: "rgba(0,0,0,.5)",
+      zIndex: 1000
+    },
+    progress: {
+      position: "absolute",
+      width: 300,
+      zIndex: 1001,
+      height: 64,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      margin: "auto",
+      backgroundColor: "#fff",
+      paddingTop: 20,
+      paddingLeft: 16,
+      paddingRight: 16
     }
   });
 
 type Props = WithStyles<typeof styles> &
   RouteComponentProps & {
     isPriceEdited: boolean;
+    masterPriceList: { [id: number]: MasterPriceList };
   };
 
 type State = {
@@ -116,6 +146,10 @@ type State = {
   selectedIndex: number;
   searchText: string;
   search: string;
+  downloadProgress: number;
+  downloading: boolean;
+  page: number;
+  totalPage: number;
 };
 
 class PriceList extends React.Component<Props, State> {
@@ -123,11 +157,15 @@ class PriceList extends React.Component<Props, State> {
     selectedId: null,
     selectedIndex: -1,
     searchText: "",
-    search: ""
+    search: "",
+    downloadProgress: 0,
+    downloading: false,
+    page: 0,
+    totalPage: 0
   };
   renderAppBar(appBarType: "price_list" | "price_list_details" | "both") {
-    const { classes, isPriceEdited } = this.props;
-    const { searchText, search } = this.state;
+    const { classes } = this.props;
+    const { searchText, downloading } = this.state;
     return (
       <AppBar className={classes.appBar} position="static">
         <Toolbar className={classes.toolBar}>
@@ -138,7 +176,7 @@ class PriceList extends React.Component<Props, State> {
               : "Price List Edit"}
           </Typography>
           <div className={classes.grow} />
-          <div className={classes.grow} />
+
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
@@ -160,17 +198,127 @@ class PriceList extends React.Component<Props, State> {
               }}
             />
           </div>
+          <ApolloConsumer>
+            {client => (
+              <IconButton
+                disabled={downloading}
+                aria-label="Download CSV"
+                color="inherit"
+                onClick={() => {
+                  const { masterPriceList } = this.props;
+                  const priceListIds = Object.values(masterPriceList).map(
+                    p => p.id
+                  );
+                  let csv =
+                    "data:text/csv;charset=utf-8," +
+                    "id,code,name," +
+                    Object.values(masterPriceList)
+                      .map(p => p.name)
+                      .join(",") +
+                    "\r\n";
+                  this.setState({ downloading: true, downloadProgress: 0 });
+                  this.downloadForCSV(client, csv, priceListIds);
+                }}
+              >
+                <FaFileCsv />
+              </IconButton>
+            )}
+          </ApolloConsumer>
         </Toolbar>
       </AppBar>
     );
   }
+
+  async downloadForCSV(
+    client: ApolloClient<any>,
+    csv: string,
+    priceListIds: number[],
+    page: number = 1
+  ) {
+    const newLine = "\r\n";
+    const pageSize = 10;
+    const { search } = this.state;
+    const filter: any = search
+      ? [["|", ["default_code", "ilike", search], ["name", "ilike", search]]]
+      : [[]];
+    const queryResult = await client.query<
+      productPriceListQuery,
+      productPriceListQueryVariables
+    >({
+      query: Query,
+      variables: {
+        page,
+        pageSize,
+        filter,
+        priceListIds
+      }
+    });
+    if (queryResult.data && queryResult.data.products) {
+      const {
+        products: {
+          edges,
+          aggregate: { count },
+          pageInfo: { hasMore }
+        }
+      } = queryResult.data;
+      const totalPage = Math.ceil(count / pageSize);
+      this.setState({
+        downloadProgress: (page / totalPage) * 100,
+        page,
+        totalPage
+      });
+      console.log(`${page}/ ${totalPage}, ${count}`);
+      edges.forEach(p => {
+        csv += p.id + ",";
+        csv += p.default_code + ",";
+        csv += p.name;
+        p.priceLists.forEach(price => {
+          csv += "," + price.price;
+        });
+        csv += newLine;
+      });
+
+      if (hasMore) {
+        this.downloadForCSV(client, csv, priceListIds, page + 1);
+      } else {
+        this.setState({ downloading: false });
+        var encodedUri = encodeURI(csv);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "product_price.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  }
+
+  renderProgress() {
+    const { page, totalPage, downloadProgress } = this.state;
+    const { classes } = this.props;
+    return (
+      <div className={classes.backDrop}>
+        <div className={classes.progress}>
+          <LinearProgress
+            value={downloadProgress}
+            variant={page === 0 ? "indeterminate" : "determinate"}
+          />
+          <Typography>
+            {page} / {totalPage}
+          </Typography>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const { classes, history } = this.props;
-    const { selectedIndex, selectedId, search } = this.state;
+    const { selectedIndex, selectedId, search, downloading } = this.state;
     const selected: number[] =
       selectedIndex || selectedIndex === 0 ? [selectedIndex] : [];
     return (
       <React.Fragment>
+        {downloading ? this.renderProgress() : null}
         <MediaQuery maxWidth={959}>
           <Switch>
             <Route
@@ -292,6 +440,7 @@ export default compose(
   withStyles(styles),
   connect(
     (state: RootState) => ({
+      masterPriceList: state.priceList.master,
       isPriceEdited: state.priceList.edited
     }),
     (dispatch: Dispatch<RootAction>) => ({})

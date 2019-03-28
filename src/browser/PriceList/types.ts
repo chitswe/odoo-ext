@@ -85,6 +85,7 @@ export interface productPriceListQueryVariables {
   page?: number | null,
   pageSize?: number | null,
   order?: string | null,
+  filter?: Array< Array< Array< string > > > | null,
   priceListIds: Array< number >,
 };
 

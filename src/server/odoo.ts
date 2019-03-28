@@ -4,13 +4,14 @@ type Odoo = {
   execute_kwAsync: (
     model: string,
     method: string,
-    filter: any ,
+    filter: any,
     options?: any
   ) => Promise<any>;
 };
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 const Odoo = (creditional: { username: string; password: string }) => {
-  const url = env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm";
+  const url =
+    env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm";
   const oodoo = new oOdoo({
     url,
     db: "Tri-Treasure",
@@ -38,7 +39,16 @@ const Odoo = (creditional: { username: string; password: string }) => {
     ) => {
       return odoo.connectAsync().then(() => {
         return new Promise((resolve, reject) => {
-          const opt = [filter];
+          let opt = [filter];
+          switch (method) {
+            case "search":
+            case "search_read":
+            case "search_count":
+              opt = [Odoo.transformFilter(filter)];
+              break;
+            default:
+              opt = [filter];
+          }
           if (options) opt.push(options);
           oodoo.execute_kw(model, method, opt, (error: string, value: any) => {
             if (error) reject(error);
@@ -49,6 +59,20 @@ const Odoo = (creditional: { username: string; password: string }) => {
     }
   };
   return odoo;
+};
+
+Odoo.transformFilter = (graphqlFilter: any) => {
+  if (!graphqlFilter) return graphqlFilter;
+  const [filter] = graphqlFilter;
+  if (!filter) return graphqlFilter;
+  const newFilter = graphqlFilter[0].map((f: any) => {
+    const [operator] = f;
+    if (f.length && f.length === 1 && (operator === "|" || operator === "&")) {
+      return operator;
+    }
+    return f;
+  });
+  return [newFilter];
 };
 
 export default Odoo;
