@@ -1,7 +1,6 @@
 import * as React from "react";
 import VirtualizedGrid, { GridColumn, CheckBoxColumnMode } from ".";
 import { Query } from "react-apollo";
-import { InfiniteLoader } from "react-virtualized";
 
 export interface ApolloListResult<T> {
   aggegrate: {

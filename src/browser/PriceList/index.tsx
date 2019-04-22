@@ -267,7 +267,6 @@ class PriceList extends React.Component<Props, State> {
         page,
         totalPage
       });
-      console.log(`${page}/ ${totalPage}, ${count}`);
       edges.forEach(p => {
         csv += p.id + ",";
         csv += p.default_code + ",";
