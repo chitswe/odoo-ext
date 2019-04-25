@@ -6,6 +6,8 @@ import { schema as master_name_schema } from "./MasterData/MasterName";
 import { schema as stock_move_line_schema } from "./Picking/StockMoveLine";
 import { schema as product_pricelist_schema } from "./PriceList";
 import { schema as purchase_order_line_schema } from "./PurchaseOrder/OrderLine";
+import { schema as operation_type_schema } from "./MasterData/OperationType";
+import { schema as product_lot_schema } from "./ProductLot/index";
 const schema = gql`
   scalar DateTime
   scalar Date
@@ -75,6 +77,8 @@ const schema = gql`
   ${stock_move_line_schema}
   ${product_pricelist_schema}
   ${purchase_order_line_schema}
+  ${operation_type_schema}
+  ${product_lot_schema}
 `;
 
 export default schema;

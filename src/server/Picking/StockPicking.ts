@@ -1,6 +1,7 @@
 import { property } from "lodash";
 import { stockMoveFindAll, stockMoveCount } from "./StockMove";
 import { masterNameResolve, MasterType } from "../MasterData/MasterName";
+import { operationTypeFind  } from "../MasterData/OperationType";
 import Odoo from "../odoo";
 import { AuthResult } from "../auth";
 const schema = `
@@ -22,7 +23,8 @@ const schema = `
         scheduled_date:DateTime!
         origin:String
         state:PickingState!
-        picking_type:MasterName!
+        picking_type:MasterName!  
+        operation_type:OperationType!      
     }
 
     type StockPickingConnection implements WithPagination & WithAggregateResult{
@@ -76,6 +78,9 @@ const resolver = {
         picking.picking_type_id,
         MasterType.STOCK_OPERATION
       );
+    },
+    operation_type: (picking: any, params: any, context: AuthResult)  => {
+      return operationTypeFind(context.odoo, picking.picking_type_id[0]);
     },
     location: (picking: any) => {
       return masterNameResolve(picking.location_id, MasterType.WAREHOUSE);

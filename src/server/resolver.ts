@@ -14,6 +14,10 @@ import {
   productCount
 } from "./MasterData/Product";
 import {
+  resolver as operation_type_resolver,
+  operationTypeFind
+} from "./MasterData/OperationType";
+import {
   resolver as stock_move_resolver,
   stockMoveFindAll
 } from "./Picking/StockMove";
@@ -32,6 +36,10 @@ import {
   purchaseOrderLineFindAll,
   purchaseOrderLineCount
 } from "./PurchaseOrder/OrderLine";
+import {
+  resolver as product_lot_resolver,
+  productLotFind
+} from "./ProductLot/index";
 
 const coerceAnyString = (value: any) => {
   if (Array.isArray(value)) {
@@ -218,6 +226,8 @@ const resolver = {
   ...stock_move_line_resolver,
   ...product_pricelist_resolver,
   ...purchase_order_line_resolver,
+  ...operation_type_resolver,
+  ...product_lot_resolver,
 
   Mutation: {
     changePrice: async (parent: any, params: any, context: AuthResult) => {

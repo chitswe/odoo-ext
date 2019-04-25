@@ -22,6 +22,7 @@ const stockMoveLineFindByStockMoveId = gql`
           lot_name{
             id
             name
+            product_qty
           }
         }
         pageInfo {

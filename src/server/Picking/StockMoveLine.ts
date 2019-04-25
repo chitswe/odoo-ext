@@ -1,10 +1,13 @@
 import { property } from "lodash";
 import Odoo from "../odoo";
 import { masterNameResolve, MasterType } from "../MasterData/MasterName";
+import { productLotFind } from "../ProductLot/index";
+import { AuthResult } from "../auth";
+
 const schema = `
     type StockMoveLine{
         id:Int!
-        lot_name:MasterName!
+        lot_name:ProductLot!
     }
     type StockMoveLineConnection implements WithPagination & WithAggregateResult{
       pageInfo:PageInfo!
@@ -16,9 +19,10 @@ const schema = `
 const resolver = {
   StockMoveLine: {
     id: property("id"),
-    lot_name: (picking: any) => {
-      const result = masterNameResolve(picking.lot_id, MasterType.SERIALNO);
-      return result;
+    lot_name: (picking: any, params: any, context: AuthResult) => {
+      return productLotFind(context.odoo, picking.lot_id[0]);
+      // const result = masterNameResolve(picking.lot_id, MasterType.SERIALNO);
+      // return result;
     }
   }
 };

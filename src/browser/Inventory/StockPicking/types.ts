@@ -4,7 +4,7 @@
 export enum ProductTracking {
   serial = "serial",
   lot = "lot",
-  none = "none",
+  none = "none",  
 }
 
 
@@ -44,9 +44,10 @@ export interface StockMoveLineFindByStockMoveIdQuery {
         __typename: "StockMoveLine",
         id: number,
         lot_name:  {
-          __typename: "MasterName",
-          id: string,
+          __typename: "ProductLot",
+          id: number,
           name: string,
+          product_qty: number,
         },
       } >,
       pageInfo:  {

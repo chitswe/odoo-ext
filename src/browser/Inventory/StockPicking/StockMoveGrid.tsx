@@ -95,7 +95,7 @@ class StockMoveGrid extends React.Component<Props, State> {
             product: { tracking }
           }
         }) =>
-          tracking === "serial" ? (
+          tracking === "serial" || tracking === "lot" ? (
             <Icon>
               <MenuIcon />
             </Icon>
@@ -137,7 +137,7 @@ class StockMoveGrid extends React.Component<Props, State> {
         scrollToIndex={scrollToIndex}
         selectedItems={selectedItems}
         onRowClick={(rowData, index) => {
-          if (rowData.product.tracking === "serial") {
+          if (rowData.product.tracking === "serial" || rowData.product.tracking === "lot") {
             if (onStockMoveItemClick) onStockMoveItemClick(rowData, index);
             else history.push(`${match.url}/stock_move/${rowData.id}`);
           } else {
@@ -178,7 +178,7 @@ class StockMoveGrid extends React.Component<Props, State> {
                       </React.Fragment>
                     }
                   />
-                  {product.tracking === "serial" ? (
+                  {product.tracking === "serial" || product.tracking === "lot" ? (
                     <ListItemIcon>
                       <MenuIcon />
                     </ListItemIcon>

@@ -38,7 +38,7 @@ const resolver = {
       const _offset = (page - 1) * pageSize;
       const filter: any = [[["move_id", "=", move.id]]];
       const product = await productFind(context.odoo, move.product_id[0]);
-      const isSerialTracking = product && product.tracking === "serial";
+      const isSerialTracking = product && (product.tracking === "serial" || product.tracking === "lot");
       const edges = isSerialTracking
         ? await stockMoveLineFindAll(context.odoo, {
             offset: _offset,
