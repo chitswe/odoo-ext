@@ -35,6 +35,18 @@ const productLotFind = (odoo: Odoo, id: number) => {
     });
 };
 
+const productLotFindByLotname = (odoo: Odoo, lotname: string) => {
+    const params: any = [[["name", "=", lotname]]];
+    return odoo.execute_kwAsync("stock.production.lot", "search_read", params, {
+        offset: 0,
+        limit: 1,
+        fields: ["id", "name", "product_id", "product_qty"]
+    })
+    .then(([p]: [any]) => {
+        return p;
+    });
+};
+
 const productLotFindByProductId = (odoo: Odoo, productId: number) => {
     const params: any = [[["product_id", "=", productId]]];
     return odoo.execute_kwAsync("stock.production.lot", "search_read", params, {
@@ -50,4 +62,4 @@ const productLotFindByProductId = (odoo: Odoo, productId: number) => {
 //     ]);
 // }
 
-export { schema, resolver, productLotFindByProductId, productLotFind };
+export { schema, resolver, productLotFindByProductId, productLotFind, productLotFindByLotname };

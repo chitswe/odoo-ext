@@ -2,19 +2,19 @@
 //  This file was automatically generated and should not be edited.
 
 export enum ProductTracking {
-  serial = "serial",
   lot = "lot",
-  none = "none",  
+  none = "none",
+  serial = "serial",
 }
 
 
 export enum PickingState {
+  assigned = "assigned",
+  cancel = "cancel",
+  confirmed = "confirmed",
+  done = "done",
   draft = "draft",
   waiting = "waiting",
-  confirmed = "confirmed",
-  assigned = "assigned",
-  done = "done",
-  cancel = "cancel",
 }
 
 
@@ -43,12 +43,8 @@ export interface StockMoveLineFindByStockMoveIdQuery {
       edges:  Array< {
         __typename: "StockMoveLine",
         id: number,
-        lot_name:  {
-          __typename: "ProductLot",
-          id: number,
-          name: string,
-          product_qty: number,
-        },
+        lot_name: string,
+        qty: number,
       } >,
       pageInfo:  {
         __typename: "PageInfo",

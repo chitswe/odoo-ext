@@ -19,11 +19,8 @@ const stockMoveLineFindByStockMoveId = gql`
         }
         edges {
           id
-          lot_name{
-            id
-            name
-            product_qty
-          }
+          lot_name
+          qty
         }
         pageInfo {
           hasMore

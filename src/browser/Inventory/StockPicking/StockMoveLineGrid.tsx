@@ -54,21 +54,17 @@ class StockMoveLineGrid extends React.Component<Props, State> {
       },
       {
         label: "Qty",
-        key: "lot_name/product_qty",
+        key: "qty",
         flexGrow: 1,
         width: 100,
-        sortable: false,
-        format: ({ key, rowData: { lot_name } }) =>
-          lot_name ? lot_name.product_qty : ""
+        sortable: false
       },
       {
         label: "Serial No",
         key: "lot_name",
         flexGrow: 1,
         width: 200,
-        sortable: false,
-        format: ({ key, rowData: { lot_name } }) =>
-          lot_name ? lot_name.name : ""
+        sortable: false
       }
     ],
     variables: {}
