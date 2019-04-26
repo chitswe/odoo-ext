@@ -158,7 +158,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
             return (
               <div style={style} key={key} className={className}>
                 <ListItem onClick={onClick}>
-                  <ListItemText primary={lot_name ? lot_name.name : ""} />
+                  <ListItemText primary={lot_name ? lot_name : ""} />
                 </ListItem>
               </div>
             );
