@@ -43,8 +43,17 @@ export interface StockMoveLineFindByStockMoveIdQuery {
       edges:  Array< {
         __typename: "StockMoveLine",
         id: number,
-        lot_name: string,
-        qty: number,
+        lot_name:  {
+          __typename: "ProductLot",
+          id: number,
+          name: string,
+          product_qty: number | null,
+          created: boolean | null,
+        } | null,
+        quant:  {
+          __typename: "ProductQuant",
+          quantity: number,
+        } | null,
       } >,
       pageInfo:  {
         __typename: "PageInfo",

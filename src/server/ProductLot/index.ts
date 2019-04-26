@@ -8,7 +8,8 @@ const schema = `
         id:Int!
         name:String!
         product:Product!
-        product_qty:Int!
+        product_qty:Int
+        created:Boolean
     }
 `;
 
@@ -19,7 +20,10 @@ const resolver = {
         product: (lot: any, params: any, context: AuthResult) => {
             return productFind(context.odoo, lot.product_id[0]);
         },
-        product_qty: property("product_qty")
+        product_qty: property("product_qty"),
+        created: (lot: any) => {
+            return lot.id ? true : false;
+        }
     }
 };
 
@@ -55,11 +59,5 @@ const productLotFindByProductId = (odoo: Odoo, productId: number) => {
         fields: ["id", "name", "product_id"]
     });
 };
-
-// const createProductLot = (odoo: Odoo, name: string, productId: number) => {
-//     return odoo.execute_kwAsync("stock.production.lot", "create", [
-//         name, product_id: productId 
-//     ]);
-// }
 
 export { schema, resolver, productLotFindByProductId, productLotFind, productLotFindByLotname };

@@ -40,7 +40,10 @@ import {
   resolver as product_lot_resolver,
   productLotFind
 } from "./ProductLot/index";
-
+import {
+  resolver as product_quant_resolver,
+  productQuantFind
+} from "./ProductQuant/index";
 const coerceAnyString = (value: any) => {
   if (Array.isArray(value)) {
     throw new TypeError(
@@ -228,6 +231,7 @@ const resolver = {
   ...purchase_order_line_resolver,
   ...operation_type_resolver,
   ...product_lot_resolver,
+  ...product_quant_resolver,
 
   Mutation: {
     changePrice: async (parent: any, params: any, context: AuthResult) => {

@@ -21,6 +21,8 @@ import { connect } from "react-redux";
 import { RootState, RootAction } from "../../reducer";
 import { stockPickingActions } from "../../reducer/stockPicking";
 import { Dispatch, bindActionCreators } from "redux";
+import { FaCheckCircle } from "react-icons/fa";
+
 type State = {
   columns: ReadonlyArray<GridColumn<StockMoveLineType>>;
   variables: any;
@@ -54,17 +56,30 @@ class StockMoveLineGrid extends React.Component<Props, State> {
       },
       {
         label: "Qty",
-        key: "qty",
+        key: "quant",
         flexGrow: 1,
-        width: 100,
-        sortable: false
+        width: 70,
+        sortable: false,
+        format: ({ key, rowData: { quant } }) =>		
+          quant ? quant.quantity : ""
       },
       {
         label: "Serial No",
         key: "lot_name",
         flexGrow: 1,
         width: 200,
-        sortable: false
+        sortable: false,
+        format: ({ key, rowData: { lot_name } }) =>		
+           lot_name ? lot_name.name : ""
+      },
+      {
+        label: "created",
+        key: "lot_name",
+        flexGrow: 1,
+        width: 60,
+        sortable: false,
+        format: ({ key, rowData: { lot_name } }) =>		
+           lot_name && lot_name.created ? <FaCheckCircle/> : ""
       }
     ],
     variables: {}

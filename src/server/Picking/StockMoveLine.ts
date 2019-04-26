@@ -2,13 +2,14 @@ import { property } from "lodash";
 import Odoo from "../odoo";
 import { masterNameResolve, MasterType } from "../MasterData/MasterName";
 import { productLotFind, productLotFindByLotname } from "../ProductLot/index";
+import { productQuantFind } from "../ProductQuant/index";
 import { AuthResult } from "../auth";
 
 const schema = `
     type StockMoveLine{
         id:Int!
-        lot_name:String!
-        qty:Int!        
+        lot_name:ProductLot
+        quant:ProductQuant
     }
     type StockMoveLineConnection implements WithPagination & WithAggregateResult{
       pageInfo:PageInfo!
@@ -20,23 +21,23 @@ const schema = `
 const resolver = {
   StockMoveLine: {
     id: property("id"),
-    lot_name: property("lot_name"),
-    qty: (stockMoveLine: any, params: any, context: AuthResult) => {
+    lot_name : (stockMoveLine: any, params: any, context: AuthResult) => {
       if (stockMoveLine.lot_id)
-        return productLotFind(context.odoo, stockMoveLine.lot_id[0]).then((result) => {
-          return result.product_qty;
-        });
+        return productLotFind(context.odoo, stockMoveLine.lot_id[0]);
       else
-        return productLotFindByLotname(context.odoo, stockMoveLine.lot_name).then((result) => {
+        return productLotFindByLotname(context.odoo, stockMoveLine.lot_name).then((result) =>{
           if (result)
-            return result.product_qty;
-          else
-            return 0;
+              return result;
+          else 
+              return {id: 0, name: stockMoveLine.lot_name ? stockMoveLine.lot_name : "", product_qty: 0, created: false};              
         });
+    },
+    quant: (stockMoveLine: any, params: any, context: AuthResult) => {
+      if (stockMoveLine.lot_id) {
+        let locationId = stockMoveLine.location_id[0] === 8 || stockMoveLine.location_id[0] === 9 ? stockMoveLine.location_dest_id[0] : stockMoveLine.location_id[0];
+        return productQuantFind(context.odoo, stockMoveLine.lot_id[0], locationId);
+      }
     }
-    // lot_name: (stockMoveLine: any, params: any, context: AuthResult) => {
-    //   return productLotFind(context.odoo, stockMoveLine.lot_id[0]);      
-    // }
   }
 };
 
@@ -58,7 +59,7 @@ const stockMoveLineFindAll = (
     .execute_kwAsync("stock.move.line", "search_read", filter, {
       offset,
       limit,
-      fields: ["lot_id", "lot_name"],
+      fields: ["lot_id", "lot_name", "location_id", "location_dest_id"],
       order
     })
     .then((result: any) => {
