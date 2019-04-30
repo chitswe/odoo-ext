@@ -21,6 +21,8 @@ import { connect } from "react-redux";
 import { RootState, RootAction } from "../../reducer";
 import { stockPickingActions } from "../../reducer/stockPicking";
 import { Dispatch, bindActionCreators } from "redux";
+import { FaCheckCircle } from "react-icons/fa";
+
 type State = {
   columns: ReadonlyArray<GridColumn<StockMoveLineType>>;
   variables: any;
@@ -54,12 +56,12 @@ class StockMoveLineGrid extends React.Component<Props, State> {
       },
       {
         label: "Qty",
-        key: "lot_name/product_qty",
+        key: "quant",
         flexGrow: 1,
-        width: 100,
+        width: 70,
         sortable: false,
-        format: ({ key, rowData: { lot_name } }) =>
-          lot_name ? lot_name.product_qty : ""
+        format: ({ key, rowData: { quant } }) =>		
+          quant ? quant.quantity : ""
       },
       {
         label: "Serial No",
@@ -67,8 +69,17 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         flexGrow: 1,
         width: 200,
         sortable: false,
-        format: ({ key, rowData: { lot_name } }) =>
-          lot_name ? lot_name.name : ""
+        format: ({ key, rowData: { lot_name } }) =>		
+           lot_name ? lot_name.name : ""
+      },
+      {
+        label: "created",
+        key: "lot_name",
+        flexGrow: 1,
+        width: 60,
+        sortable: false,
+        format: ({ key, rowData: { lot_name } }) =>		
+           lot_name && lot_name.created ? <FaCheckCircle/> : ""
       }
     ],
     variables: {}
@@ -162,7 +173,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
             return (
               <div style={style} key={key} className={className}>
                 <ListItem onClick={onClick}>
-                  <ListItemText primary={lot_name ? lot_name.name : ""} />
+                  <ListItemText primary={lot_name ? lot_name : ""} />
                 </ListItem>
               </div>
             );

@@ -1,13 +1,15 @@
 import { property } from "lodash";
 import Odoo from "../odoo";
 import { masterNameResolve, MasterType } from "../MasterData/MasterName";
-import { productLotFind } from "../ProductLot/index";
+import { productLotFind, productLotFindByLotname } from "../ProductLot/index";
+import { productQuantFind } from "../ProductQuant/index";
 import { AuthResult } from "../auth";
 
 const schema = `
     type StockMoveLine{
         id:Int!
-        lot_name:ProductLot!
+        lot_name:ProductLot
+        quant:ProductQuant
     }
     type StockMoveLineConnection implements WithPagination & WithAggregateResult{
       pageInfo:PageInfo!
@@ -19,10 +21,22 @@ const schema = `
 const resolver = {
   StockMoveLine: {
     id: property("id"),
-    lot_name: (picking: any, params: any, context: AuthResult) => {
-      return productLotFind(context.odoo, picking.lot_id[0]);
-      // const result = masterNameResolve(picking.lot_id, MasterType.SERIALNO);
-      // return result;
+    lot_name : (stockMoveLine: any, params: any, context: AuthResult) => {
+      if (stockMoveLine.lot_id)
+        return productLotFind(context.odoo, stockMoveLine.lot_id[0]);
+      else
+        return productLotFindByLotname(context.odoo, stockMoveLine.lot_name).then((result) =>{
+          if (result)
+              return result;
+          else 
+              return {id: 0, name: stockMoveLine.lot_name ? stockMoveLine.lot_name : "", product_qty: 0, created: false};              
+        });
+    },
+    quant: (stockMoveLine: any, params: any, context: AuthResult) => {
+      if (stockMoveLine.lot_id) {
+        let locationId = stockMoveLine.location_id[0] === 8 || stockMoveLine.location_id[0] === 9 ? stockMoveLine.location_dest_id[0] : stockMoveLine.location_id[0];
+        return productQuantFind(context.odoo, stockMoveLine.lot_id[0], locationId);
+      }
     }
   }
 };
@@ -45,7 +59,7 @@ const stockMoveLineFindAll = (
     .execute_kwAsync("stock.move.line", "search_read", filter, {
       offset,
       limit,
-      fields: ["lot_id"],
+      fields: ["lot_id", "lot_name", "location_id", "location_dest_id"],
       order
     })
     .then((result: any) => {
