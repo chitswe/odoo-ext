@@ -4,11 +4,14 @@ import { masterNameResolve, MasterType } from "../MasterData/MasterName";
 import { productLotFind, productLotFindByLotname } from "../ProductLot/index";
 import { productQuantFind } from "../ProductQuant/index";
 import { AuthResult } from "../auth";
+import { stockPickingFind } from "./StockPicking";
+import { operationTypeFind  } from "../MasterData/OperationType";
 
 const schema = `
     type StockMoveLine{
         id:Int!
-        lot_name:ProductLot
+        lot_name:String
+        product_lot:ProductLot
         quant:ProductQuant
     }
     type StockMoveLineConnection implements WithPagination & WithAggregateResult{
@@ -21,16 +24,22 @@ const schema = `
 const resolver = {
   StockMoveLine: {
     id: property("id"),
-    lot_name : (stockMoveLine: any, params: any, context: AuthResult) => {
+    lot_name: (stockMoveLine: any, params: any, context: AuthResult) => {
+      if (stockMoveLine.lot_name)
+        return stockMoveLine.lot_name;
+      else if (stockMoveLine.lot_id)
+        return productLotFind(context.odoo, stockMoveLine.lot_id[0]).then((result) => {
+           if (result)
+            return result.name;
+        });
+    },
+    product_lot : (stockMoveLine: any, params: any, context: AuthResult) => {
       if (stockMoveLine.lot_id)
         return productLotFind(context.odoo, stockMoveLine.lot_id[0]);
+      else if (stockMoveLine.lot_name)
+        return productLotFindByLotname(context.odoo, stockMoveLine.lot_name);
       else
-        return productLotFindByLotname(context.odoo, stockMoveLine.lot_name).then((result) =>{
-          if (result)
-              return result;
-          else 
-              return {id: 0, name: stockMoveLine.lot_name ? stockMoveLine.lot_name : "", product_qty: 0, created: false};              
-        });
+        return {id: 0, name: "", product: {}};
     },
     quant: (stockMoveLine: any, params: any, context: AuthResult) => {
       if (stockMoveLine.lot_id) {

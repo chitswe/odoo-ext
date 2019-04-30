@@ -44,7 +44,9 @@ class StockPicking extends React.PureComponent<Props> {
             scheduled_date,
             location,
             location_dest,
-            picking_type
+            picking_type,
+            partner,
+            state
           } = data.picking;
           return (
             <div className={classes.root}>
@@ -99,6 +101,30 @@ class StockPicking extends React.PureComponent<Props> {
                     Operation Type:
                   </Typography>
                   <Typography variant="body2">{picking_type.name}</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  lg={3}
+                  className={classes.fieldWrapper}
+                >
+                  <Typography className={classes.label} variant="subtitle2">
+                    Partner:
+                  </Typography>
+                  <Typography variant="body2">{partner.name}</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  lg={3}
+                  className={classes.fieldWrapper}
+                >
+                  <Typography className={classes.label} variant="subtitle2">
+                    Status:
+                  </Typography>
+                  <Typography variant="body2">{state}</Typography>
                 </Grid>
               </Grid>
             </div>

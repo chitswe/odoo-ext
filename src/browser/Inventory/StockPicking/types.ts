@@ -43,7 +43,8 @@ export interface StockMoveLineFindByStockMoveIdQuery {
       edges:  Array< {
         __typename: "StockMoveLine",
         id: number,
-        lot_name:  {
+        lot_name: string | null,
+        product_lot:  {
           __typename: "ProductLot",
           id: number,
           name: string,
@@ -191,5 +192,42 @@ export interface StockPickingFindAllQuery {
         name: string,
       },
     } >,
+  } | null,
+};
+
+export interface generateProductLotMutationVariables {
+  pickingId: number,
+  moveId: number,
+};
+
+export interface generateProductLotMutation {
+  generateProductLot:  {
+    __typename: "StockMoveLineConnection",
+    aggregate:  {
+      __typename: "AggregateResult",
+      count: number | null,
+    },
+    edges:  Array< {
+      __typename: "StockMoveLine",
+      id: number,
+      lot_name: string | null,
+      product_lot:  {
+        __typename: "ProductLot",
+        id: number,
+        name: string,
+        product_qty: number | null,
+        created: boolean | null,
+      } | null,
+      quant:  {
+        __typename: "ProductQuant",
+        quantity: number,
+      } | null,
+    } >,
+    pageInfo:  {
+      __typename: "PageInfo",
+      hasMore: boolean,
+      page: number,
+      pageSize: number,
+    },
   } | null,
 };

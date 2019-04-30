@@ -17,10 +17,12 @@ import StockMoveLineGrid from "./StockMoveLineGrid";
 import MediaQuery from "../../../common/MediaQuery";
 import { StockMoveType } from "./resolvedTypes";
 import OpenDrawerButton from "../../component/AppBar/OpenDrawerButton";
-import { compose } from "react-apollo";
+import { compose, Mutation } from "react-apollo";
 import { RootState } from "../../reducer";
 import { connect } from "react-redux";
-import { FaBarcode } from "react-icons/fa";
+import { StockPickingType } from "./resolvedTypes";
+import { FaBarcode, FaCogs } from "react-icons/fa";
+import { generateProductLotMutation } from "./graphql";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -62,20 +64,24 @@ const styles = (theme: Theme) =>
   });
 type Props = {
   selectedStockMoveLine: ReadonlyArray<number>;
+  selectedStockPicking: StockPickingType
 } & WithStyles<typeof styles> &
   RouteComponentProps<{ id: string }>;
 
 type State = {
   selectedStockMoveId?: number;
   selectedIndex?: number;
+  tracking?: string;
 };
 class StockPicking extends React.Component<Props, State> {
   state: State = {
     selectedStockMoveId: null,
-    selectedIndex: null
+    selectedIndex: null,
+    tracking: null
   };
   renderAppBar(appBarType: "stock_move" | "stock_move_line" | "both") {
-    const { classes, selectedStockMoveLine } = this.props;
+    const { classes, selectedStockMoveLine, selectedStockPicking, match } = this.props;
+    const pickingId = Number.parseInt(match.params.id, 10);
     return (
       <AppBar className={classes.appBar} position="static">
         <Toolbar className={classes.toolBar}>
@@ -92,6 +98,30 @@ class StockPicking extends React.Component<Props, State> {
               <FaBarcode />
             </IconButton>
           ) : null}
+          {
+            (appBarType === "stock_move" || appBarType === "both") && ( this.state.tracking === "serial" ||  this.state.tracking === "lot" ) ? 
+            <Mutation
+              mutation={generateProductLotMutation}               
+            >
+             {(generateProductLot, { data, loading, error }) => (
+                <IconButton 
+                  aria-label="Generate Lot" 
+                  color="inherit" 
+                  onClick={() => {
+                      generateProductLot({
+                        variables: {
+                          pickingId,
+                          moveId: this.state.selectedStockMoveId
+                        }
+                      });
+                  }}
+                >
+                  <FaCogs />
+                </IconButton> 
+              )
+            }
+            </Mutation>  : null
+          }
         </Toolbar>
       </AppBar>
     );
@@ -148,7 +178,8 @@ class StockPicking extends React.Component<Props, State> {
                         ) => {
                           this.setState({
                             selectedIndex: index,
-                            selectedStockMoveId: rowData.id
+                            selectedStockMoveId: rowData.id,
+                            tracking: rowData.product.tracking ? rowData.product.tracking : ""
                           });
                           history.push(`${match.url}/stock_move/${rowData.id}`);
                         }}
@@ -186,7 +217,8 @@ class StockPicking extends React.Component<Props, State> {
                   ) => {
                     this.setState({
                       selectedStockMoveId: rowData.id,
-                      selectedIndex: index
+                      selectedIndex: index,
+                      tracking: rowData.product.tracking ? rowData.product.tracking : ""
                     });
                   }}
                 />

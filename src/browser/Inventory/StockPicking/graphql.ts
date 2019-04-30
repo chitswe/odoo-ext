@@ -19,7 +19,8 @@ const stockMoveLineFindByStockMoveId = gql`
         }
         edges {
           id
-          lot_name{
+          lot_name
+          product_lot{
             id
             name
             product_qty
@@ -141,9 +142,38 @@ const stockPickingFindAllQuery = gql`
   }
 `;
 
+const generateProductLotMutation = gql`
+mutation generateProductLot($pickingId:Int!, $moveId:Int!){
+  generateProductLot(pickingId:$pickingId, moveId:$moveId) {
+    aggregate {
+      count
+    }
+    edges {
+      id
+      lot_name
+      product_lot{
+        id
+        name
+        product_qty
+        created
+      }
+      quant{
+        quantity
+      }
+    }
+    pageInfo {
+      hasMore
+      page
+      pageSize
+    }
+  }
+}
+`;
+
 export {
   stockPickingFindAllQuery,
   stockPickingFindQuery,
   stockMoveFindByPickingId,
-  stockMoveLineFindByStockMoveId
+  stockMoveLineFindByStockMoveId,
+  generateProductLotMutation
 };

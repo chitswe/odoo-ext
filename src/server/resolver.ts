@@ -22,7 +22,7 @@ import {
   stockMoveFindAll
 } from "./Picking/StockMove";
 import { resolver as master_name_resolver } from "./MasterData/MasterName";
-import { resolver as stock_move_line_resolver } from "./Picking/StockMoveLine";
+import { resolver as stock_move_line_resolver, stockMoveLineFindAll, stockMoveLineCount } from "./Picking/StockMoveLine";
 import {
   resolver as product_pricelist_resolver,
   productPriceListFindAll,
@@ -215,7 +215,7 @@ const resolver = {
           count
         }
       };
-    }
+    },
   },
 
   Customer: {
@@ -272,6 +272,51 @@ const resolver = {
       }
       const priceList = await priceListFind(context.odoo, priceListId);
       return { priceList, productId };
+    },
+    generateProductLot : async ( parent: any, params: any, context: AuthResult) => {
+      const { pickingId, moveId } = params;
+      let lotnum = (new Date()).format("YYMMDDhhmmssSSSSS0");
+      let lotnum1 = Number(lotnum.substr(13, 5));
+      lotnum = lotnum.substr(0, 13);
+      const picking = await stockPickingFind(context.odoo, pickingId);
+      const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
+      if (opType.use_create_lots && picking.state === "assigned") {
+            const filter: any = [[["move_id", "=", moveId]]];
+            const stockMoveLines = await stockMoveLineFindAll(context.odoo, {
+              offset: 0,
+              limit: 50,
+              filter
+            });
+            const promiseAll = stockMoveLines.map((lot: any, index: number) => {
+              const {id, lot_id, lot_name, location_id, location_dest_id} = lot;
+              if ( lot_name || lot_id)
+                return {id, lot_id, lot_name, location_id, location_dest_id} ;          
+              else {                
+                return context.odoo.execute_kwAsync(
+                  "stock.move.line",
+                  "write",
+                  [[id], { lot_name: lotnum + (lotnum1 + index) }]
+                );              
+              }            
+            });
+            
+            return Promise.all(promiseAll).then(() => {
+              return stockMoveLineFindAll(context.odoo, {
+                offset: 0,
+                limit: 50,
+                filter
+              }).then((edges) => {
+                const pageInfo = { hasMore: false, pageSize: 50, page: 1 };
+                return {
+                  edges,
+                  pageInfo,
+                  aggregate: {
+                    count: edges.length
+                  }
+                };
+              });
+            });            
+      }
     }
   }
 };

@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemText,
   Checkbox,
+  Typography,
   ListItemAvatar,
   Avatar
 } from "@material-ui/core";
@@ -58,7 +59,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         label: "Qty",
         key: "quant",
         flexGrow: 1,
-        width: 70,
+        width: 50,
         sortable: false,
         format: ({ key, rowData: { quant } }) =>		
           quant ? quant.quantity : ""
@@ -69,17 +70,8 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         flexGrow: 1,
         width: 200,
         sortable: false,
-        format: ({ key, rowData: { lot_name } }) =>		
-           lot_name ? lot_name.name : ""
-      },
-      {
-        label: "created",
-        key: "lot_name",
-        flexGrow: 1,
-        width: 60,
-        sortable: false,
-        format: ({ key, rowData: { lot_name } }) =>		
-           lot_name && lot_name.created ? <FaCheckCircle/> : ""
+        format: ({ key, rowData: { lot_name, product_lot } }) =>		
+           lot_name ? <Typography color={product_lot && product_lot.created ? "primary" : "inherit"}> { lot_name } </Typography> : ""
       }
     ],
     variables: {}

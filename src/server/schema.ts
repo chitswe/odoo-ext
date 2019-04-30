@@ -64,11 +64,12 @@ const schema = gql`
       pageSize: Int = 20
       order: String
       filter: [[[AnyString!]!]!]
-    ): PurchaseOrderLineConnection
+    ): PurchaseOrderLineConnection   
   }
 
   type Mutation {
     changePrice(productId: Int!, priceListId: Int!, price: Float!): ProductPrice
+    generateProductLot(pickingId: Int!, moveId: Int!):StockMoveLineConnection
   }
 
   ${picking_schema}

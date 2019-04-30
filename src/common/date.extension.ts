@@ -58,7 +58,7 @@ declare global {
     formatAsLongDate(): string;
     formatAsShortTime(): string;
     formatAsLongTime(): string;
-    firmat(format: string): string;
+    format(format: string): string;
     assumeUTCAsLocal(): Date;
     assumeLocalAsUTC(): Date;
     timeAgo(): string;
