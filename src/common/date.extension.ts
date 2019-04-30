@@ -58,6 +58,7 @@ declare global {
     formatAsLongDate(): string;
     formatAsShortTime(): string;
     formatAsLongTime(): string;
+    firmat(format: string): string;
     assumeUTCAsLocal(): Date;
     assumeLocalAsUTC(): Date;
     timeAgo(): string;
@@ -221,6 +222,10 @@ Date.prototype.formatAsLongTime = function() {
 };
 Date.prototype.toDateOnlyJSON = function() {
   return fecha.format(this, "YYYY-MM-DD");
+};
+
+Date.prototype.format = function(format: string) {
+  return fecha.format(this, format);
 };
 
 Date.prototype.assumeUTCAsLocal = function() {
