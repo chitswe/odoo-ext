@@ -109,7 +109,7 @@ const stockPickingFindAllQuery = gql`
     $filter:[[[String!]!]!]) {
     pickings(page: $page, pageSize: $pageSize, order: $order, filter:$filter) {
       pageInfo {
-        hasMore
+        hasMore 
         page
         pageSize
       }
@@ -170,10 +170,29 @@ mutation generateProductLot($pickingId:Int!, $moveId:Int!){
 }
 `;
 
+const changeProductLotMutation = gql`
+mutation changeProductLot($id:Int!,$pickingId:Int!,$lotname:String!){
+  changeProductLot(id:$id,pickingId:$pickingId,lotname:$lotname){
+    id
+    lot_name
+    product_lot{
+      id
+      name
+      product_qty
+      created
+    }
+    quant{
+      quantity
+    }
+  }
+}
+`;
+
 export {
   stockPickingFindAllQuery,
   stockPickingFindQuery,
   stockMoveFindByPickingId,
   stockMoveLineFindByStockMoveId,
-  generateProductLotMutation
+  generateProductLotMutation,
+  changeProductLotMutation
 };

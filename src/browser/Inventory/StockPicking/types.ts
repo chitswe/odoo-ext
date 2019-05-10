@@ -231,3 +231,28 @@ export interface generateProductLotMutation {
     },
   } | null,
 };
+
+export interface changeProductLotMutationVariables {
+  id: number,
+  pickingId: number,
+  lotname: string,
+};
+
+export interface changeProductLotMutation {
+  changeProductLot:  {
+    __typename: "StockMoveLine",
+    id: number,
+    lot_name: string | null,
+    product_lot:  {
+      __typename: "ProductLot",
+      id: number,
+      name: string,
+      product_qty: number | null,
+      created: boolean | null,
+    } | null,
+    quant:  {
+      __typename: "ProductQuant",
+      quantity: number,
+    } | null,
+  } | null,
+};

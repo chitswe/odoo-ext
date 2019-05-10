@@ -266,6 +266,7 @@ class StockPicking extends React.Component<Props, State> {
                             loadingIndicatorClassName={classes.loadingIndicator}
                             {...routeComponentProps}
                             sotckMoveId={selectedStockMoveId}
+                            pickingId={id}
                           />
                         </Grid>
                       );

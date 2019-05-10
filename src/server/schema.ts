@@ -70,6 +70,7 @@ const schema = gql`
   type Mutation {
     changePrice(productId: Int!, priceListId: Int!, price: Float!): ProductPrice
     generateProductLot(pickingId: Int!, moveId: Int!):StockMoveLineConnection
+    changeProductLot(id:Int!,pickingId:Int!,lotname:String!):StockMoveLine
   }
 
   ${picking_schema}

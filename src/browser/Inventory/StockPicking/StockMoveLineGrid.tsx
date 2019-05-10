@@ -3,6 +3,7 @@ import {
   GridColumn,
   CheckBoxColumnMode
 } from "../../component/VirtualizedGrid";
+import TextEditor from "../../component/TextEditor";
 import { StockMoveLineType } from "./resolvedTypes";
 import ApolloVirtualizedGrid, {
   ApolloListResult
@@ -13,7 +14,12 @@ import {
   Checkbox,
   Typography,
   ListItemAvatar,
-  Avatar
+  Avatar,
+  CircularProgress,
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles
 } from "@material-ui/core";
 import { stockMoveLineFindByStockMoveId } from "./graphql";
 import update from "immutability-helper";
@@ -23,6 +29,8 @@ import { RootState, RootAction } from "../../reducer";
 import { stockPickingActions } from "../../reducer/stockPicking";
 import { Dispatch, bindActionCreators } from "redux";
 import { FaCheckCircle } from "react-icons/fa";
+import { compose, Mutation } from "react-apollo";
+import { changeProductLotMutation } from "./graphql";
 
 type State = {
   columns: ReadonlyArray<GridColumn<StockMoveLineType>>;
@@ -31,8 +39,9 @@ type State = {
   selectedAll: boolean;
 };
 
-type Props = {
+type Props = WithStyles<typeof styles> & {
   sotckMoveId: number;
+  pickingId: number;
   loadingIndicatorClassName: string;
   rootClassName?: string;
   selectedItems: ReadonlyArray<number>;
@@ -41,6 +50,17 @@ type Props = {
   addSelected: typeof stockPickingActions.addSelectedStockMoveLine;
   removeSelected: typeof stockPickingActions.removeSelectedStockMoveLine;
 };
+
+const styles = (theme: Theme) => 
+  createStyles({
+    created: {
+      color: "primary"
+    },
+    normal: {
+      color : "inherit"
+    }
+  });
+
 class StockMoveLineGrid extends React.Component<Props, State> {
   rowsCount: number = 0;
   state: State = {
@@ -70,8 +90,44 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         flexGrow: 1,
         width: 200,
         sortable: false,
-        format: ({ key, rowData: { lot_name, product_lot } }) =>		
-           lot_name ? <Typography color={product_lot && product_lot.created ? "primary" : "inherit"}> { lot_name } </Typography> : ""
+        format: ({ key, rowData: { id, lot_name, product_lot } }) =>	
+          (            
+            <Mutation
+              mutation={changeProductLotMutation}
+              key={id}
+            >
+              {(
+                changeProductLot,
+                { loading: saving, error: saveError }
+              ) =>  {
+                  const { classes, pickingId } = this.props;
+                  return <TextEditor
+                            onValidated={(value, oldValue) => {
+                              if (value !== oldValue)
+                                changeProductLot({
+                                  variables: {
+                                    id,
+                                    pickingId,
+                                    lotname: value
+                                  }
+                                });
+                            }}
+                            retainFocusOnError={true}
+                            error={!!saveError}
+                            helperText={
+                              saveError ? "Could not saved!" : ""
+                            }
+                            label=""
+                            value={lot_name ? lot_name : ""}                    
+                            className={product_lot && product_lot.created ? classes.created : classes.normal}
+                            // onChanged={value => {
+                            //   setEdit(value);
+                            // }}
+                          />;
+                  }
+              }
+            </Mutation>
+          )          
       }
     ],
     variables: {}
@@ -214,7 +270,9 @@ class StockMoveLineGrid extends React.Component<Props, State> {
   }
 }
 
-export default connect(
+export default compose(
+  withStyles(styles),
+  connect(
   (state: RootState) => ({
     selectedItems: state.stockPicking.selectedStockMoveLine
   }),
@@ -228,4 +286,5 @@ export default connect(
       },
       dispatch
     )
+  )
 )(StockMoveLineGrid);

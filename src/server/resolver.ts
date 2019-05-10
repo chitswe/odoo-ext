@@ -273,6 +273,27 @@ const resolver = {
       const priceList = await priceListFind(context.odoo, priceListId);
       return { priceList, productId };
     },
+    changeProductLot: async ( parent: any, params: any, context: AuthResult) => {
+      const { id, pickingId, lotname } = params;
+      const picking = await stockPickingFind(context.odoo, pickingId);
+      const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
+      if (opType.use_create_lots && picking.state === "assigned") {
+        return context.odoo.execute_kwAsync(
+          "stock.move.line",
+          "write",
+          [[id], { lot_name: lotname }]
+        ).then(() => {
+          return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
+            offset: 0,
+            limit: 1,
+            fields: ["id", "lot_id", "lot_name", "location_id", "location_dest_id"],
+          })
+          .then(([p]: [any]) => {
+            return p;
+          });
+        });
+      }      
+    },
     generateProductLot : async ( parent: any, params: any, context: AuthResult) => {
       const { pickingId, moveId } = params;
       let lotnum = (new Date()).format("YYMMDDhhmmssSSSSS0");
