@@ -73,6 +73,7 @@ type Props = {
   edit: ProductType;
   loadEdit: typeof priceListActions.loadEdit;
   rootClassName?: string;
+  allowEdit: boolean;
 } & WithStyles<typeof styles>;
 
 type State = {};
@@ -86,7 +87,8 @@ class PriceListDetail extends React.Component<Props, State> {
       edit,
       classes,
       loadEdit,
-      rootClassName
+      rootClassName,
+      allowEdit
     } = this.props;
     return (
       <div className={`${classes.root} ${rootClassName}`}>
@@ -141,7 +143,7 @@ class PriceListDetail extends React.Component<Props, State> {
                                         <CurrencyEditor
                                           onValidating={value => {
                                             return value >= 0;
-                                          }}
+                                          }}                                          
                                           onValidated={(value, oldValue) => {
                                             if (value !== oldValue)
                                               changePrice({
@@ -152,6 +154,7 @@ class PriceListDetail extends React.Component<Props, State> {
                                                 }
                                               });
                                           }}
+                                          disabled={allowEdit}
                                           retainFocusOnError={true}
                                           error={!!saveError}
                                           helperText={

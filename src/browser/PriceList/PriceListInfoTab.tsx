@@ -33,6 +33,7 @@ const styles = (theme: Theme) =>
 type Props = {
   productId: number;
   edit: ProductType;
+  allowEdit: boolean;
 } & WithStyles<typeof styles>;
 type State = {
   selectedTab: number;
@@ -43,7 +44,7 @@ class PriceListInfoTab extends React.Component<Props, State> {
   };
   render() {
     const { selectedTab } = this.state;
-    const { productId, classes, edit } = this.props;
+    const { productId, classes, edit, allowEdit } = this.props;
     return (
       <div className={classes.root}>
         <Paper>
@@ -68,7 +69,7 @@ class PriceListInfoTab extends React.Component<Props, State> {
             <Tab label="Cost" />
           </Tabs>
         </Paper>
-        {selectedTab === 0 ? <PriceListDetail productId={productId} /> : null}
+        {selectedTab === 0 ? <PriceListDetail productId={productId} allowEdit={allowEdit}/> : null}
         {selectedTab === 1 ? (
           <PurchasePriceHistory productId={productId} />
         ) : null}
