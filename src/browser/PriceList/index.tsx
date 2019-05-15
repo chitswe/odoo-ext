@@ -17,6 +17,7 @@ import {
 } from "@material-ui/core";
 import OpenDrawerButton from "../component/AppBar/OpenDrawerButton";
 import { FaFileCsv } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import PriceListGrid from "./PriceListGrid";
 import { compose, ApolloConsumer } from "react-apollo";
 import { connect } from "react-redux";
@@ -150,6 +151,7 @@ type State = {
   downloading: boolean;
   page: number;
   totalPage: number;
+  allowEdit: boolean;
 };
 
 class PriceList extends React.Component<Props, State> {
@@ -161,11 +163,12 @@ class PriceList extends React.Component<Props, State> {
     downloadProgress: 0,
     downloading: false,
     page: 0,
-    totalPage: 0
+    totalPage: 0,
+    allowEdit: true
   };
   renderAppBar(appBarType: "price_list" | "price_list_details" | "both") {
     const { classes } = this.props;
-    const { searchText, downloading } = this.state;
+    const { searchText, downloading, allowEdit } = this.state;
     return (
       <AppBar className={classes.appBar} position="static">
         <Toolbar className={classes.toolBar}>
@@ -224,6 +227,15 @@ class PriceList extends React.Component<Props, State> {
               </IconButton>
             )}
           </ApolloConsumer>
+          <IconButton 
+            aria-label="Edit PriceList"
+            color="inherit"
+            onClick={() => {
+              this.setState({ allowEdit: !allowEdit });
+            }}
+          >
+            <FaEdit />
+          </IconButton>
         </Toolbar>
       </AppBar>
     );
@@ -311,7 +323,7 @@ class PriceList extends React.Component<Props, State> {
 
   render() {
     const { classes, history } = this.props;
-    const { selectedIndex, selectedId, search, downloading } = this.state;
+    const { selectedIndex, selectedId, search, downloading, allowEdit } = this.state;
     const selected: number[] =
       selectedIndex || selectedIndex === 0 ? [selectedIndex] : [];
     return (
@@ -336,7 +348,8 @@ class PriceList extends React.Component<Props, State> {
                     ) => {
                       this.setState({
                         selectedId: rowData.id,
-                        selectedIndex: index
+                        selectedIndex: index,
+                        allowEdit: true
                       });
                       history.push(`/price/${rowData.id}`);
                     }}
@@ -354,6 +367,7 @@ class PriceList extends React.Component<Props, State> {
                       routeComponentProps.match.params.productId,
                       10
                     )}
+                    allowEdit={allowEdit}
                   />
                 </Grid>
               )}
@@ -379,7 +393,8 @@ class PriceList extends React.Component<Props, State> {
                   priceListItemClick={(rowData: ProductType, index: number) => {
                     this.setState({
                       selectedId: rowData.id,
-                      selectedIndex: index
+                      selectedIndex: index,
+                      allowEdit: true
                     });
                   }}
                 />
@@ -404,6 +419,7 @@ class PriceList extends React.Component<Props, State> {
                                 10
                               )
                         }
+                        allowEdit={allowEdit}
                       />
                     </Grid>
                   )}
@@ -419,7 +435,7 @@ class PriceList extends React.Component<Props, State> {
                           item
                           className={classes.stockMoveGridLine}
                         >
-                          <PriceListInfoTab productId={selectedId} />
+                          <PriceListInfoTab productId={selectedId} allowEdit={allowEdit} />
                         </Grid>
                       );
                     else return null;
