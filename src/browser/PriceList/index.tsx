@@ -284,7 +284,6 @@ class PriceList extends React.Component<Props, State> {
         var encodedUri = encodeURI(csv);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "product_price.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
