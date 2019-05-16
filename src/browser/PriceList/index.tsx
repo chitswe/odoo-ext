@@ -280,9 +280,9 @@ class PriceList extends React.Component<Props, State> {
         totalPage
       });
       edges.forEach(p => {
-        csv += p.id + ",";
-        csv += p.default_code + ",";
-        csv += p.name;
+        csv += "\"" + p.id + "\",";
+        csv += "\"" + p.default_code.replace("\"", "\"\"").replace("#", "%23") + "\",";
+        csv += "\"" + p.name.replace("\"", "\"\"").replace("#", "%23") + "\"";
         p.priceLists.forEach(price => {
           csv += "," + price.price;
         });
@@ -296,6 +296,7 @@ class PriceList extends React.Component<Props, State> {
         var encodedUri = encodeURI(csv);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "price_list.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
