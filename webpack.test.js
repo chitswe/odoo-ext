@@ -2,7 +2,7 @@ var webpack = require('webpack');
 var CompressionPlugin = require('compression-webpack-plugin');
 var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
-    entry: ["./src/common/date.extension.ts","./src/browser/index.tsx"],
+    entry: ["./src/browser/index.tsx"],
     output: {
         filename: "bundle.js",
         path: __dirname + "/dist/public"

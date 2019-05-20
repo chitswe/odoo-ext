@@ -12,7 +12,6 @@ import createApolloClient from "./createApolloClient";
 import App from "../browser/App";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import server from "./graphqlServer";
-import "../common/date.extension";
 import { IconContext } from "react-icons";
 import { SheetsRegistry } from "jss";
 import {
@@ -36,6 +35,7 @@ import bugsnag from "@bugsnag/js";
 import bugsnagExpress from "@bugsnag/plugin-express";
 import secret from "../secret";
 import { generateCSVFile } from "./PriceList";
+import "js-date-extension";
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 console.log(`Running with ${env} mode.`);
 const app = express();

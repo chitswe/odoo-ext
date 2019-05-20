@@ -16,6 +16,7 @@ import {
 import { JssProvider } from "react-jss";
 import { green } from "@material-ui/core/colors";
 import ScreenInfoContext from "../common/ScreenInfoContext";
+import "js-date-extension";
 const init = async () => {
   const persistantStore = await createClientStore();
   const apolloClient = createApolloClient(persistantStore.store);

@@ -281,8 +281,8 @@ class PriceList extends React.Component<Props, State> {
       });
       edges.forEach(p => {
         csv += "\"" + p.id + "\",";
-        csv += "\"" + p.default_code.replace("\"", "\"\"").replace("#", "%23") + "\",";
-        csv += "\"" + p.name.replace("\"", "\"\"").replace("#", "%23") + "\"";
+        csv += "\"" + p.default_code.replace("\"", "\"\"").replace("#", "%23").replace("$", "%24").replace("&", "%26").replace("@", "%40")  + "\",";
+        csv += "\"" + p.name.replace("\"", "\"\"").replace("#", "%23").replace("$", "%24").replace("&", "%26").replace("@", "%40") + "\"";
         p.priceLists.forEach(price => {
           csv += "," + price.price;
         });

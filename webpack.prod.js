@@ -5,7 +5,6 @@ var UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 module.exports = {
   entry: [
     "babel-polyfill",
-    "./build/common/date.extension.js",
     "./build/browser/index.js"
   ],
   output: {
