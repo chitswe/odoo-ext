@@ -1,5 +1,6 @@
 import { property } from "lodash";
 import Odoo from "../odoo";
+import { AuthResult } from "../auth";
 import { productFindAll, productCount } from "../MasterData/Product";
 const schema = `
 type ProductPriceList{
@@ -121,9 +122,52 @@ const generateCSVFile = async (search: string, odoo: Odoo) => {
   return csv;
 };
 
+const mutation = {
+  changePrice: async (parent: any, params: any, context: AuthResult) => {
+    const { productId, priceListId, price } = params;
+    const priceListItems = await context.odoo.execute_kwAsync(
+      "product.pricelist.item",
+      "search",
+      [
+        [
+          ["pricelist_id", "=", priceListId],
+          ["product_id", "=", productId],
+          ["applied_on", "=", "0_product_variant"],
+          ["base", "=", "list_price"]
+        ]
+      ]
+    );
+    const [itemId] = priceListItems;
+    if (itemId) {
+      const result = await context.odoo.execute_kwAsync(
+        "product.pricelist.item",
+        "write",
+        [[itemId], { fixed_price: price }]
+      );
+    } else {
+      const result = await context.odoo.execute_kwAsync(
+        "product.pricelist.item",
+        "create",
+        [
+          {
+            applied_on: "0_product_variant",
+            pricelist_id: priceListId,
+            product_id: productId,
+            fixed_price: price,
+            base: "list_price"
+          }
+        ]
+      );
+    }
+    const priceList = await priceListFind(context.odoo, priceListId);
+    return { priceList, productId };
+  }
+};
+
 export {
   schema,
   resolver,
+  mutation,
   productPriceListFindAll,
   productPriceListCount,
   productPriceListGetPrice,

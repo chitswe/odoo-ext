@@ -85,8 +85,20 @@ const stockMoveFindAll = (
   });
 };
 
+const stockMoveFind = (odoo: Odoo, id: number) => {
+  const params: any = [[["id", "=", id]]];
+  return odoo.execute_kwAsync("stock.move", "search_read", params, {
+    offset: 0,
+      limit: 1,
+      fields: ["product_uom_qty", "quantity_done", "product_id", "product_uom"]
+    })
+    .then(([p]: [any]) => {
+      return p;
+    });     
+};
+
 const stockMoveCount = (odoo: Odoo, filter: any = [[]]) => {
   return odoo.execute_kwAsync("stock.move", "search_count", filter);
 };
 
-export { schema, resolver, stockMoveFindAll, stockMoveCount };
+export { schema, resolver, stockMoveFindAll, stockMoveFind, stockMoveCount };

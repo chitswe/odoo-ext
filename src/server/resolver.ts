@@ -22,9 +22,10 @@ import {
   stockMoveFindAll
 } from "./Picking/StockMove";
 import { resolver as master_name_resolver } from "./MasterData/MasterName";
-import { resolver as stock_move_line_resolver, stockMoveLineFindAll, stockMoveLineCount } from "./Picking/StockMoveLine";
+import { resolver as stock_move_line_resolver, mutation as stock_move_line_mutation, stockMoveLineFindAll, stockMoveLineCount } from "./Picking/StockMoveLine";
 import {
   resolver as product_pricelist_resolver,
+  mutation as product_pricelist_mutation,
   productPriceListFindAll,
   productPriceListCount,
   productPriceListGetPrice,
@@ -234,111 +235,8 @@ const resolver = {
   ...product_quant_resolver,
 
   Mutation: {
-    changePrice: async (parent: any, params: any, context: AuthResult) => {
-      const { productId, priceListId, price } = params;
-      const priceListItems = await context.odoo.execute_kwAsync(
-        "product.pricelist.item",
-        "search",
-        [
-          [
-            ["pricelist_id", "=", priceListId],
-            ["product_id", "=", productId],
-            ["applied_on", "=", "0_product_variant"],
-            ["base", "=", "list_price"]
-          ]
-        ]
-      );
-      const [itemId] = priceListItems;
-      if (itemId) {
-        const result = await context.odoo.execute_kwAsync(
-          "product.pricelist.item",
-          "write",
-          [[itemId], { fixed_price: price }]
-        );
-      } else {
-        const result = await context.odoo.execute_kwAsync(
-          "product.pricelist.item",
-          "create",
-          [
-            {
-              applied_on: "0_product_variant",
-              pricelist_id: priceListId,
-              product_id: productId,
-              fixed_price: price,
-              base: "list_price"
-            }
-          ]
-        );
-      }
-      const priceList = await priceListFind(context.odoo, priceListId);
-      return { priceList, productId };
-    },
-    changeProductLot: async ( parent: any, params: any, context: AuthResult) => {
-      const { id, pickingId, lotname } = params;
-      const picking = await stockPickingFind(context.odoo, pickingId);
-      const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
-      if (opType.use_create_lots && picking.state === "assigned") {
-        return context.odoo.execute_kwAsync(
-          "stock.move.line",
-          "write",
-          [[id], { lot_name: lotname }]
-        ).then(() => {
-          return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
-            offset: 0,
-            limit: 1,
-            fields: ["id", "lot_id", "lot_name", "location_id", "location_dest_id"],
-          })
-          .then(([p]: [any]) => {
-            return p;
-          });
-        });
-      }      
-    },
-    generateProductLot : async ( parent: any, params: any, context: AuthResult) => {
-      const { pickingId, moveId } = params;
-      let lotnum = (new Date()).format("YYMMDDhhmmssSSSSS0");
-      let lotnum1 = Number(lotnum.substr(13, 5));
-      lotnum = lotnum.substr(0, 13);
-      const picking = await stockPickingFind(context.odoo, pickingId);
-      const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
-      if (opType.use_create_lots && picking.state === "assigned") {
-            const filter: any = [[["move_id", "=", moveId]]];
-            const stockMoveLines = await stockMoveLineFindAll(context.odoo, {
-              offset: 0,
-              limit: 50,
-              filter
-            });
-            const promiseAll = stockMoveLines.map((lot: any, index: number) => {
-              const {id, lot_id, lot_name, location_id, location_dest_id} = lot;
-              if ( lot_name || lot_id)
-                return {id, lot_id, lot_name, location_id, location_dest_id} ;          
-              else {                
-                return context.odoo.execute_kwAsync(
-                  "stock.move.line",
-                  "write",
-                  [[id], { lot_name: lotnum + (lotnum1 + index) }]
-                );              
-              }            
-            });
-            
-            return Promise.all(promiseAll).then(() => {
-              return stockMoveLineFindAll(context.odoo, {
-                offset: 0,
-                limit: 50,
-                filter
-              }).then((edges) => {
-                const pageInfo = { hasMore: false, pageSize: 50, page: 1 };
-                return {
-                  edges,
-                  pageInfo,
-                  aggregate: {
-                    count: edges.length
-                  }
-                };
-              });
-            });            
-      }
-    }
+    ...stock_move_line_mutation,
+    ...product_pricelist_mutation
   }
 };
 
