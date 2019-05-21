@@ -90,7 +90,7 @@ const stockMoveFind = (odoo: Odoo, id: number) => {
   return odoo.execute_kwAsync("stock.move", "search_read", params, {
     offset: 0,
       limit: 1,
-      fields: ["product_uom_qty", "quantity_done", "product_id", "product_uom"]
+      fields: ["product_uom_qty", "quantity_done", "product_id", "product_uom", "picking_id"]
     })
     .then(([p]: [any]) => {
       return p;

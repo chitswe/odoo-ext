@@ -71,7 +71,7 @@ const schema = gql`
     changePrice(productId: Int!, priceListId: Int!, price: Float!): ProductPrice
     generateProductLot(pickingId: Int!, moveId: Int!):StockMoveLineConnection
     changeProductLot(id:Int!,pickingId:Int!,lotname:String!):StockMoveLine
-    createStockMoveLine(pickingId:Int!, move_id:Int!, lot_name: String!, date:DateTime!, location_dest_id:Int!, location_id:Int!):StockMoveLine
+    createStockMoveLine(move_id:Int!, lot_name: String!):StockMoveLine
   }
 
   ${picking_schema}

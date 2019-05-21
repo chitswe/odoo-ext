@@ -150,14 +150,14 @@ const mutation  = {
     }
   },
   createStockMoveLine : async ( parent: any, params: any, context: AuthResult) => {
-    const { pickingId, move_id, date, location_dest_id, lot_name, location_id } = params;
-    const picking = await stockPickingFind(context.odoo, pickingId);
+    const { move_id, lot_name } = params;
+    const move = await stockMoveFind(context.odoo, move_id);
+    const picking = await stockPickingFind(context.odoo, move.picking_id[0]);
     const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
-    if (opType.use_create_lots && picking.state === "assigned") {
-      const move = await stockMoveFind(context.odoo, move_id);
+    if (opType.use_create_lots && picking.state === "assigned") {      
       return context.odoo.execute_kwAsync("stock.move.line", "create", [
         {
-          move_id, date, location_dest_id, location_id, product_id: move.product_id[0], product_uom_id: move.product_uom[0] , lot_name, product_uom_qty: 1, qty_done: 1}
+          move_id, date: new Date(), location_dest_id: picking.location_dest_id[0], location_id: picking.location_id[0], product_id: move.product_id[0], product_uom_id: move.product_uom[0] , lot_name, product_uom_qty: 1, qty_done: 1}
       ]).then((result) => {
         return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", result]]], {
           offset: 0,
