@@ -212,8 +212,7 @@ class PriceList extends React.Component<Props, State> {
                   const priceListIds = Object.values(masterPriceList).map(
                     p => p.id
                   );
-                  let csv =
-                    "data:text/csv;charset=utf-8," +
+                  let csv =                    
                     "id,code,name," +
                     Object.values(masterPriceList)
                       .map(p => p.name)
@@ -281,8 +280,8 @@ class PriceList extends React.Component<Props, State> {
       });
       edges.forEach(p => {
         csv += "\"" + p.id + "\",";
-        csv += "\"" + p.default_code   + "\","; //.replace("\"", "\"\"").replace("#", "%23").replace("$", "%24").replace("&", "%26").replace("@", "%40")  + "\",";
-        csv += "\"" + p.name + "\""; //.replace("\"", "\"\"").replace("#", "%23").replace("$", "%24").replace("&", "%26").replace("@", "%40") + "\"";
+        csv += "\"" + p.default_code.replace("\"", "\"\"") + "\","; // .replace("$", "%24").replace("&", "%26").replace("@", "%40")  + "\",";
+        csv += "\"" + p.name.replace("\"", "\"\"") + "\""; // .replace("$", "%24").replace("&", "%26").replace("@", "%40") + "\"";
         p.priceLists.forEach(price => {
           csv += "," + price.price;
         });
@@ -293,7 +292,8 @@ class PriceList extends React.Component<Props, State> {
         this.downloadForCSV(client, csv, priceListIds, page + 1);
       } else {
         this.setState({ downloading: false });
-        var encodedUri = encodeURI(csv);
+        var encodedUri = encodeURI("data:text/csv;charset=utf-8,");
+        encodedUri = encodedUri + encodeURIComponent(csv);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "price_list.csv");
