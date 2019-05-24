@@ -17,6 +17,7 @@ import { compose } from "react-apollo";
 import { RootState } from "./reducer";
 import { connect } from "react-redux";
 import PriceList from "./PriceList";
+import SalesOrder from "./SalesOrder";
 import NumberEditor from "./component/NumberEditor";
 import Test from "./test";
 
@@ -33,12 +34,13 @@ class App extends React.PureComponent<Props> {
           <Switch>
             <Route path="/price" component={PriceList} />
             <Route path="/inventory" component={Inventory} />
+            <Route path="/salesorder" component={SalesOrder} />
             <Route path="/setting" component={Setting} />
             <Redirect
               to={{
                 pathname: "/inventory"
               }}
-            />
+            />            
           </Switch>
         ) : (
           <Login />

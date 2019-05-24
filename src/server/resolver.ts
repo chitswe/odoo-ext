@@ -45,6 +45,7 @@ import {
   resolver as product_quant_resolver,
   productQuantFind
 } from "./ProductQuant/index";
+import { resolver as sales_order_resolver, salesOrderFindAll, salesOrderCount } from "./SalesOrder/index";
 const coerceAnyString = (value: any) => {
   if (Array.isArray(value)) {
     throw new TypeError(
@@ -217,6 +218,29 @@ const resolver = {
         }
       };
     },
+    sales_order : async (
+      parent: any,
+      params: any,
+      context: AuthResult
+    ) => {
+      const { pageSize = 20, page = 1, order, filter } = params;
+      const offset = (page - 1) * pageSize;
+      const edges = await salesOrderFindAll(context.odoo, {
+        offset,
+        limit: pageSize,
+        order,
+        filter
+      });
+      const count = await salesOrderCount(context.odoo, filter);
+      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+      return {
+        edges,
+        pageInfo,
+        aggregate: {
+          count
+        }
+      };
+    }
   },
 
   Customer: {
@@ -233,6 +257,7 @@ const resolver = {
   ...operation_type_resolver,
   ...product_lot_resolver,
   ...product_quant_resolver,
+  ...sales_order_resolver,
 
   Mutation: {
     ...stock_move_line_mutation,

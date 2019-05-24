@@ -9,6 +9,7 @@ import { schema as purchase_order_line_schema } from "./PurchaseOrder/OrderLine"
 import { schema as operation_type_schema } from "./MasterData/OperationType";
 import { schema as product_lot_schema } from "./ProductLot/index";
 import { schema as product_quant_schema } from "./ProductQuant/index";
+import { schema as sales_order_schema } from "./SalesOrder/index";
 const schema = gql`
   scalar DateTime
   scalar Date
@@ -65,6 +66,13 @@ const schema = gql`
       order: String
       filter: [[[AnyString!]!]!]
     ): PurchaseOrderLineConnection   
+
+    sales_order(
+      page: Int = 1
+      pageSize: Int = 20
+      order: String
+      filter: [[[AnyString!]!]!]
+    ): SalesOrderConnection   
   }
 
   type Mutation {
@@ -84,6 +92,7 @@ const schema = gql`
   ${operation_type_schema}
   ${product_lot_schema}
   ${product_quant_schema}
+  ${sales_order_schema}
 `;
 
 export default schema;

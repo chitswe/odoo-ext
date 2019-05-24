@@ -6,7 +6,9 @@ enum MasterType {
   PRODUCT = "PRODUCT",
   UOM = "UOM",
   SERIALNO = "SERIALNO",
-  PO = "PO"
+  PO = "PO",
+  CUSTOMER = "CUSTOMER",
+  USER = "USER"
 }
 const schema = `
     type MasterName {
