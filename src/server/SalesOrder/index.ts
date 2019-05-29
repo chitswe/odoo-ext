@@ -6,11 +6,11 @@ import { AuthResult } from "../auth";
 const schema = `
     type SalesOrder{
         id:Int!
-        OrderNumber:String!
-        OrderDate:DateTime!
+        name:String!
+        date_order:DateTime!
         Customer:MasterName!
         SalesPerson:MasterName!
-        TotalAmount:Float!
+        amount_total:Float!
         AmountDue:Float!
     }
 
@@ -24,8 +24,10 @@ const schema = `
 const resolver = {
     SalesOrder : {
         id: property("id"),
-        OrderNumber: property("name"),
-        OrderDate: property("date_order"),
+        name: property("name"),
+        date_order: (order: any) => {
+            return new Date(order.date_order);
+        },
         Customer: (order: any) => {
             const result = masterNameResolve(
               order.partner_id,
@@ -40,7 +42,7 @@ const resolver = {
             );
             return result;
           },
-        TotalAmount: property("amount_total"),
+        amount_total: property("amount_total"),
         AmountDue: (order: any, params: any, context: AuthResult) => {
             let totalAmount = 0;
             let promises = order.invoice_ids.map(async (e: any) => {

@@ -14,14 +14,17 @@ query SalesOrder($page: Int, $pageSize: Int, $order: String,
       }
       edges {
         id
-        OrderNumber
+        name
+        date_order
         Customer{
+          id
           name
         }
         SalesPerson{
+          id
           name
         }
-        TotalAmount
+        amount_total
         AmountDue
       }
     }
