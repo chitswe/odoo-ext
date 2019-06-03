@@ -23,6 +23,7 @@ const schema = `
         barcode:String
         tracking:ProductTracking!
         priceLists(priceListIds:[Int!]!):[ProductPrice]
+        available_qty(locations:[Int!]!): Float!
     }
 
     type ProductConnection implements WithPagination & WithAggregateResult{
@@ -48,6 +49,14 @@ const resolver = {
           }));
         }
       );
+    },
+    available_qty: (product: any, params: any, context: AuthResult) => {
+      return productAvailableQty(context.odoo, {
+        product_id: product.id,
+        locations: params.locations
+      }).then((result: number) => {
+        return result;
+      });
     }
   },
   ProductPrice: {
@@ -80,11 +89,31 @@ const productFind = (odoo: Odoo, id: number) => {
         "default_code",
         "barcode",
         "tracking",
+        "available_qty"
       ]
     })
     .then(([p]: [any]) => {
       return p;
     });
+};
+
+const productAvailableQty = async (
+  odoo: Odoo,
+  {
+    product_id,
+    locations
+  }: {
+    product_id: number;
+    locations: [number];
+  }
+) => {
+  const l = !locations.length ? [1] : locations;
+  const result = await odoo.execute_kwAsync(
+    "product.product",
+    "web_api_get_product_available_qty",
+    [[product_id], l]
+  );
+  return result.toString();
 };
 
 const productFindAll = (
@@ -104,13 +133,7 @@ const productFindAll = (
   return odoo.execute_kwAsync("product.product", "search_read", filter, {
     offset,
     limit,
-    fields: [
-      "id",
-      "name",
-      "default_code",
-      "barcode",
-      "tracking",
-    ],
+    fields: ["id", "name", "default_code", "barcode", "tracking"],
     order
   });
 };

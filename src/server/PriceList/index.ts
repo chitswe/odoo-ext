@@ -138,6 +138,13 @@ const mutation = {
       ]
     );
     const [itemId] = priceListItems;
+    if (priceListId === 1) {
+      await context.odoo.execute_kwAsync(
+        "product.product",
+        "write",
+        [[productId], { lst_price: price }]
+      );
+    }
     if (itemId) {
       const result = await context.odoo.execute_kwAsync(
         "product.pricelist.item",
