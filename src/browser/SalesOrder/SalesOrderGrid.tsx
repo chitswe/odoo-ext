@@ -49,38 +49,52 @@ class SalesOrderGrid extends React.Component<Props, State> {
               },
               {
                 label: "OrderNumber",
-                key: "OrderNumber",
-                width: 250,
+                key: "name",
+                width: 200,
                 sortable: true,
                 flexGrow: 1
               },
               {
+                label: "Date",  
+                key: "date_order",
+                width: 200,
+                format: ({ key, rowData }) =>
+                  new Date(rowData.date_order).formatAsLongDate(),
+                hideAt: 600,
+                sortable: true
+              },
+              {
                 label: "Customer Name",
-                key: "Customer/name",
-                width: 300,
+                key: "partner_id",
+                width: 250,
                 flexGrow: 1,
-                format: ({ key, rowData }) => rowData.Customer.name
+                sortable: true,
+                format: ({ key, rowData: { Customer } }) =>
+                  Customer ? Customer.name : ""
               },
               {
                 label: "Sales Person",
-                key: "SalesPerson/name",
-                width: 200,
+                key: "user_id",
+                width: 250,
                 flexGrow: 1,
-                format: ({ key, rowData }) => rowData.SalesPerson.name
+                sortable: true,
+                format: ({ key, rowData: { SalesPerson } }) => SalesPerson ? SalesPerson.name : ""
               },
               {
                 label: "TotalAmount",
-                key: "TotalAmount",
-                width: 300,
+                key: "amount_total",
+                width: 150,
                 sortable: true,
+                labelAlign: "center",
                 flexGrow: 2,
                 hideAt: 700
               },
               {
                 label: "AmountDue",
                 key: "AmountDue",
-                width: 300,
+                width: 150,
                 sortable: true,
+                labelAlign: "center",
                 flexGrow: 2,
                 hideAt: 700
               },              
@@ -139,7 +153,7 @@ class SalesOrderGrid extends React.Component<Props, State> {
                 onColumnPropsChanged={this.handleOnColumnPropsChanged.bind(this)}
                 columns={columns}
                 variables={variables}
-                
+                listPropsName="sales_order"
                 graphqlQuery={salesOrderListQuery}
                 pageSize={20}
                 updateQuery={(

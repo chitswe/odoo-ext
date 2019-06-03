@@ -47,7 +47,7 @@ const resolver = {
             filter
           })
         : [];
-      const count = isSerialTracking ? await stockMoveLineCount(context.odoo,filter) : 0;
+      const count = isSerialTracking ? await stockMoveLineCount(context.odoo, filter) : 0;
       const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
       return {
         edges,

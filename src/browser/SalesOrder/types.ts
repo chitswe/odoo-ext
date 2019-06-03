@@ -24,16 +24,19 @@ export interface SalesOrderQuery {
     edges:  Array< {
       __typename: "SalesOrder",
       id: number,
-      OrderNumber: string,
+      name: string,
+      date_order: string,
       Customer:  {
         __typename: "MasterName",
+        id: string,
         name: string,
       },
       SalesPerson:  {
         __typename: "MasterName",
+        id: string,
         name: string,
       },
-      TotalAmount: number,
+      amount_total: number,
       AmountDue: number,
     } >,
   } | null,
