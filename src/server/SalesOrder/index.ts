@@ -11,7 +11,7 @@ const schema = `
         Customer:MasterName!
         SalesPerson:MasterName!
         amount_total:Float!
-        AmountDue:Float!
+        InvoiceTotal:Float!
     }
 
     type SalesOrderConnection implements WithPagination & WithAggregateResult{
@@ -43,16 +43,16 @@ const resolver = {
             return result;
           },
         amount_total: property("amount_total"),
-        AmountDue: (order: any, params: any, context: AuthResult) => {
+        InvoiceTotal: (order: any, params: any, context: AuthResult) => {
             let totalAmount = 0;
             let promises = order.invoice_ids.map(async (e: any) => {
                 totalAmount += await context.odoo.execute_kwAsync("account.invoice", "search_read", [[["id", "=", e]]], {
                     offset: 0,
                     limit: 1,
-                    fields: ["residual"]
+                    fields: ["amount_total"]
                 })       
                 .then(([p]: [any]) => {
-                    return p.residual;
+                    return p.amount_total;
                 });
             });
 

@@ -46,6 +46,11 @@ import {
   productQuantFind
 } from "./ProductQuant/index";
 import { resolver as sales_order_resolver, salesOrderFindAll, salesOrderCount } from "./SalesOrder/index";
+import { resolver as price_change_resolver, mutation as price_change_mutation } from "./PriceChange/index";
+import { resolver as payment_resolver, paymentFindAll, paymentCount } from "./Payment/index";
+import PriceChange from "./models/PriceChange";
+import PriceChangeDetail from "./models/PriceChangeDetail";
+
 const coerceAnyString = (value: any) => {
   if (Array.isArray(value)) {
     throw new TypeError(
@@ -240,9 +245,49 @@ const resolver = {
           count
         }
       };
+    },
+    price_change : async (
+      parent: any,
+      params: any,
+      context: AuthResult
+    ) => {
+      const { pageSize = 20, page = 1, order, filter } = params;
+      const offset = (page - 1) * pageSize;
+      return PriceChange.findAndCountAll({ include:  [ { model: PriceChangeDetail }]}).then(({ rows, count }) => {     
+        const pageInfo = { hasMore: page * pageSize < count, pageSize, page };   
+        return {
+          edges: rows,
+          pageInfo,
+          aggregate: {
+            count
+          }
+        };
+      });
+    },
+    payment : async (
+      parent: any,
+      params: any,
+      context: AuthResult
+    ) => {
+      const { pageSize = 20, page = 1, order, filter } = params;
+      const offset = (page - 1) * pageSize;
+      const edges = await paymentFindAll(context.odoo, {
+        offset,
+        limit: pageSize,
+        order,
+        filter
+      });
+      const count = await paymentCount(context.odoo, filter);
+      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+      return {
+        edges,
+        pageInfo,
+        aggregate: {
+          count
+        }
+      };
     }
-  },
-
+  },  
   Customer: {
     id: property("id"),
     name: property("name")
@@ -258,10 +303,12 @@ const resolver = {
   ...product_lot_resolver,
   ...product_quant_resolver,
   ...sales_order_resolver,
-
+  ...price_change_resolver,
+  ...payment_resolver,
   Mutation: {
     ...stock_move_line_mutation,
-    ...product_pricelist_mutation
+    ...product_pricelist_mutation,
+    ...price_change_mutation
   }
 };
 

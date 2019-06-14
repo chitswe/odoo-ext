@@ -10,6 +10,8 @@ import { schema as operation_type_schema } from "./MasterData/OperationType";
 import { schema as product_lot_schema } from "./ProductLot/index";
 import { schema as product_quant_schema } from "./ProductQuant/index";
 import { schema as sales_order_schema } from "./SalesOrder/index";
+import { schema as price_change_schema } from "./PriceChange/index";
+import { schema as payment_schema} from "./Payment/index";
 const schema = gql`
   scalar DateTime
   scalar Date
@@ -73,6 +75,20 @@ const schema = gql`
       order: String
       filter: [[[AnyString!]!]!]
     ): SalesOrderConnection   
+
+    price_change(
+      page: Int = 1
+      pageSize: Int = 20
+      order: String
+      filter: [[[AnyString!]!]!]
+    ): PriceChangeConnection
+
+    payment(
+      page: Int = 1
+      pageSize: Int = 20
+      order: String
+      filter: [[[AnyString!]!]!]
+    ): PaymentConnection
   }
 
   type Mutation {
@@ -80,6 +96,7 @@ const schema = gql`
     generateProductLot(pickingId: Int!, moveId: Int!):StockMoveLineConnection
     changeProductLot(id:Int!,pickingId:Int!,lotname:String!):StockMoveLine
     createStockMoveLine(move_id:Int!, lot_name: String!):StockMoveLine
+    createPriceChange(PriceChangeDate:Date!,Remark:String,createdBy:Int!,detail:[InputPriceChangeDetail!]):PriceChange
   }
 
   ${picking_schema}
@@ -93,6 +110,8 @@ const schema = gql`
   ${product_lot_schema}
   ${product_quant_schema}
   ${sales_order_schema}
+  ${price_change_schema}
+  ${payment_schema}
 `;
 
 export default schema;

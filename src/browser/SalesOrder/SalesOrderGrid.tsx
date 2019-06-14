@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import update from "immutability-helper";
 import { RouteComponentProps } from "react-router";
+import * as accounting from "accounting";
 import { SalesOrdersType, SalesOrderType } from "./resolvedTypes";
 
 const styles = (theme: Theme) =>
@@ -83,20 +84,24 @@ class SalesOrderGrid extends React.Component<Props, State> {
               {
                 label: "TotalAmount",
                 key: "amount_total",
-                width: 150,
+                width: 120,
                 sortable: true,
-                labelAlign: "center",
+                labelAlign: "right",
+                textAlign: "right",
                 flexGrow: 2,
-                hideAt: 700
+                hideAt: 700,
+                format: ({ key, rowData}) => accounting.formatMoney(rowData.amount_total, { format: "%v", precision: accounting.settings.number.precision})
               },
               {
-                label: "AmountDue",
-                key: "AmountDue",
-                width: 150,
+                label: "Invoice Amount",
+                key: "InvoiceTotal",
+                width: 120,
                 sortable: true,
-                labelAlign: "center",
+                labelAlign: "right",
+                textAlign: "right",
                 flexGrow: 2,
-                hideAt: 700
+                hideAt: 700,
+                format: ({ key, rowData}) => accounting.formatMoney(rowData.InvoiceTotal, { format: "%v", precision: accounting.settings.number.precision})
               },              
         ],
         variables: {
@@ -156,6 +161,9 @@ class SalesOrderGrid extends React.Component<Props, State> {
                 listPropsName="sales_order"
                 graphqlQuery={salesOrderListQuery}
                 pageSize={20}
+                onRowClick={(rowDate, index) => {
+                  window.open(`http://odoo.mt.com.mm/web#id=${rowDate.id}&view_type=form&model=sale.order&menu_id=201`, "_blank").focus();
+                }}
                 updateQuery={(
                     previousResult: any,
                     list: ApolloListResult<SalesOrderType>
@@ -172,5 +180,5 @@ class SalesOrderGrid extends React.Component<Props, State> {
 }
 
 export default compose(
-    withStyles(styles)
+  withStyles(styles)
 )(SalesOrderGrid);

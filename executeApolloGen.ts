@@ -21,6 +21,10 @@ const files = [
   [
     "src/browser/SalesOrder/graphql.ts",
     "src/browser/SalesOrder/types.ts"
+  ],
+  [
+    "src/browser/Payment/graphql.ts",
+    "src/browser/Payment/types.ts"
   ]
 ];
 

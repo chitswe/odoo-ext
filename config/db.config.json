@@ -1,0 +1,32 @@
+{
+    "development": {
+      "username": "postgres",
+      "password": "",
+      "database": "Tri-Treasure",
+      "host": "127.0.0.1",
+      "dialect": "postgres",
+      "define":{
+        "freezeTableName": true
+      }
+    },
+    "test": {
+      "username": "shopkeeper",
+      "password": "shopkeeper",
+      "database": "shopkeeper",
+      "host": "127.0.0.1",
+      "dialect": "postgres",
+      "define":{
+        "freezeTableName": true
+      }
+    },
+    "production": {
+      "username": "shopkeeper",
+      "password": "shopkeeper",
+      "database": "shopkeeper",
+      "host": "127.0.0.1",
+      "dialect": "postgres",
+      "define":{
+        "freezeTableName": true
+      }
+    }
+}
