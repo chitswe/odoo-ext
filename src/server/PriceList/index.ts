@@ -122,6 +122,36 @@ const generateCSVFile = async (search: string, odoo: Odoo) => {
   return csv;
 };
 
+const query = {
+  pricelists: async (parent: any, params: any, context: AuthResult) => {
+    const { pageSize = 20, page = 1, order, filter } = params;
+    const offset = (page - 1) * pageSize;
+    const edges = await productPriceListFindAll(context.odoo, {
+      offset,
+      limit: pageSize,
+      order,
+      filter
+    });
+    const count = await productPriceListCount(context.odoo, filter);
+    const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+    return {
+      edges,
+      pageInfo,
+      aggregate: {
+        count
+      }
+    };
+  },
+  getprice: async (parent: any, params: any, context: AuthResult) => {
+    const { productId, priceListId, partnerId } = params;
+    return productPriceListGetPrice(context.odoo, {
+      priceListId,
+      productId,
+      partnerId
+    });
+  },
+};
+
 const mutation = {
   changePrice: async (parent: any, params: any, context: AuthResult) => {
     const { productId, priceListId, price } = params;
@@ -174,6 +204,7 @@ const mutation = {
 export {
   schema,
   resolver,
+  query,
   mutation,
   productPriceListFindAll,
   productPriceListCount,

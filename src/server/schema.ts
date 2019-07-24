@@ -11,7 +11,7 @@ import { schema as product_lot_schema } from "./ProductLot/index";
 import { schema as product_quant_schema } from "./ProductQuant/index";
 import { schema as sales_order_schema } from "./SalesOrder/index";
 import { schema as price_change_schema } from "./PriceChange/index";
-import { schema as payment_schema} from "./Payment/index";
+import { schema as payment_schema } from "./Payment/index";
 const schema = gql`
   scalar DateTime
   scalar Date
@@ -80,8 +80,20 @@ const schema = gql`
       page: Int = 1
       pageSize: Int = 20
       order: String
-      filter: [[[AnyString!]!]!]
+      startDate: Date!
+      endDate: Date!
     ): PriceChangeConnection
+
+    get_price_change(
+      priceChangeId: Int!
+    ): PriceChange
+
+    price_change_detail(
+      startDate: Date!     
+      endDate: Date!
+      page:Int
+      pageSize:Int! 
+    ): PriceChangeDetailConnection
 
     payment(
       page: Int = 1
@@ -96,7 +108,10 @@ const schema = gql`
     generateProductLot(pickingId: Int!, moveId: Int!):StockMoveLineConnection
     changeProductLot(id:Int!,pickingId:Int!,lotname:String!):StockMoveLine
     createStockMoveLine(move_id:Int!, lot_name: String!):StockMoveLine
-    createPriceChange(PriceChangeDate:Date!,Remark:String,createdBy:Int!,detail:[InputPriceChangeDetail!]):PriceChange
+    createPriceChange(PriceChangeDate:Date!,Remark:String,createdBy:Int!):PriceChange
+    updatePriceChange(id:Int!,PriceChangeDate:Date!,Remark:String):PriceChange
+    createPriceChangeDetail(PriceChangeId:Int!,ProductId:Int!,PriceBookId:Int!,OldPrice:Float!,NewPrice:Float!):PriceChangeDetail
+    updatePriceChangeDetail(id:Int!,PriceChangeId:Int!,ProductId:Int!,PriceBookId:Int!,OldPrice:Float!,NewPrice:Float!):PriceChangeDetail
   }
 
   ${picking_schema}

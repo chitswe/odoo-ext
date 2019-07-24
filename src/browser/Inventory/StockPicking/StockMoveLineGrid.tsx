@@ -123,7 +123,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
                             // onChanged={value => {
                             //   setEdit(value);
                             // }}
-                       />;
+                          />;
                   }
               }
             </Mutation>

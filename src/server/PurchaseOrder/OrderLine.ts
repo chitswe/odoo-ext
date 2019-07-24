@@ -1,5 +1,6 @@
 import Odoo from "../odoo";
 import { masterNameResolve, MasterType } from "../MasterData/MasterName";
+import { AuthResult } from "../auth";
 
 const schema = `
 type PurchaseOrderLine{
@@ -80,4 +81,29 @@ const purchaseOrderLineCount = (odoo: Odoo, filter: any = [[]]) => {
   return odoo.execute_kwAsync("purchase.order.line", "search_count", filter);
 };
 
-export { schema, resolver, purchaseOrderLineFindAll, purchaseOrderLineCount };
+const query = {
+  purchase_order_lines: async (
+    parent: any,
+    params: any,
+    context: AuthResult
+  ) => {
+    const { pageSize = 20, page = 1, order, filter } = params;
+    const offset = (page - 1) * pageSize;
+    const edges = await purchaseOrderLineFindAll(context.odoo, {
+      offset,
+      limit: pageSize,
+      order,
+      filter
+    });
+    const count = await purchaseOrderLineCount(context.odoo, filter);
+    const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+    return {
+      edges,
+      pageInfo,
+      aggregate: {
+        count
+      }
+    };
+  },
+};
+export { schema, resolver, query, purchaseOrderLineFindAll, purchaseOrderLineCount };

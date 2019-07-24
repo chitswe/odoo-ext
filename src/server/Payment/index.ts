@@ -77,4 +77,30 @@ const paymentCount = (odoo: Odoo, filter: any = [[]]) => {
     return odoo.execute_kwAsync("account.payment", "search_count", filter);
 };
 
-export { schema, resolver, paymentFindAll, paymentCount };
+const query = {
+    payment : async (
+        parent: any,
+        params: any,
+        context: AuthResult
+      ) => {
+        const { pageSize = 20, page = 1, order, filter } = params;
+        const offset = (page - 1) * pageSize;
+        const edges = await paymentFindAll(context.odoo, {
+          offset,
+          limit: pageSize,
+          order,
+          filter
+        });
+        const count = await paymentCount(context.odoo, filter);
+        const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+        return {
+          edges,
+          pageInfo,
+          aggregate: {
+            count
+          }
+        };
+      }
+};
+
+export { schema, resolver, query, paymentFindAll, paymentCount };
