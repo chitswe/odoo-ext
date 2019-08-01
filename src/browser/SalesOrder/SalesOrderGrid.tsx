@@ -28,7 +28,7 @@ type Props = {
     selectedIndex: number[];
     scrollToIndex: number;
     rootClassName?: string;
-    search: string;
+    filter: any;
 };
 
 type State = {
@@ -109,18 +109,11 @@ class SalesOrderGrid extends React.Component<Props, State> {
     };
 
     componentWillReceiveProps(newProps: Props) {
-      if (newProps.search !== this.props.search) {
-        const filter = newProps.search
-          ? [
-              [
-                ["name", "ilike", newProps.search]
-              ]
-            ]
-          : [[]];
+      if (newProps.filter !== this.props.filter) {
         this.setState({
           variables: update(this.state.variables, {
             filter: {
-              $set: filter
+              $set: [newProps.filter]
             }
           })
         });
@@ -145,8 +138,7 @@ class SalesOrderGrid extends React.Component<Props, State> {
         const {
             scrollToIndex,
             selectedIndex,
-            rootClassName,
-            search
+            rootClassName
           } = this.props;
 
         return (

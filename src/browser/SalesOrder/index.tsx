@@ -11,8 +11,11 @@ import {
     IconButton,
     withStyles,
     InputBase,
+    Button,
     CircularProgress,
-    LinearProgress
+    LinearProgress,
+    TextField,
+    Drawer
   } from "@material-ui/core";
 import OpenDrawerButton from "../component/AppBar/OpenDrawerButton";
 import SearchIcon from "@material-ui/icons/Search";
@@ -39,37 +42,39 @@ const styles = (theme: Theme) =>
             flex: 1,
             flexWrap: "nowrap"
         },
+        a: {
+            width: 250
+        },
+        bg: {
+            display: "flex",
+            paddingTop: 32,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center"
+        },
+        dateField: {
+            width: 200,
+            height: 50,
+            marginTop: theme.spacing.unit * 3,
+            marginBottom: theme.spacing.unit * 2
+        },
+        textField: {
+            width: 200,
+            marginTop: theme.spacing.unit * 3,
+            marginBottom: theme.spacing.unit * 2
+        },
         loadingIndicator: {
             backgroundColor: "#DDDDDD",
             color: "#DDDDDD",
             width: 150,
             display: "inline"
         },
-        fillBackground: {
-            backgroundColor: theme.palette.grey[100],
-            zIndex: 500,
-            marginTop: theme.spacing.unit
-        },
         toolBar: {
             [theme.breakpoints.up("md")]: {
               minHeight: 48
             }
         },
-        search: {
-            position: "relative",
-            borderRadius: theme.shape.borderRadius,
-            backgroundColor: fade(theme.palette.common.white, 0.15),
-            "&:hover": {
-              backgroundColor: fade(theme.palette.common.white, 0.25)
-            },
-            marginLeft: 0,
-            width: "100%",
-            [theme.breakpoints.up("sm")]: {
-              marginLeft: theme.spacing.unit,
-              width: "auto"
-            }
-          },
-          searchIcon: {
+        searchIcon: {
             width: theme.spacing.unit * 9,
             height: "100%",
             position: "absolute",
@@ -78,37 +83,25 @@ const styles = (theme: Theme) =>
             alignItems: "center",
             justifyContent: "center"
         },
-        inputRoot: {
-            color: "inherit",
-            width: "100%"
-        },
-        inputInput: {
-            paddingTop: theme.spacing.unit,
-            paddingRight: theme.spacing.unit,
-            paddingBottom: theme.spacing.unit,
-            paddingLeft: theme.spacing.unit * 10,
-            transition: theme.transitions.create("width"),
-            width: "100%",
-            [theme.breakpoints.up("sm")]: {
-              width: 200,
-              "&:focus": {
-                width: 250
-              }
-            }
-        },
     });
 
 type Props = WithStyles<typeof styles> & RouteComponentProps;
 
 type State = {
-    searchText: string;
-    search: string;
+    open: boolean;
+    searchOrderNo: string;
+    fromDate: string;
+    toDate: string;
+    filter: any;
 };
 
 class SalesOrderList extends React.Component<Props, State> {
     state: State = {
-        searchText: "",
-        search: ""
+        searchOrderNo: "",
+        open: false,
+        fromDate: "",
+        toDate: "",
+        filter: []
     };
 
     componentDidMount() {
@@ -125,14 +118,77 @@ class SalesOrderList extends React.Component<Props, State> {
     populateStateFromQueryString(query: string) {
         const parsed = qs.parse(query);
         const searchText = parsed.search ? parsed.search.toString() : "";
-        this.setState({search: searchText, searchText});
+        this.setState({searchOrderNo: searchText});
     }
     
     render() {
         const { classes } = this.props;
-        const { searchText, search } = this.state; 
+        const { searchOrderNo, filter, open, fromDate, toDate } = this.state; 
         return (
             <Grid container direction="column" className={classes.root}>
+            <Drawer open={open} onClose={() => {this.setState({open: false}); }} >
+                <div
+                    tabIndex={0}
+                    role="button"
+                    
+                >
+                    <div className={classes.a}>
+                        <div className={classes.bg}>
+                            <Typography variant="h6" color="inherit" noWrap>
+                                Filter
+                            </Typography>
+                            <TextField
+                                id="orderNo"
+                                label="Search OrderNo"
+                                className={classes.textField}
+                                value={searchOrderNo}
+                                onChange={(e) => {
+                                    this.setState(({searchOrderNo: e.target.value}));
+                                }}
+                            />
+                            <TextField
+                                id="datefrom"
+                                label="From"
+                                className={classes.textField}
+                                type="date"
+                                value={fromDate}
+                                InputLabelProps={{ shrink: true }}
+                                onChange={(e) => {
+                                    this.setState(({fromDate: e.target.value}));
+                                }}
+                            />
+                            <TextField
+                                id="dateTo"
+                                label="To"
+                                className={classes.textField}
+                                type="date"
+                                value={toDate}
+                                InputLabelProps={{ shrink: true }}
+                                onChange={(e) => {
+                                    this.setState(({toDate: e.target.value}));
+                                }}
+                            />
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => {
+                                    const searchFilter = [];
+                                    if (searchOrderNo)
+                                        searchFilter.push(["name", "ilike", searchOrderNo]);
+                                    if (fromDate)
+                                        searchFilter.push(["date_order", ">=", fromDate]);
+                                    if (toDate)
+                                        searchFilter.push(["date_order", "<=", toDate]);
+                                    
+                                    this.setState({filter: searchFilter});
+                                }}
+                            >
+                                Search
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+                </Drawer>
                 <AppBar position="static" className={classes.appBar}>
                     <Toolbar className={classes.toolBar}>
                         <OpenDrawerButton />
@@ -140,31 +196,17 @@ class SalesOrderList extends React.Component<Props, State> {
                         Sales Order
                         </Typography>
                         <div className={classes.grow} />
-
-                        <div className={classes.search}>
-                            <div className={classes.searchIcon}>
+                        <IconButton 
+                                color="inherit"
+                                onClick={() => {
+                                    this.setState({open: !open});
+                                }}
+                        >
                             <SearchIcon />
-                            </div>
-                            <InputBase
-                                placeholder="Search Order"
-                                value={searchText}
-                                onChange={e => {
-                                    this.setState({ searchText: e.target.value });
-                                }}
-                                onKeyPress={event => {
-                                    if (event.key === "Enter") {
-                                    this.setState({ search: searchText });
-                                    }
-                                }}
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput
-                                }}
-                            />
-                        </div>
+                        </IconButton>
                     </Toolbar>                    
                 </AppBar>
-                <SalesOrderGrid search={search}/>
+                <SalesOrderGrid filter={filter}/>
             </Grid>
         );
     }
