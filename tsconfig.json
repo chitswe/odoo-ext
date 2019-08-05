@@ -15,6 +15,7 @@
     "outDir": "artifacts",
     "baseUrl": ".",
     "experimentalDecorators": true,
+    "skipLibCheck": true,
     //"noImplicitReturns": true,
     //"noUnusedParameters": true,
     //"noUnusedLocals": true,

@@ -19,6 +19,8 @@ import { connect } from "react-redux";
 import PriceList from "./PriceList";
 import SalesOrder from "./SalesOrder";
 import Payment from "./Payment";
+import PriceChange from "./PriceChange";
+import PriceChangeDetail from "./PriceChange/view";
 import NumberEditor from "./component/NumberEditor";
 import Test from "./test";
 
@@ -37,6 +39,8 @@ class App extends React.PureComponent<Props> {
             <Route path="/inventory" component={Inventory} />
             <Route path="/salesorder" component={SalesOrder} />
             <Route path="/payment" component={Payment} />
+            <Route path="/pricechange/detail" component={PriceChangeDetail} />
+            <Route path="/pricechange" component={PriceChange} />
             <Route path="/setting" component={Setting} />
             <Redirect
               to={{

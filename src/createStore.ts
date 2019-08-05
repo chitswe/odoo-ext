@@ -49,7 +49,9 @@ export const createServerStore = (authResult: AuthResult) => {
       loadingBar: undefined,
       stockPicking: undefined,
       labelPrintSetting: undefined,
-      priceList: undefined
+      priceList: undefined,
+      priceChange: undefined,
+      priceChangeDetail: undefined
     },
     { type: "" }
   );

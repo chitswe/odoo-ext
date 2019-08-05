@@ -8,8 +8,10 @@ import {
 } from "./stockPicking";
 import { LabelPrintSettingActions, labelPrintSettingReducer, LabelPrintSettingState } from "./labelPrintSetting";
 import { priceListReducer, PriceListState, PriceListActions } from "./priceList";
+import { priceChangeReducer, PriceChangeState, PriceChangeActions } from "./priceChange";
+import { priceChangeDetailReducer, PriceChangeDetailState, PriceChangeDetailActions } from "./priceChangeDetail";
 
-export type RootAction = SiteActions | StockPickingActions | LabelPrintSettingActions | PriceListActions;
+export type RootAction = SiteActions | StockPickingActions | LabelPrintSettingActions | PriceListActions | PriceChangeActions | PriceChangeDetailActions;
 
 export type AsyncDispatch = {
   asyncDispatch?: (asyncAction: RootAction) => void;
@@ -23,6 +25,8 @@ export interface RootState extends StoreEnhancerState {
   stockPicking: StockPickingState;
   labelPrintSetting: LabelPrintSettingState;
   priceList: PriceListState;
+  priceChange: PriceChangeState;
+  priceChangeDetail: PriceChangeDetailState;
 }
 
 export const rootReducer = combineReducers<RootState>({
@@ -30,5 +34,7 @@ export const rootReducer = combineReducers<RootState>({
   site: siteReducer,
   stockPicking: stockPickingReducer,
   labelPrintSetting: labelPrintSettingReducer,
-  priceList: priceListReducer
+  priceList: priceListReducer,
+  priceChange: priceChangeReducer,
+  priceChangeDetail: priceChangeDetailReducer
 });
