@@ -45,8 +45,8 @@ const styles = (theme: Theme) =>
     },
     root: {
       flex: 1,
-      display: "block",
-      overflowY: "scroll"
+      display: "flex",
+      flexDirection: "column"
     },
     xyhw: {
       width: 100,
@@ -78,6 +78,12 @@ const styles = (theme: Theme) =>
       width: 200 + theme.spacing.unit * 2,
       marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit
+    },
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,
+      overflow: "scroll"
     }
   });
 
@@ -236,714 +242,720 @@ class Setting extends React.Component<Props, State> {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <div className={classes.row}>
-          <TextField
-            label="Print Service URL"
-            value={url}
-            className={classes.urlTextField}
-            onChange={e => {
-              setUrl(e.target.value);
-            }}
-          />
-          <Button
-            className={classes.testButton}
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              if (!testing) this.testConnection();
-            }}
-          >
-            {testing ? <CircularProgress size={24} color="secondary" /> : null}
-            Test
-          </Button>
-        </div>
-        <Divider />
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintPIDCode}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintPIDCode: checked });
-                }}
-              />
-            }
-            label="Print PID Barcode"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={PrintPIDCode_X}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                PrintPIDCode_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={PrintPIDCode_Y}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                PrintPIDCode_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="W"
-            type="Number"
-            value={PrintPIDCode_W}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                PrintPIDCode_W: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={PrintPIDCode_H}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                PrintPIDCode_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-        </div>
-        <Divider />
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintPIDText}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintPIDText: checked });
-                }}
-              />
-            }
-            label="Print PID Text"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={PIDText_X}
-            onChange={e => {
-              setPrintSetting({
-                PIDText_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={PIDText_Y}
-            onChange={e => {
-              setPrintSetting({
-                PIDText_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={PIDText_H}
-            onChange={e => {
-              setPrintSetting({
-                PIDText_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintStockCodeCode}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintStockCodeCode: checked });
-                }}
-              />
-            }
-            label="Print Stock Code"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={StockCode_X}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                StockCode_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={StockCode_Y}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                StockCode_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="W"
-            type="Number"
-            value={StockCode_W}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                StockCode_W: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={StockCode_H}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                StockCode_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-        </div>
-        <Divider />
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintStockCodeText}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintStockCodeText: checked });
-                }}
-              />
-            }
-            label="Print Stock Code Text"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={StockCodeText_X}
-            onChange={e => {
-              setPrintSetting({
-                StockCodeText_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={StockCodeText_Y}
-            onChange={e => {
-              setPrintSetting({
-                StockCodeText_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={StockCodeText_H}
-            onChange={e => {
-              setPrintSetting({
-                StockCodeText_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintSerialNoCode}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintSerialNoCode: checked });
-                }}
-              />
-            }
-            label="Print Serial No Code"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={SerialNoCode_X}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoCode_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={SerialNoCode_Y}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoCode_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="W"
-            type="Number"
-            value={SerialNoCode_W}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoCode_W: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={SerialNoCode_H}
-            className={classes.xyhw}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoCode_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-          />
-        </div>
-        <Divider />
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintSerialNoText}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintSerialNoText: checked });
-                }}
-              />
-            }
-            label="Print Serial No"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={SerialNoText_X}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoText_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={SerialNoText_Y}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoText_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={SerialNoText_H}
-            onChange={e => {
-              setPrintSetting({
-                SerialNoText_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintStockNameText}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintStockNameText: checked });
-                }}
-              />
-            }
-            label="Print Stock Name"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={StockNameText_X}
-            onChange={e => {
-              setPrintSetting({
-                StockNameText_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={StockNameText_Y}
-            onChange={e => {
-              setPrintSetting({
-                StockNameText_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={StockNameText_H}
-            onChange={e => {
-              setPrintSetting({
-                StockNameText_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintPurchaseDateText}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintPurchaseDateText: checked });
-                }}
-              />
-            }
-            label="Print Purchase Date"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={PurchaseDateText_X}
-            onChange={e => {
-              setPrintSetting({
-                PurchaseDateText_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={PurchaseDateText_Y}
-            onChange={e => {
-              setPrintSetting({
-                PurchaseDateText_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={PurchaseDateText_H}
-            onChange={e => {
-              setPrintSetting({
-                PurchaseDateText_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintVoucherNoText}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintVoucherNoText: checked });
-                }}
-              />
-            }
-            label="Print Voucher No"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={VoucherNoText_X}
-            onChange={e => {
-              setPrintSetting({
-                VoucherNoText_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={VoucherNoText_Y}
-            onChange={e => {
-              setPrintSetting({
-                VoucherNoText_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={VoucherNoText_H}
-            onChange={e => {
-              setPrintSetting({
-                VoucherNoText_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={PrintSalePrice}
-                onChange={(e, checked) => {
-                  setPrintSetting({ PrintSalePrice: checked });
-                }}
-              />
-            }
-            label="Print Sale Price"
-          />
-          <TextField
-            label="X"
-            type="Number"
-            value={SalePrice_X}
-            onChange={e => {
-              setPrintSetting({
-                SalePrice_X: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Y"
-            type="Number"
-            value={SalePrice_Y}
-            onChange={e => {
-              setPrintSetting({
-                SalePrice_Y: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="H"
-            type="Number"
-            value={SalePrice_H}
-            onChange={e => {
-              setPrintSetting({
-                SalePrice_H: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Price List"
-            value={PriceBook}
-            onChange={e => {
-              setPrintSetting({
-                PriceBook: e.target.value
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-
-        <div className={classes.row}>
-          <FormControl className={classes.checkbox}>
-            <InputLabel htmlFor="printer_type">Printer Type</InputLabel>
-            <Select
-              inputProps={{ name: "printer_type" }}
-              value={PrinterType}
+        <div className={classes.container}>
+          <div className={classes.row}>
+            <TextField
+              label="Print Service URL"
+              value={url}
+              className={classes.urlTextField}
               onChange={e => {
-                setPrintSetting({ PrinterType: e.target.value });
+                setUrl(e.target.value);
+              }}
+            />
+            <Button
+              className={classes.testButton}
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                if (!testing) this.testConnection();
               }}
             >
-              <MenuItem value="POSTEK">POSTEK</MenuItem>
-              <MenuItem value="ZEBRA">ZEBRA</MenuItem>
-              <MenuItem value="TSC">TSC</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label="Printer Name"
-            value={PrinterName}
-            onChange={e => {
-              setPrintSetting({
-                PrinterName: e.target.value
-              });
-            }}
-            className={classes.text}
-          />
-          <TextField
-            label="Print Speed"
-            value={PrintSpeed}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                PrintSpeed: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
+              {testing ? (
+                <CircularProgress size={24} color="secondary" />
+              ) : null}
+              Test
+            </Button>
+          </div>
+          <Divider />
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintPIDCode}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintPIDCode: checked });
+                  }}
+                />
+              }
+              label="Print PID Barcode"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={PrintPIDCode_X}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  PrintPIDCode_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={PrintPIDCode_Y}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  PrintPIDCode_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="W"
+              type="Number"
+              value={PrintPIDCode_W}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  PrintPIDCode_W: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={PrintPIDCode_H}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  PrintPIDCode_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+          </div>
+          <Divider />
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintPIDText}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintPIDText: checked });
+                  }}
+                />
+              }
+              label="Print PID Text"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={PIDText_X}
+              onChange={e => {
+                setPrintSetting({
+                  PIDText_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={PIDText_Y}
+              onChange={e => {
+                setPrintSetting({
+                  PIDText_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={PIDText_H}
+              onChange={e => {
+                setPrintSetting({
+                  PIDText_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
 
-          <TextField
-            label="Darkness"
-            value={Darkness}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                Darkness: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-        </div>
-        <Divider />
-        <div className={classes.row}>
-          <FormControlLabel
-            className={classes.checkbox}
-            control={
-              <Checkbox
-                color="primary"
-                checked={EnableZPLCommand}
-                onChange={(e, checked) => {
-                  setPrintSetting({ EnableZPLCommand: checked });
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintStockCodeCode}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintStockCodeCode: checked });
+                  }}
+                />
+              }
+              label="Print Stock Code"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={StockCode_X}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  StockCode_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={StockCode_Y}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  StockCode_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="W"
+              type="Number"
+              value={StockCode_W}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  StockCode_W: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={StockCode_H}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  StockCode_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+          </div>
+          <Divider />
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintStockCodeText}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintStockCodeText: checked });
+                  }}
+                />
+              }
+              label="Print Stock Code Text"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={StockCodeText_X}
+              onChange={e => {
+                setPrintSetting({
+                  StockCodeText_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={StockCodeText_Y}
+              onChange={e => {
+                setPrintSetting({
+                  StockCodeText_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={StockCodeText_H}
+              onChange={e => {
+                setPrintSetting({
+                  StockCodeText_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintSerialNoCode}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintSerialNoCode: checked });
+                  }}
+                />
+              }
+              label="Print Serial No Code"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={SerialNoCode_X}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoCode_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={SerialNoCode_Y}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoCode_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="W"
+              type="Number"
+              value={SerialNoCode_W}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoCode_W: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={SerialNoCode_H}
+              className={classes.xyhw}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoCode_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+            />
+          </div>
+          <Divider />
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintSerialNoText}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintSerialNoText: checked });
+                  }}
+                />
+              }
+              label="Print Serial No"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={SerialNoText_X}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoText_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={SerialNoText_Y}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoText_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={SerialNoText_H}
+              onChange={e => {
+                setPrintSetting({
+                  SerialNoText_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintStockNameText}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintStockNameText: checked });
+                  }}
+                />
+              }
+              label="Print Stock Name"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={StockNameText_X}
+              onChange={e => {
+                setPrintSetting({
+                  StockNameText_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={StockNameText_Y}
+              onChange={e => {
+                setPrintSetting({
+                  StockNameText_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={StockNameText_H}
+              onChange={e => {
+                setPrintSetting({
+                  StockNameText_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintPurchaseDateText}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintPurchaseDateText: checked });
+                  }}
+                />
+              }
+              label="Print Purchase Date"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={PurchaseDateText_X}
+              onChange={e => {
+                setPrintSetting({
+                  PurchaseDateText_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={PurchaseDateText_Y}
+              onChange={e => {
+                setPrintSetting({
+                  PurchaseDateText_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={PurchaseDateText_H}
+              onChange={e => {
+                setPrintSetting({
+                  PurchaseDateText_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintVoucherNoText}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintVoucherNoText: checked });
+                  }}
+                />
+              }
+              label="Print Voucher No"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={VoucherNoText_X}
+              onChange={e => {
+                setPrintSetting({
+                  VoucherNoText_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={VoucherNoText_Y}
+              onChange={e => {
+                setPrintSetting({
+                  VoucherNoText_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={VoucherNoText_H}
+              onChange={e => {
+                setPrintSetting({
+                  VoucherNoText_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={PrintSalePrice}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ PrintSalePrice: checked });
+                  }}
+                />
+              }
+              label="Print Sale Price"
+            />
+            <TextField
+              label="X"
+              type="Number"
+              value={SalePrice_X}
+              onChange={e => {
+                setPrintSetting({
+                  SalePrice_X: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Y"
+              type="Number"
+              value={SalePrice_Y}
+              onChange={e => {
+                setPrintSetting({
+                  SalePrice_Y: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="H"
+              type="Number"
+              value={SalePrice_H}
+              onChange={e => {
+                setPrintSetting({
+                  SalePrice_H: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Price List"
+              value={PriceBook}
+              onChange={e => {
+                setPrintSetting({
+                  PriceBook: e.target.value
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+
+          <div className={classes.row}>
+            <FormControl className={classes.checkbox}>
+              <InputLabel htmlFor="printer_type">Printer Type</InputLabel>
+              <Select
+                inputProps={{ name: "printer_type" }}
+                value={PrinterType}
+                onChange={e => {
+                  setPrintSetting({ PrinterType: e.target.value });
                 }}
-              />
-            }
-            label="Enable ZPL Command"
-          />
-          <TextField
-            label="Custom ZPL Command"
-            value={CustomZPLCommand}
-            onChange={e => {
-              setPrintSetting({
-                CustomZPLCommand: e.target.value
-              });
-            }}
-            className={classes.text}
-          />
-        </div>
-        <Divider />
-        <div className="row">
-          <TextField
-            label="Width"
-            value={LabelWidth}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                LabelWidth: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Height"
-            value={LabelHeight}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                LabelHeight: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="No Of Col"
-            value={NoOfColumn}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                NoOfColumn: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="Col Width"
-            value={ColumnWidth}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                ColumnWidth: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
+              >
+                <MenuItem value="0">POSTEK</MenuItem>
+                <MenuItem value="1">GODEX</MenuItem>
+                <MenuItem value="2">TSC</MenuItem>
+                <MenuItem value="3">PosteKTXR</MenuItem>
+                <MenuItem value="4">ZEBRA</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label="Printer Name"
+              value={PrinterName}
+              onChange={e => {
+                setPrintSetting({
+                  PrinterName: e.target.value
+                });
+              }}
+              className={classes.text}
+            />
+            <TextField
+              label="Print Speed"
+              value={PrintSpeed}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  PrintSpeed: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
 
-          <TextField
-            label="H Gap"
-            value={LabelGapH}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                LabelGapH: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
-          <TextField
-            label="V Gap"
-            value={LabelGapV}
-            type="Number"
-            onChange={e => {
-              setPrintSetting({
-                LabelGapV: Number.parseInt(e.target.value, 10)
-              });
-            }}
-            className={classes.xyhw}
-          />
+            <TextField
+              label="Darkness"
+              value={Darkness}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  Darkness: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
+          <div className={classes.row}>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={EnableZPLCommand}
+                  onChange={(e, checked) => {
+                    setPrintSetting({ EnableZPLCommand: checked });
+                  }}
+                />
+              }
+              label="Enable ZPL Command"
+            />
+            <TextField
+              label="Custom ZPL Command"
+              value={CustomZPLCommand}
+              onChange={e => {
+                setPrintSetting({
+                  CustomZPLCommand: e.target.value
+                });
+              }}
+              className={classes.text}
+            />
+          </div>
+          <Divider />
+          <div className="row">
+            <TextField
+              label="Width"
+              value={LabelWidth}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  LabelWidth: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Height"
+              value={LabelHeight}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  LabelHeight: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="No Of Col"
+              value={NoOfColumn}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  NoOfColumn: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="Col Width"
+              value={ColumnWidth}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  ColumnWidth: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+
+            <TextField
+              label="H Gap"
+              value={LabelGapH}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  LabelGapH: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+            <TextField
+              label="V Gap"
+              value={LabelGapV}
+              type="Number"
+              onChange={e => {
+                setPrintSetting({
+                  LabelGapV: Number.parseInt(e.target.value, 10)
+                });
+              }}
+              className={classes.xyhw}
+            />
+          </div>
+          <Divider />
         </div>
-        <Divider />
       </div>
     );
   }

@@ -211,7 +211,7 @@ app.get(
           <style id="jss-server-side">${css}</style>
       </head>
       <body>
-          <div id="root" style="flex:1; display:flex">${content}</div>
+          <div id="root" style="flex:1; display:flex; height:100%">${content}</div>
           <script>window.__APOLLO_STATE__=${JSON.stringify(
             initialState
           ).replace(/</g, "\\u003c")};</script>
