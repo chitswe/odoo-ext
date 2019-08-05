@@ -142,4 +142,29 @@ const productCount = (odoo: Odoo, filter: any = [[]]) => {
   return odoo.execute_kwAsync("product.product", "search_count", filter);
 };
 
-export { schema, resolver, productFind, productFindAll, productCount };
+const query = {
+  product: (parent: any, params: any, context: AuthResult) => {
+    return productFind(context.odoo, params.id);
+  },
+  products: async (parent: any, params: any, context: AuthResult) => {
+    const { pageSize = 20, page = 1, order, filter } = params;
+    const offset = (page - 1) * pageSize;
+    const edges = await productFindAll(context.odoo, {
+      offset,
+      limit: pageSize,
+      order,
+      filter
+    });
+    const count = await productCount(context.odoo, filter);
+    const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+    return {
+      edges,
+      pageInfo,
+      aggregate: {
+        count
+      }
+    };
+  },
+};
+
+export { schema, resolver, query, productFind, productFindAll, productCount };

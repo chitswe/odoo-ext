@@ -70,7 +70,7 @@ const stockMoveLineFindAll = (
     .execute_kwAsync("stock.move.line", "search_read", filter, {
       offset,
       limit,
-      fields: ["lot_id", "lot_name", "location_id", "location_dest_id"],
+      fields: ["lot_id", "lot_name", "location_id", "location_dest_id", "qty_done"],
       order
     })
     .then((result: any) => {
@@ -82,6 +82,10 @@ const stockMoveLineCount = (odoo: Odoo, filter: any = [[]]) => {
   return odoo.execute_kwAsync("stock.move.line", "search_count", filter);
 };
 
+const query = {
+  
+};
+
 const mutation  = {
   changeProductLot: async ( parent: any, params: any, context: AuthResult) => {
     const { id, pickingId, lotname } = params;
@@ -91,7 +95,7 @@ const mutation  = {
       return context.odoo.execute_kwAsync(
         "stock.move.line",
         "write",
-        [[id], { lot_name: lotname }]
+        [[id], { lot_name: lotname, product_uom_qty: 1, qty_done: 1 }]
       ).then(() => {
         return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
           offset: 0,
@@ -111,6 +115,7 @@ const mutation  = {
     lotnum = lotnum.substr(0, 13);
     const picking = await stockPickingFind(context.odoo, pickingId);
     const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
+    const move = await stockMoveFind(context.odoo, moveId);
     if (opType.use_create_lots && picking.state === "assigned") {
           const filter: any = [[["move_id", "=", moveId]]];
           const stockMoveLines = await stockMoveLineFindAll(context.odoo, {
@@ -118,20 +123,43 @@ const mutation  = {
             limit: 50,
             filter
           });
+
+          if (stockMoveLines.length < move.product_uom_qty) {
+            for (let i = stockMoveLines.length; i < move.product_uom_qty; i ++) {
+              stockMoveLines.push({id: null, lot_name: null});
+            }
+          }
+
           const promiseAll = stockMoveLines.map((lot: any, index: number) => {
             const {id, lot_id, lot_name, location_id, location_dest_id} = lot;
             if ( lot_name || lot_id)
               return {id, lot_id, lot_name, location_id, location_dest_id} ;          
-            else {                
-              return context.odoo.execute_kwAsync(
-                "stock.move.line",
-                "write",
-                [[id], { lot_name: lotnum + (lotnum1 + index) }]
-              );              
+            else {
+              if (id)                
+                return context.odoo.execute_kwAsync(
+                  "stock.move.line",
+                  "write",
+                  [[id], { lot_name: lotnum + (lotnum1 + index), product_uom_qty: 1, qty_done: 1 }]
+                );
+              else
+                return context.odoo.execute_kwAsync("stock.move.line", "create", [
+                  {
+                    move_id: moveId, 
+                    date: new Date(), 
+                    location_dest_id: picking.location_dest_id[0], 
+                    location_id: picking.location_id[0], 
+                    product_id: move.product_id[0], 
+                    product_uom_id: move.product_uom[0] , 
+                    lot_name: lotnum + (lotnum1 + index), 
+                    product_uom_qty: 1, 
+                    qty_done: 1
+                  }
+                ]);             
             }            
           });
-          
-          return Promise.all(promiseAll).then(() => {
+
+          return Promise.all(promiseAll)
+          .then(() => {
             return stockMoveLineFindAll(context.odoo, {
               offset: 0,
               limit: 50,

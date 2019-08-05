@@ -3,15 +3,11 @@ import { property } from "lodash";
 import { Kind } from "graphql/language";
 import {
   resolver as picking_resolver,
-  stockPickingFind,
-  stockPickingCount,
-  stockPickingFindAll
+  query as picking_query
 } from "./Picking/StockPicking";
 import {
   resolver as product_resolver,
-  productFind,
-  productFindAll,
-  productCount
+  query as product_query
 } from "./MasterData/Product";
 import {
   resolver as operation_type_resolver,
@@ -19,33 +15,31 @@ import {
 } from "./MasterData/OperationType";
 import {
   resolver as stock_move_resolver,
-  stockMoveFindAll
+  query as stock_move_query
 } from "./Picking/StockMove";
 import { resolver as master_name_resolver } from "./MasterData/MasterName";
-import { resolver as stock_move_line_resolver, mutation as stock_move_line_mutation, stockMoveLineFindAll, stockMoveLineCount } from "./Picking/StockMoveLine";
+import { resolver as stock_move_line_resolver, mutation as stock_move_line_mutation } from "./Picking/StockMoveLine";
 import {
   resolver as product_pricelist_resolver,
-  mutation as product_pricelist_mutation,
-  productPriceListFindAll,
-  productPriceListCount,
-  productPriceListGetPrice,
-  priceListFind
+  query as product_pricelist_query,
+  mutation as product_pricelist_mutation
 } from "./PriceList";
 import { AuthResult } from "./auth";
 import {
   resolver as purchase_order_line_resolver,
-  purchaseOrderLineFindAll,
-  purchaseOrderLineCount
+  query as purchase_order_line_query
 } from "./PurchaseOrder/OrderLine";
 import {
   resolver as product_lot_resolver,
   productLotFind
 } from "./ProductLot/index";
 import {
-  resolver as product_quant_resolver,
-  productQuantFind
+  resolver as product_quant_resolver
 } from "./ProductQuant/index";
-import { resolver as sales_order_resolver, salesOrderFindAll, salesOrderCount } from "./SalesOrder/index";
+import { resolver as sales_order_resolver, query as sales_order_query } from "./SalesOrder/index";
+import { resolver as price_change_resolver, query as price_change_query, mutation as price_change_mutation } from "./PriceChange/index";
+import { resolver as payment_resolver, query as payment_query } from "./Payment/index";
+
 const coerceAnyString = (value: any) => {
   if (Array.isArray(value)) {
     throw new TypeError(
@@ -115,134 +109,15 @@ const resolver = {
     hello: async (_: any, params: any, context: AuthResult) => {
       return await context.odoo.connectAsync();
     },
-    picking: (parent: any, params: any, context: AuthResult) => {
-      return stockPickingFind(context.odoo, params.id);
-    },
-    pickings: async (parent: any, params: any, context: AuthResult) => {
-      const { pageSize = 20, page = 1, order, filter } = params;
-      const offset = (page - 1) * pageSize;
-      const edges = await stockPickingFindAll(context.odoo, {
-        offset,
-        limit: pageSize,
-        order,
-        filter
-      });
-      const count = await stockPickingCount(context.odoo, filter);
-      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
-      return {
-        edges,
-        pageInfo,
-        aggregate: {
-          count
-        }
-      };
-    },
-    stock_move: async (parent: any, params: any, context: AuthResult) => {
-      const stockMoves = await stockMoveFindAll(context.odoo, {
-        offset: 0,
-        limit: 1,
-        filter: [[["id", "=", params.id]]]
-      });
-      const [stockMove] = stockMoves;
-      return stockMove;
-    },
-    pricelists: async (parent: any, params: any, context: AuthResult) => {
-      const { pageSize = 20, page = 1, order, filter } = params;
-      const offset = (page - 1) * pageSize;
-      const edges = await productPriceListFindAll(context.odoo, {
-        offset,
-        limit: pageSize,
-        order,
-        filter
-      });
-      const count = await productPriceListCount(context.odoo, filter);
-      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
-      return {
-        edges,
-        pageInfo,
-        aggregate: {
-          count
-        }
-      };
-    },
-    getprice: async (parent: any, params: any, context: AuthResult) => {
-      const { productId, priceListId, partnerId } = params;
-      return productPriceListGetPrice(context.odoo, {
-        priceListId,
-        productId,
-        partnerId
-      });
-    },
-    product: (parent: any, params: any, context: AuthResult) => {
-      return productFind(context.odoo, params.id);
-    },
-    products: async (parent: any, params: any, context: AuthResult) => {
-      const { pageSize = 20, page = 1, order, filter } = params;
-      const offset = (page - 1) * pageSize;
-      const edges = await productFindAll(context.odoo, {
-        offset,
-        limit: pageSize,
-        order,
-        filter
-      });
-      const count = await productCount(context.odoo, filter);
-      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
-      return {
-        edges,
-        pageInfo,
-        aggregate: {
-          count
-        }
-      };
-    },
-    purchase_order_lines: async (
-      parent: any,
-      params: any,
-      context: AuthResult
-    ) => {
-      const { pageSize = 20, page = 1, order, filter } = params;
-      const offset = (page - 1) * pageSize;
-      const edges = await purchaseOrderLineFindAll(context.odoo, {
-        offset,
-        limit: pageSize,
-        order,
-        filter
-      });
-      const count = await purchaseOrderLineCount(context.odoo, filter);
-      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
-      return {
-        edges,
-        pageInfo,
-        aggregate: {
-          count
-        }
-      };
-    },
-    sales_order : async (
-      parent: any,
-      params: any,
-      context: AuthResult
-    ) => {
-      const { pageSize = 20, page = 1, order, filter } = params;
-      const offset = (page - 1) * pageSize;
-      const edges = await salesOrderFindAll(context.odoo, {
-        offset,
-        limit: pageSize,
-        order,
-        filter
-      });
-      const count = await salesOrderCount(context.odoo, filter);
-      const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
-      return {
-        edges,
-        pageInfo,
-        aggregate: {
-          count
-        }
-      };
-    }
-  },
-
+    ...picking_query,
+    ...stock_move_query,
+    ...product_pricelist_query,
+    ...product_query,
+    ...purchase_order_line_query,
+    ...sales_order_query,
+    ...price_change_query,
+    ...payment_query    
+  },  
   Customer: {
     id: property("id"),
     name: property("name")
@@ -258,10 +133,12 @@ const resolver = {
   ...product_lot_resolver,
   ...product_quant_resolver,
   ...sales_order_resolver,
-
+  ...price_change_resolver,
+  ...payment_resolver,
   Mutation: {
     ...stock_move_line_mutation,
-    ...product_pricelist_mutation
+    ...product_pricelist_mutation,
+    ...price_change_mutation
   }
 };
 

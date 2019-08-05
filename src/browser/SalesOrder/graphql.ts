@@ -25,7 +25,7 @@ query SalesOrder($page: Int, $pageSize: Int, $order: String,
           name
         }
         amount_total
-        AmountDue
+        InvoiceTotal
       }
     }
   }

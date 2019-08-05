@@ -139,9 +139,35 @@ const stockPickingFindAll = (
   });
 };
 
+const query = {
+  picking: (parent: any, params: any, context: AuthResult) => {
+    return stockPickingFind(context.odoo, params.id);
+  },
+  pickings: async (parent: any, params: any, context: AuthResult) => {
+    const { pageSize = 20, page = 1, order, filter } = params;
+    const offset = (page - 1) * pageSize;
+    const edges = await stockPickingFindAll(context.odoo, {
+      offset,
+      limit: pageSize,
+      order,
+      filter
+    });
+    const count = await stockPickingCount(context.odoo, filter);
+    const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+    return {
+      edges,
+      pageInfo,
+      aggregate: {
+        count
+      }
+    };
+  } 
+};
+
 export {
   schema,
   resolver,
+  query,
   stockPickingFindAll,
   stockPickingCount,
   stockPickingFind

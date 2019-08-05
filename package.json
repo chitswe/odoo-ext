@@ -15,6 +15,9 @@
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Webpack\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"node proxy\"",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "clean": "rm -r dist/* && rm -r artifacts/*",
+    "compile-mig": "tsc --p mig-tsconfig.json",
+    "clean-mig": "rm -r migrations/compiled/*",
+    "recompile-mig": "npm run clean-mig && npm run compile-mig",
     "rebuild": "npm run clean && npm run build",
     "cp-assets": "ts-node copyStaticAssets.ts",
     "postinstall": "sh postinstall.sh"
@@ -68,7 +71,11 @@
     "typescript": "^3.4.3",
     "url": "^0.11.0",
     "utility-types": "^3.2.1",
-    "webpack-dev-server": "^3.1.14"
+    "pg": "^6.4.1",
+    "pg-hstore": "^2.3.2",
+    "webpack-dev-server": "^3.1.14",
+    "sequelize": "^3.30.4",
+    "sequelize-typescript": "^0.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",
@@ -104,6 +111,8 @@
     "tslint": "^5.12.1",
     "uglifyjs-webpack-plugin": "^2.1.1",
     "webpack": "^4.28.4",
-    "webpack-cli": "^3.2.1"
+    "webpack-cli": "^3.2.1",
+    "@types/react-transition-group": "^2.0.8",
+    "reflect-metadata": "^0.1.12"
   }
 }

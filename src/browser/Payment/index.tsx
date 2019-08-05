@@ -11,21 +11,21 @@ import {
     IconButton,
     withStyles,
     InputBase,
-    Button,
     CircularProgress,
     LinearProgress,
+    Drawer,
     TextField,
-    Drawer
+    Button
   } from "@material-ui/core";
 import OpenDrawerButton from "../component/AppBar/OpenDrawerButton";
-import SearchIcon from "@material-ui/icons/Search";
-import { fade } from "@material-ui/core/styles/colorManipulator";
 import { compose, ApolloConsumer } from "react-apollo";
 import { connect } from "react-redux";
 import { RootState, RootAction } from "../reducer";
 import { Dispatch } from "redux";
-import SalesOrderGrid from "./SalesOrderGrid";
-import * as qs from "query-string";
+import update from "immutability-helper";
+import { FaSearch } from "react-icons/fa";
+import PaymentGrid from "./PaymentGrid";
+import TextEditor from "../component/TextEditor";
 
 const styles = (theme: Theme) => 
     createStyles({
@@ -33,6 +33,11 @@ const styles = (theme: Theme) =>
         appBar: {
             color: "#fff",
             zIndex: 1100
+        },
+        toolBar: {
+            [theme.breakpoints.up("md")]: {
+              minHeight: 48
+            }
         },
         root: {},
         fill: {
@@ -62,71 +67,39 @@ const styles = (theme: Theme) =>
             width: 200,
             marginTop: theme.spacing.unit * 3,
             marginBottom: theme.spacing.unit * 2
-        },
-        loadingIndicator: {
-            backgroundColor: "#DDDDDD",
-            color: "#DDDDDD",
-            width: 150,
-            display: "inline"
-        },
-        toolBar: {
-            [theme.breakpoints.up("md")]: {
-              minHeight: 48
-            }
-        },
-        searchIcon: {
-            width: theme.spacing.unit * 9,
-            height: "100%",
-            position: "absolute",
-            pointerEvents: "none",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-        },
+        }
     });
 
 type Props = WithStyles<typeof styles> & RouteComponentProps;
 
 type State = {
+    searchText: string;
+    search: string;
     open: boolean;
-    searchOrderNo: string;
-    fromDate: string;
-    toDate: string;
+    dateFrom: string;
+    dateTo: string;
+    partner: string;
     filter: any;
 };
 
-class SalesOrderList extends React.Component<Props, State> {
+class Payment extends React.Component<Props, State> {
     state: State = {
-        searchOrderNo: "",
+        searchText: "",
+        search: "",
         open: false,
-        fromDate: "",
-        toDate: "",
+        dateFrom: "",
+        dateTo: "",
+        partner: "",
         filter: []
     };
 
-    componentDidMount() {
-        if (this.props.location.search)
-          this.populateStateFromQueryString(this.props.location.search);
-    }
-    
-    componentWillReceiveProps(newProps: Props) {
-        if (this.props.location.search !== newProps.location.search) {
-            this.populateStateFromQueryString(newProps.location.search);
-        }
-    }
-    
-    populateStateFromQueryString(query: string) {
-        const parsed = qs.parse(query);
-        const searchText = parsed.search ? parsed.search.toString() : "";
-        this.setState({searchOrderNo: searchText});
-    }
-    
     render() {
         const { classes } = this.props;
-        const { searchOrderNo, filter, open, fromDate, toDate } = this.state; 
+        const { searchText, search, open, dateFrom, dateTo, partner, filter} = this.state;
+
         return (
             <Grid container direction="column" className={classes.root}>
-            <Drawer open={open} onClose={() => {this.setState({open: false}); }} >
+                <Drawer open={open} onClose={() => {this.setState({open: false}); }} >
                 <div
                     tabIndex={0}
                     role="button"
@@ -138,12 +111,12 @@ class SalesOrderList extends React.Component<Props, State> {
                                 Filter
                             </Typography>
                             <TextField
-                                id="orderNo"
-                                label="Search OrderNo"
+                                id="partner"
+                                label="Partner"
                                 className={classes.textField}
-                                value={searchOrderNo}
+                                value={partner}
                                 onChange={(e) => {
-                                    this.setState(({searchOrderNo: e.target.value}));
+                                    this.setState(({partner: e.target.value}));
                                 }}
                             />
                             <TextField
@@ -151,10 +124,10 @@ class SalesOrderList extends React.Component<Props, State> {
                                 label="From"
                                 className={classes.textField}
                                 type="date"
-                                value={fromDate}
+                                value={dateFrom}
                                 InputLabelProps={{ shrink: true }}
                                 onChange={(e) => {
-                                    this.setState(({fromDate: e.target.value}));
+                                    this.setState(({dateFrom: e.target.value}));
                                 }}
                             />
                             <TextField
@@ -162,10 +135,10 @@ class SalesOrderList extends React.Component<Props, State> {
                                 label="To"
                                 className={classes.textField}
                                 type="date"
-                                value={toDate}
+                                value={dateTo}
                                 InputLabelProps={{ shrink: true }}
                                 onChange={(e) => {
-                                    this.setState(({toDate: e.target.value}));
+                                    this.setState(({dateTo: e.target.value}));
                                 }}
                             />
                             <Button
@@ -173,12 +146,12 @@ class SalesOrderList extends React.Component<Props, State> {
                                 color="primary"
                                 onClick={() => {
                                     const searchFilter = [];
-                                    if (searchOrderNo)
-                                        searchFilter.push(["name", "ilike", searchOrderNo]);
-                                    if (fromDate)
-                                        searchFilter.push(["date_order", ">=", fromDate]);
-                                    if (toDate)
-                                        searchFilter.push(["date_order", "<=", toDate]);
+                                    if (partner)
+                                        searchFilter.push(["partner_id", "ilike", partner]);
+                                    if (dateFrom)
+                                        searchFilter.push(["payment_date", ">=", dateFrom]);
+                                    if (dateTo)
+                                        searchFilter.push(["payment_date", "<=", dateTo]);
                                     
                                     this.setState({filter: searchFilter});
                                 }}
@@ -193,20 +166,20 @@ class SalesOrderList extends React.Component<Props, State> {
                     <Toolbar className={classes.toolBar}>
                         <OpenDrawerButton />
                         <Typography variant="h6" color="inherit" noWrap>
-                        Sales Order
+                            Payments
                         </Typography>
                         <div className={classes.grow} />
                         <IconButton 
-                                color="inherit"
-                                onClick={() => {
-                                    this.setState({open: !open});
-                                }}
+                            color="inherit"
+                            onClick={() => {
+                                this.setState({open: true});
+                            }}
                         >
-                            <SearchIcon />
+                            <FaSearch/>
                         </IconButton>
-                    </Toolbar>                    
+                    </Toolbar>
                 </AppBar>
-                <SalesOrderGrid filter={filter}/>
+                <PaymentGrid filter={filter} />
             </Grid>
         );
     }
@@ -214,4 +187,4 @@ class SalesOrderList extends React.Component<Props, State> {
 
 export default compose(
     withStyles(styles)
-)(SalesOrderList);
+)(Payment);

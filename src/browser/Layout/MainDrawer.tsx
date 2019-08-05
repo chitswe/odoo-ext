@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core";
 import { Settings, Lock, AttachMoney, ShoppingCart } from "@material-ui/icons";
 import { GoPackage } from "react-icons/go";
+import { FaMoneyBill } from "react-icons/fa";
 import { siteActions } from "../reducer/site";
 import { connect } from "react-redux";
 import { RootState, RootAction } from "../reducer";
@@ -167,6 +168,17 @@ class MainDrawer extends React.PureComponent<Props & RouteComponentProps> {
                   <ShoppingCart />
                 </ListItemIcon>
                 <ListItemText>Sales Order</ListItemText>
+              </ListItem>
+              <ListItem
+                button
+                onClick={() => {
+                  history.push("/payment");
+                }}
+              >
+                <ListItemIcon>
+                  <FaMoneyBill />
+                </ListItemIcon>
+                <ListItemText>Payments</ListItemText>
               </ListItem>
               <ListItem
                 button

@@ -145,29 +145,29 @@ const stockPickingFindAllQuery = gql`
 const generateProductLotMutation = gql`
 mutation generateProductLot($pickingId:Int!, $moveId:Int!){
   generateProductLot(pickingId:$pickingId, moveId:$moveId) {
-    aggregate {
-      count
-    }
-    edges {
-      id
-      lot_name
-      product_lot{
-        id
-        name
-        product_qty
-        created
+        aggregate {
+          count
+        }
+        edges {
+          id
+          lot_name
+          product_lot{
+            id
+            name
+            product_qty
+            created
+          }
+          quant{
+            quantity
+          }
+        }
+        pageInfo {
+          hasMore
+          page
+          pageSize
+        }
       }
-      quant{
-        quantity
-      }
-    }
-    pageInfo {
-      hasMore
-      page
-      pageSize
-    }
   }
-}
 `;
 
 const changeProductLotMutation = gql`

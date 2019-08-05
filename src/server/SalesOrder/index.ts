@@ -11,7 +11,7 @@ const schema = `
         Customer:MasterName!
         SalesPerson:MasterName!
         amount_total:Float!
-        AmountDue:Float!
+        InvoiceTotal:Float!
     }
 
     type SalesOrderConnection implements WithPagination & WithAggregateResult{
@@ -43,16 +43,16 @@ const resolver = {
             return result;
           },
         amount_total: property("amount_total"),
-        AmountDue: (order: any, params: any, context: AuthResult) => {
+        InvoiceTotal: (order: any, params: any, context: AuthResult) => {
             let totalAmount = 0;
             let promises = order.invoice_ids.map(async (e: any) => {
                 totalAmount += await context.odoo.execute_kwAsync("account.invoice", "search_read", [[["id", "=", e]]], {
                     offset: 0,
                     limit: 1,
-                    fields: ["residual"]
+                    fields: ["amount_total"]
                 })       
                 .then(([p]: [any]) => {
-                    return p.residual;
+                    return p.amount_total;
                 });
             });
 
@@ -90,4 +90,30 @@ const salesOrderCount = (odoo: Odoo, filter: any = [[]]) => {
     return odoo.execute_kwAsync("sale.order", "search_count", filter);
 };
 
-export {schema, resolver, salesOrderFindAll, salesOrderCount };
+const query = {
+    sales_order : async (
+        parent: any,
+        params: any,
+        context: AuthResult
+      ) => {
+        const { pageSize = 20, page = 1, order, filter } = params;
+        const offset = (page - 1) * pageSize;
+        const edges = await salesOrderFindAll(context.odoo, {
+          offset,
+          limit: pageSize,
+          order,
+          filter
+        });
+        const count = await salesOrderCount(context.odoo, filter);
+        const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
+        return {
+          edges,
+          pageInfo,
+          aggregate: {
+            count
+          }
+        };
+      },
+};
+
+export {schema, resolver, query, salesOrderFindAll, salesOrderCount };

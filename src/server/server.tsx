@@ -36,6 +36,8 @@ import bugsnagExpress from "@bugsnag/plugin-express";
 import secret from "../secret";
 import { generateCSVFile } from "./PriceList";
 import "js-date-extension";
+import sequelize from "./sequelize";
+
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 console.log(`Running with ${env} mode.`);
 const app = express();
@@ -229,8 +231,10 @@ app.get(
   }
 );
 
-app.listen(port, () => {
-  console.log(
-    `Server is running at port : ${port}, graphql:${server.graphqlPath}`
-  );
+sequelize.sync().then(() => {
+  app.listen(port, () => {
+    console.log(
+      `Server is running at port : ${port}, graphql:${server.graphqlPath}`
+    );
+  });
 });

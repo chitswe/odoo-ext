@@ -101,4 +101,16 @@ const stockMoveCount = (odoo: Odoo, filter: any = [[]]) => {
   return odoo.execute_kwAsync("stock.move", "search_count", filter);
 };
 
-export { schema, resolver, stockMoveFindAll, stockMoveFind, stockMoveCount };
+const query = {
+  stock_move: async (parent: any, params: any, context: AuthResult) => {
+    const stockMoves = await stockMoveFindAll(context.odoo, {
+      offset: 0,
+      limit: 1,
+      filter: [[["id", "=", params.id]]]
+    });
+    const [stockMove] = stockMoves;
+    return stockMove;
+  }
+};
+
+export { schema, resolver, query, stockMoveFindAll, stockMoveFind, stockMoveCount };

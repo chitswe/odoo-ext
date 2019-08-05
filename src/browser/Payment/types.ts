@@ -1,16 +1,16 @@
 /* tslint:disable */
 //  This file was automatically generated and should not be edited.
 
-export interface SalesOrderQueryVariables {
+export interface PaymentQueryVariables {
   page?: number | null,
   pageSize?: number | null,
   order?: string | null,
   filter?: Array< Array< Array< string > > > | null,
 };
 
-export interface SalesOrderQuery {
-  sales_order:  {
-    __typename: "SalesOrderConnection",
+export interface PaymentQuery {
+  payment:  {
+    __typename: "PaymentConnection",
     pageInfo:  {
       __typename: "PageInfo",
       hasMore: boolean,
@@ -22,22 +22,27 @@ export interface SalesOrderQuery {
       count: number | null,
     },
     edges:  Array< {
-      __typename: "SalesOrder",
+      __typename: "Payment",
       id: number,
-      name: string,
-      date_order: string,
-      Customer:  {
+      PaymentDate: string,
+      PaymentNumber: string,
+      PaymentType: string,
+      partner:  {
+        __typename: "MasterName",
+        id: string,
+        name: string,
+      } | null,
+      journal:  {
+        __typename: "MasterName",
+        id: string,
+        name: string,
+      } | null,
+      createdBy:  {
         __typename: "MasterName",
         id: string,
         name: string,
       },
-      SalesPerson:  {
-        __typename: "MasterName",
-        id: string,
-        name: string,
-      },
-      amount_total: number,
-      InvoiceTotal: number,
+      Amount: number,
     } >,
   } | null,
 };

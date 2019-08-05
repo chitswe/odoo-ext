@@ -22,7 +22,7 @@ import { RootState } from "../../reducer";
 import { connect } from "react-redux";
 import { StockPickingType } from "./resolvedTypes";
 import { FaBarcode, FaCogs } from "react-icons/fa";
-import { generateProductLotMutation } from "./graphql";
+import { generateProductLotMutation, stockMoveLineFindByStockMoveId, stockMoveFindByPickingId } from "./graphql";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -101,7 +101,17 @@ class StockPicking extends React.Component<Props, State> {
           {
             (appBarType === "stock_move" || appBarType === "both") && ( this.state.tracking === "serial" ||  this.state.tracking === "lot" ) ? 
             <Mutation
-              mutation={generateProductLotMutation}               
+              mutation={generateProductLotMutation}   
+              refetchQueries={() => {
+                return [{
+                   query: stockMoveLineFindByStockMoveId,
+                   variables: { id: this.state.selectedStockMoveId }
+               },
+               {
+                  query: stockMoveFindByPickingId,
+                  variables: { id: pickingId }
+               }];
+              }}            
             >
              {(generateProductLot, { data, loading, error }) => (
                 <IconButton 
@@ -113,7 +123,7 @@ class StockPicking extends React.Component<Props, State> {
                           pickingId,
                           moveId: this.state.selectedStockMoveId
                         }
-                      });
+                      });                   
                   }}
                 >
                   <FaCogs />
@@ -217,7 +227,7 @@ class StockPicking extends React.Component<Props, State> {
                   ) => {
                     this.setState({
                       selectedStockMoveId: rowData.id,
-                      selectedIndex: index,
+                      selectedIndex: index,                      
                       tracking: rowData.product.tracking ? rowData.product.tracking : ""
                     });
                   }}

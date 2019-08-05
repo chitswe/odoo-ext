@@ -8,7 +8,8 @@ enum MasterType {
   SERIALNO = "SERIALNO",
   PO = "PO",
   CUSTOMER = "CUSTOMER",
-  USER = "USER"
+  USER = "USER",
+  JOURNAL = "JOURNAL"
 }
 const schema = `
     type MasterName {
