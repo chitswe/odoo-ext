@@ -20,6 +20,8 @@
     "recompile-mig": "npm run clean-mig && npm run compile-mig",
     "rebuild": "npm run clean && npm run build",
     "cp-assets": "ts-node copyStaticAssets.ts",
+    "webpack":"webpack --config webpack.dev.js",
+    "webpack:dist":"webpack --config webpack.prod.js --env=prod --progress --profile --colors",
     "postinstall": "sh postinstall.sh"
   },
   "author": "",
