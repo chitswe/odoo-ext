@@ -74,8 +74,7 @@
     "pg": "^6.4.1",
     "pg-hstore": "^2.3.2",
     "webpack-dev-server": "^3.1.14",
-    "sequelize": "^3.30.4",
-    "sequelize-typescript": "^0.6.2"
+    "sequelize": "^3.30.4"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",
@@ -98,6 +97,7 @@
     "@types/react-redux": "^6.0.12",
     "@types/react-responsive": "^3.0.2",
     "@types/react-router-dom": "^4.3.1",
+    "@types/react-transition-group": "^2.0.8",
     "@types/react-virtualized": "^9.18.12",
     "@types/redux": "^3.6.0",
     "awesome-typescript-loader": "^5.2.1",
@@ -106,13 +106,13 @@
     "compression-webpack-plugin": "^2.0.0",
     "execa": "^1.0.0",
     "react-scripts-ts": "^3.1.0",
+    "reflect-metadata": "^0.1.13",
+    "sequelize-typescript": "^0.6.11",
     "shelljs": "^0.8.3",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.1",
     "uglifyjs-webpack-plugin": "^2.1.1",
     "webpack": "^4.28.4",
-    "webpack-cli": "^3.2.1",
-    "@types/react-transition-group": "^2.0.8",
-    "reflect-metadata": "^0.1.12"
+    "webpack-cli": "^3.2.1"
   }
 }

@@ -230,11 +230,16 @@ app.get(
     });
   }
 );
-
-sequelize.sync().then(() => {
-  app.listen(port, () => {
-    console.log(
-      `Server is running at port : ${port}, graphql:${server.graphqlPath}`
-    );
-  });
+app.listen(port, () => {
+  console.log(
+    `Server is running at port : ${port}, graphql:${server.graphqlPath}`
+  );
 });
+
+// sequelize.sync().then(() => {
+//   app.listen(port, () => {
+//     console.log(
+//       `Server is running at port : ${port}, graphql:${server.graphqlPath}`
+//     );
+//   });
+// });
