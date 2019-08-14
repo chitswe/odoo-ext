@@ -7,6 +7,7 @@ import { DeepReadonly, $Call } from "utility-types";
 import update from "immutability-helper";
 import { AsyncDispatch } from ".";
 import { ProductTracking } from "../Inventory/StockPicking/types";
+import { read } from "fs";
 
 export type StockMoveInfo = {
   picking_number: string;
@@ -15,6 +16,12 @@ export type StockMoveInfo = {
   product_tracking: ProductTracking;
   printing_copy: number;
 };
+
+export  enum PrintingStatus {
+  ready,
+  printing,
+  error
+}
 
 export const stockPickingActions = {
   setSelectedPicking: createAction(
@@ -79,7 +86,7 @@ export type LabelPrintStatus = {
   printingMoveLine: StockMoveLineType;
   stockMoveInfo: StockMoveInfo;
   printingIndex: number;
-  printingStatus: "ready" | "printing" | "error";
+  printingStatus: PrintingStatus;
   errorText: string;
 };
 
@@ -110,7 +117,7 @@ const initialState: StockPickingState = {
     },
     printingMoveLine: null,
     printingIndex: 0,
-    printingStatus: "ready",
+    printingStatus: PrintingStatus.ready,
     errorText: ""
   }
 };
@@ -178,7 +185,7 @@ export const stockPickingReducer = (
       return update(state, {
         labelPrintStatus: {
           printingStatus: {
-            $set: "error"
+            $set: PrintingStatus.error
           },
           errorText: {
             $set: action.payload
@@ -189,7 +196,7 @@ export const stockPickingReducer = (
       return update(state, {
         labelPrintStatus: {
           printingStatus: {
-            $set: "ready"
+            $set: PrintingStatus.ready
           },
           errorText: {
             $set: ""
@@ -221,7 +228,7 @@ function printLabelWithoutSerial(
     return update(state, {
       labelPrintStatus: {
         printingStatus: {
-          $set: "ready"
+          $set: PrintingStatus.ready
         },
         errorText: {
           $set: ""
@@ -241,7 +248,7 @@ function printLabelWithoutSerial(
     labelPrintStatus: {
       ...state.labelPrintStatus,
       printingIndex: 0,
-      printingStatus: "printing",
+      printingStatus: PrintingStatus.printing,
       errorText: ""
     }
   };
@@ -269,7 +276,7 @@ function printLabelWithSerial(
     return update(state, {
       labelPrintStatus: {
         printingStatus: {
-          $set: "ready"
+          $set: PrintingStatus.ready
         },
         errorText: {
           $set: ""
@@ -285,7 +292,7 @@ function printLabelWithSerial(
       labelPrintStatus: {
         ...state.labelPrintStatus,
         printingIndex: 0,
-        printingStatus: "ready",
+        printingStatus: PrintingStatus.ready,
         printingMoveLine,
         errorText: ""
       }
@@ -307,7 +314,7 @@ function printLabelWithSerial(
     labelPrintStatus: {
       ...state.labelPrintStatus,
       printingIndex,
-      printingStatus: "printing",
+      printingStatus: PrintingStatus.printing,
       printingMoveLine,
       errorText: ""
     }

@@ -29,7 +29,8 @@ import { StockPickingType } from "./resolvedTypes";
 import {
   stockPickingActions,
   SerialNoLabelData,
-  LabelPrintStatus
+  LabelPrintStatus,
+  PrintingStatus
 } from "../../reducer/stockPicking";
 import { FaBarcode, FaCogs } from "react-icons/fa";
 import {
@@ -175,7 +176,7 @@ class StockPicking extends React.Component<Props, State> {
     const { stockMoveInfo } = labelPrintStatus;
     return (
       <React.Fragment>
-        <Dialog open={labelPrintStatus.printingStatus === "printing"}>
+        <Dialog open={labelPrintStatus.printingStatus === PrintingStatus.printing}>
           <DialogTitle>Printing Barcode Label</DialogTitle>
           <DialogContent>
             {labelPrintStatus.printingMoveLine ? (
@@ -187,7 +188,7 @@ class StockPicking extends React.Component<Props, State> {
           </DialogContent>
         </Dialog>
         <Dialog
-          open={labelPrintStatus.printingStatus === "error"}
+          open={labelPrintStatus.printingStatus === PrintingStatus.error}
           onClose={resetLabelPrintStatus}
         >
           <DialogTitle> Filed to print barcode</DialogTitle>
