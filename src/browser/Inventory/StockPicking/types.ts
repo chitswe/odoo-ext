@@ -40,6 +40,7 @@ export interface StockMoveLineFindByStockMoveIdQuery {
         id: number,
         default_code: string,
         name: string,
+        tracking: ProductTracking,
       },
       quantity_done: number | null,
       product_uom_qty: number | null,
