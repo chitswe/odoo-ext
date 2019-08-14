@@ -137,12 +137,7 @@ class StockMoveGrid extends React.Component<Props, State> {
         scrollToIndex={scrollToIndex}
         selectedItems={selectedItems}
         onRowClick={(rowData, index) => {
-          if (rowData.product.tracking === "serial" || rowData.product.tracking === "lot") {
-            if (onStockMoveItemClick) onStockMoveItemClick(rowData, index);
-            else history.push(`${match.url}/stock_move/${rowData.id}`);
-          } else {
-            openSnackbar("Serial no tracking is not enable for this product");
-          }
+          if (onStockMoveItemClick) onStockMoveItemClick(rowData, index);
         }}
         listItemRenderer={({
           rowData,
@@ -178,7 +173,8 @@ class StockMoveGrid extends React.Component<Props, State> {
                       </React.Fragment>
                     }
                   />
-                  {product.tracking === "serial" || product.tracking === "lot" ? (
+                  {product.tracking === "serial" ||
+                  product.tracking === "lot" ? (
                     <ListItemIcon>
                       <MenuIcon />
                     </ListItemIcon>

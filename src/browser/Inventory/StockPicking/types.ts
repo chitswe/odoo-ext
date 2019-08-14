@@ -2,66 +2,76 @@
 //  This file was automatically generated and should not be edited.
 
 export enum ProductTracking {
+  serial = "serial",
   lot = "lot",
   none = "none",
-  serial = "serial",
 }
 
 
 export enum PickingState {
-  assigned = "assigned",
-  cancel = "cancel",
-  confirmed = "confirmed",
-  done = "done",
   draft = "draft",
   waiting = "waiting",
+  confirmed = "confirmed",
+  assigned = "assigned",
+  done = "done",
+  cancel = "cancel",
 }
 
 
 export interface StockMoveLineFindByStockMoveIdQueryVariables {
-  id: number,
+  pickingId: number,
+  stockMoveId: number,
   page?: number | null,
   pageSize?: number | null,
   order?: string | null,
 };
 
 export interface StockMoveLineFindByStockMoveIdQuery {
-  stock_move:  {
-    __typename: "StockMove",
+  picking:  {
+    __typename: "StockPicking",
     id: number,
-    product:  {
-      __typename: "Product",
+    name: string,
+    scheduled_date: string,
+    stock_move:  {
+      __typename: "StockMove",
       id: number,
-      default_code: string,
-    },
-    move_lines:  {
-      __typename: "StockMoveLineConnection",
-      aggregate:  {
-        __typename: "AggregateResult",
-        count: number | null,
-      },
-      edges:  Array< {
-        __typename: "StockMoveLine",
+      product:  {
+        __typename: "Product",
         id: number,
-        lot_name: string | null,
-        product_lot:  {
-          __typename: "ProductLot",
-          id: number,
-          name: string,
-          product_qty: number | null,
-          created: boolean | null,
-        } | null,
-        quant:  {
-          __typename: "ProductQuant",
-          quantity: number,
-        } | null,
-      } >,
-      pageInfo:  {
-        __typename: "PageInfo",
-        hasMore: boolean,
-        page: number,
-        pageSize: number,
+        default_code: string,
+        name: string,
       },
+      quantity_done: number | null,
+      product_uom_qty: number | null,
+      move_lines:  {
+        __typename: "StockMoveLineConnection",
+        aggregate:  {
+          __typename: "AggregateResult",
+          count: number | null,
+        },
+        edges:  Array< {
+          __typename: "StockMoveLine",
+          id: number,
+          lot_name: string | null,
+          product_lot:  {
+            __typename: "ProductLot",
+            id: number,
+            name: string,
+            product_qty: number | null,
+            created: boolean | null,
+          } | null,
+          quant:  {
+            __typename: "ProductQuant",
+            quantity: number,
+          } | null,
+        } >,
+        pageInfo:  {
+          __typename: "PageInfo",
+          hasMore: boolean,
+          page: number,
+          pageSize: number,
+        },
+      } | null,
     } | null,
   } | null,
 };
@@ -77,6 +87,8 @@ export interface StockMoveFindByPickingIdQuery {
   picking:  {
     __typename: "StockPicking",
     id: number,
+    name: string,
+    scheduled_date: string,
     stock_moves:  {
       __typename: "StockMoveConnection",
       aggregate:  {

@@ -32,8 +32,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 const styles = (theme: Theme) =>
   createStyles({
-    root: {
-    },
+    root: {},
     loadingIndicator: {
       backgroundColor: "#DDDDDD",
       color: "#DDDDDD",
@@ -406,7 +405,9 @@ export default compose(
     }),
     (dispatch: Dispatch<RootAction>) =>
       bindActionCreators(
-        { setSelectedStockPicking: stockPickingActions.setSelectedPicking },
+        {
+          setSelectedStockPicking: stockPickingActions.setSelectedPicking
+        },
         dispatch
       )
   )
