@@ -5,6 +5,7 @@ import { createStyles, WithStyles, withStyles } from "@material-ui/core";
 
 const styles = createStyles({
   input: {
+    fontSize: 13,
     textAlign: "right"
   }
 });

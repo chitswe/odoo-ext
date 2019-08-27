@@ -54,10 +54,16 @@ type Props = WithStyles<typeof styles> & {
 const styles = (theme: Theme) => 
   createStyles({
     created: {
-      color: "primary"
+      fontSize: 12,
+      color: "primary",
+      width: "100%",
+      margin: "5px"
     },
     normal: {
-      color : "inherit"
+      fontSize: 12,
+      color : "inherit",
+      width: "100%",
+      margin: "5px"
     }
   });
 
@@ -77,8 +83,9 @@ class StockMoveLineGrid extends React.Component<Props, State> {
       },
       {
         label: "Qty",
+        labelAlign: "right",
+        textAlign: "center",
         key: "quant",
-        flexGrow: 1,
         width: 50,
         sortable: false,
         format: ({ key, rowData: { quant } }) =>		
@@ -88,7 +95,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         label: "Serial No",
         key: "lot_name",
         flexGrow: 1,
-        width: 200,
+        width: 350,
         sortable: false,
         format: ({ key, rowData: { id, lot_name, product_lot } }) =>	
           (            
@@ -101,28 +108,28 @@ class StockMoveLineGrid extends React.Component<Props, State> {
                 { loading: saving, error: saveError }
               ) =>  {
                   const { classes, pickingId } = this.props;
-                  return <TextEditor
-                            onValidated={(value, oldValue) => {
-                              if (value !== oldValue)
-                                changeProductLot({
-                                  variables: {
-                                    id,
-                                    pickingId,
-                                    lotname: value
-                                  }
-                                });
-                            }}
-                            retainFocusOnError={true}
-                            error={!!saveError}
-                            helperText={
-                              saveError ? "Could not saved!" : ""
-                            }
-                            label=""
-                            value={lot_name ? lot_name : ""}                    
-                            className={product_lot && product_lot.created ? classes.created : classes.normal}
-                            // onChanged={value => {
-                            //   setEdit(value);
-                            // }}
+                  return  <TextEditor    
+                              onValidated={(value, oldValue) => {
+                                if (value !== oldValue)
+                                  changeProductLot({
+                                    variables: {
+                                      id,
+                                      pickingId,
+                                      lotname: value
+                                    }
+                                  });
+                              }}
+                              retainFocusOnError={true}
+                              error={!!saveError}
+                              helperText={
+                                saveError ? "Could not saved!" : ""
+                              }
+                              label=""
+                              value={lot_name ? lot_name : ""}                    
+                              className={product_lot && product_lot.created ? classes.created : classes.normal}
+                              // onChanged={value => {
+                              //   setEdit(value);
+                              // }}
                           />;
                   }
               }

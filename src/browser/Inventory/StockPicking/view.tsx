@@ -50,7 +50,7 @@ const styles = (theme: Theme) =>
       backgroundColor: theme.palette.grey[100]
     },
     stockMoveGridLine: {
-      width: 500
+      width: 550
     },
     menuButton: {
       marginLeft: -12,
