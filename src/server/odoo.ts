@@ -17,6 +17,7 @@ const Odoo = (creditional: { username: string; password: string }) => {
     db: env === "production" ? "Tri-Treasure" : "Tri-Treasure_Testing",
     // url: "http://localhost:8069",
     // db: "mt",
+    // db: "Tri-Treasure",
     username: creditional.username,
     password: creditional.password
   });
