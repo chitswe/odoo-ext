@@ -13,11 +13,11 @@ const Odoo = (creditional: { username: string; password: string }) => {
   const url =
     env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm";
   const oodoo = new oOdoo({
-    url,
-    db: env === "production" ? "Tri-Treasure" : "Tri-Treasure_Testing",
+    url: "http://127.0.0.1:8069",
+    //  db: env === "production" ? "Tri-Treasure" : "Tri-Treasure_Testing",
     // url: "http://localhost:8069",
     // db: "mt",
-    // db: "Tri-Treasure",
+    db: "Tri-Treasure",
     // db: "Test",
     username: creditional.username,
     password: creditional.password
