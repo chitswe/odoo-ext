@@ -110,7 +110,7 @@ const mutation  = {
   },
   generateProductLot : async ( parent: any, params: any, context: AuthResult) => {
     const { pickingId, moveId } = params;
-    let lotnum = Number((new Date()).format("YYMMDDhhmmssS000"));
+    let lotnum = Number((new Date()).format("YYMMDDhhmmssS001"));
     const picking = await stockPickingFind(context.odoo, pickingId);
     const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
     const move = await stockMoveFind(context.odoo, moveId);
