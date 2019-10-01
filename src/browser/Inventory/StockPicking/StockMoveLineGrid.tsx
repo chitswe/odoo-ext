@@ -92,7 +92,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         key: "lot_name",
         flexGrow: 1,
         width: 200,
-        sortable: false,
+        sortable: true,
         format: ({ key, rowData: { id, lot_name, product_lot } }) => (
           <Mutation mutation={changeProductLotMutation} key={id}>
             {(changeProductLot, { loading: saving, error: saveError }) => {
