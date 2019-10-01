@@ -140,7 +140,7 @@ class StockPicking extends React.Component<Props, State> {
                 return [
                   {
                     query: stockMoveLineFindByStockMoveId,
-                    variables: { id: selectedStockMove.id }
+                    variables: { stockMoveId: selectedStockMove.id, pickingId }
                   },
                   {
                     query: stockMoveFindByPickingId,
@@ -176,7 +176,9 @@ class StockPicking extends React.Component<Props, State> {
     const { stockMoveInfo } = labelPrintStatus;
     return (
       <React.Fragment>
-        <Dialog open={labelPrintStatus.printingStatus === PrintingStatus.printing}>
+        <Dialog
+          open={labelPrintStatus.printingStatus === PrintingStatus.printing}
+        >
           <DialogTitle>Printing Barcode Label</DialogTitle>
           <DialogContent>
             {labelPrintStatus.printingMoveLine ? (
@@ -277,7 +279,7 @@ class StockPicking extends React.Component<Props, State> {
         </MediaQuery>
         <MediaQuery minWidth={960}>
           <Grid container direction="column" className={classes.root}>
-            <Grid item>{this.renderAppBar("both")}</Grid>
+            {this.renderAppBar("both")}
             <Grid item>
               <StockPickingInfo id={id} />
             </Grid>

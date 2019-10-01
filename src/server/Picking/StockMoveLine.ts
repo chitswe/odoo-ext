@@ -110,9 +110,7 @@ const mutation  = {
   },
   generateProductLot : async ( parent: any, params: any, context: AuthResult) => {
     const { pickingId, moveId } = params;
-    let lotnum = (new Date()).format("YYMMDDhhmmssSSSSS0");
-    let lotnum1 = Number(lotnum.substr(13, 5));
-    lotnum = lotnum.substr(0, 13);
+    let lotnum = Number((new Date()).format("YYMMDDhhmmssS000"));
     const picking = await stockPickingFind(context.odoo, pickingId);
     const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
     const move = await stockMoveFind(context.odoo, moveId);
@@ -139,7 +137,7 @@ const mutation  = {
                 return context.odoo.execute_kwAsync(
                   "stock.move.line",
                   "write",
-                  [[id], { lot_name: lotnum + (lotnum1 + index), product_uom_qty: 1, qty_done: 1 }]
+                  [[id], { lot_name: lotnum + index, product_uom_qty: 1, qty_done: 1 }]
                 );
               else
                 return context.odoo.execute_kwAsync("stock.move.line", "create", [
@@ -150,7 +148,7 @@ const mutation  = {
                     location_id: picking.location_id[0], 
                     product_id: move.product_id[0], 
                     product_uom_id: move.product_uom[0] , 
-                    lot_name: lotnum + (lotnum1 + index), 
+                    lot_name: lotnum + index, 
                     product_uom_qty: 1, 
                     qty_done: 1
                   }
