@@ -182,6 +182,7 @@ class ApolloVirtualizedGrid<T> extends React.Component<Props<T>> {
                     if (!fetchMoreResult) return previousResult;
                     const fetchMoreList = parseList(fetchMoreResult);
                     const previousList = parseList(previousResult);
+                    // console.log(fetchMoreList);
                     const newList = {
                       ...previousList,
                       edges: [...previousList.edges, ...fetchMoreList.edges]

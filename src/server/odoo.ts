@@ -10,8 +10,7 @@ type Odoo = {
 };
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "production";
 const Odoo = (creditional: { username: string; password: string }) => {
-  const url =
-    env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm";
+  const url = env === "production" ? "http://127.0.0.1:8069" : "http://odoo.mt.com.mm";
   const oodoo = new oOdoo({
     url,
     db: "Tri-Treasure",

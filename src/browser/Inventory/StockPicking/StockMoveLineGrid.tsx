@@ -160,7 +160,14 @@ class StockMoveLineGrid extends React.Component<Props, State> {
     } else return null;
   }
 
-  componentWillReceiveProps(newProps: Props, state: State) {
+  static getDerivedStateFromProps(props: Props, state: State) {
+    const { pickingId , stockMoveId} = props;
+    if (pickingId !== state.variables.pickingId || stockMoveId !== state.variables.stockMoveId) {
+      return { ...state, variables: { ...state.variables, pickingId, stockMoveId } };
+    } else return state;
+  }
+
+  componentWillReceiveProps(newProps: Props, { variables }: State) {
     if (newProps.stockMoveId !== this.props.stockMoveId) {
       this.props.setStockMoveInfo({
         product_default_code: "",
@@ -170,6 +177,15 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         printing_copy: 0
       });
       this.props.clearSelected();
+      this.setState({
+        variables: { ...variables, stockMoveId: newProps.stockMoveId }
+      });
+    }
+
+    if (newProps.pickingId !== this.props.pickingId) {
+      this.setState({
+        variables: { ...variables, pickingId: newProps.pickingId }
+      });
     }
   }
   componentWillUnmount() {
@@ -278,7 +294,7 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         onColumnPropsChanged={this.handleOnColumnPropsChanged.bind(this)}
         columns={columns}
         graphqlQuery={stockMoveLineFindByStockMoveId}
-        variables={{ ...variables, stockMoveId, pickingId }}
+        variables={variables}
         pageSize={20}
         parseListFromQueryResult={(queryResult: any) => {
           return queryResult && queryResult.picking
