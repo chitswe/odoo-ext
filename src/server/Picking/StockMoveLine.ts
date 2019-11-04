@@ -8,6 +8,7 @@ import { stockMoveFind } from "./StockMove";
 import { AuthResult } from "../auth";
 import { stockPickingFind } from "./StockPicking";
 import { operationTypeFind  } from "../MasterData/OperationType";
+import { UserInputError } from "apollo-server";
 
 const schema = `
     type StockMoveLine{
@@ -86,27 +87,48 @@ const query = {
   
 };
 
+
 const mutation  = {
   changeProductLot: async ( parent: any, params: any, context: AuthResult) => {
     const { id, pickingId, lotname } = params;
     const picking = await stockPickingFind(context.odoo, pickingId);
     const opType = await operationTypeFind(context.odoo, picking.picking_type_id[0]);
     if (opType.use_create_lots && picking.state === "assigned") {
-      return context.odoo.execute_kwAsync(
-        "stock.move.line",
-        "write",
-        [[id], { lot_name: lotname, product_uom_qty: 1, qty_done: 1 }]
-      ).then(() => {
-        return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
-          offset: 0,
-          limit: 1,
-          fields: ["id", "lot_id", "lot_name", "location_id", "location_dest_id"],
-        })
-        .then(([p]: [any]) => {
-          return p;
+        return context.odoo.execute_kwAsync(
+          "stock.move.line",
+          "write",
+          [[id], { lot_name: lotname, product_uom_qty: 1, qty_done: 1 }]
+        ).then(() => {
+          return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
+            offset: 0,
+            limit: 1,
+            fields: ["id", "lot_id", "lot_name", "location_id", "location_dest_id"],
+          })
+          .then(([p]: [any]) => {
+            return p;
+          });
         });
-      });
-    }      
+    } else if (opType.use_existing_lots && picking.state === "assigned") {
+        return productLotFindByLotname(context.odoo, lotname).then((lot) => {
+          if (lot)
+            return context.odoo.execute_kwAsync(
+              "stock.move.line",
+              "write",
+              [[id], { lot_name: lotname, product_uom_qty: 1, qty_done: 1 }]
+            ).then(() => {
+              return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
+                offset: 0,
+                limit: 1,
+                fields: ["id", "lot_id", "lot_name", "location_id", "location_dest_id"],
+              })
+              .then(([p]: [any]) => {
+                return p;
+              });
+            });
+          // else
+          //   return new productLotError({data: {id}});
+        });
+    }  
   },
   generateProductLot : async ( parent: any, params: any, context: AuthResult) => {
     const { pickingId, moveId } = params;
@@ -196,7 +218,33 @@ const mutation  = {
           return p;
         });
       });
+    } else if (opType.use_existing_lots && picking.state === "assigned") { 
+      return productLotFindByLotname(context.odoo, lot_name).then((lot) => {
+        if (lot)
+          return context.odoo.execute_kwAsync("stock.move.line", "create", [
+            {
+              move_id, date: new Date(), location_dest_id: picking.location_dest_id[0], location_id: picking.location_id[0], product_id: move.product_id[0], product_uom_id: move.product_uom[0] , lot_name, product_uom_qty: 1, qty_done: 1}
+          ]).then((result) => {
+            return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", result]]], {
+              offset: 0,
+              limit: 1,
+              fields: ["id", "lot_id", "lot_name", "location_id", "location_dest_id"],
+            })
+            .then(([p]: [any]) => {
+              return p;
+            });
+          });
+        else
+          throw new UserInputError("Lotname was not found in existing Product Lot list.", { invalidArgs: { lot_name } });
+        //   return ({lot , error: "ProductLot error!"});
+      }); 
     }
+  },
+  deleteStockMoveLine : async ( parent: any, params: any, context: AuthResult) => {
+    const { id } = params;    
+    return context.odoo.execute_kwAsync("stock.move.line", "unlink", [id]).then(() => {
+      return {id};
+    });
   }
 };
 

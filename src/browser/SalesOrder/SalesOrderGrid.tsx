@@ -4,13 +4,13 @@ import ApolloVirtualizedGrid, {
     ApolloListResult
   } from "../component/VirtualizedGrid/ApolloVirtualizedGrid";
 import { salesOrderListQuery } from "./graphql";
-import { Theme, createStyles, WithStyles, withStyles } from "@material-ui/core";
+import { Theme, createStyles, WithStyles, withStyles, Button } from "@material-ui/core";
 import { compose, Query } from "react-apollo";
 import { RootState, RootAction } from "../reducer";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import update from "immutability-helper";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, withRouter } from "react-router";
 import * as accounting from "accounting";
 import { SalesOrdersType, SalesOrderType } from "./resolvedTypes";
 
@@ -29,7 +29,7 @@ type Props = {
     scrollToIndex: number;
     rootClassName?: string;
     filter: any;
-};
+} & RouteComponentProps;
 
 type State = {
     columns: ReadonlyArray<GridColumn<SalesOrderType>>;
@@ -102,7 +102,33 @@ class SalesOrderGrid extends React.Component<Props, State> {
                 flexGrow: 2,
                 hideAt: 700,
                 format: ({ key, rowData}) => accounting.formatMoney(rowData.InvoiceTotal, { format: "%v", precision: accounting.settings.number.precision})
-              },              
+              },     
+              {
+                label: "Payment Amount",
+                key: "PaymentTotal",
+                width: 120,
+                sortable: true,
+                labelAlign: "right",
+                textAlign: "right",
+                flexGrow: 2,
+                hideAt: 700,
+                format: ({ key, rowData}) =>  {
+                  return rowData.PaymentTotal ? 
+                   (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                              this.props.history.push(`/payment/${rowData.id}`);
+                            }}
+                          >
+                            {
+                                accounting.formatMoney(rowData.PaymentTotal, { format: "%v", precision: accounting.settings.number.precision})
+                            }
+                          </Button>) : null ;
+              }           
+                
+              },          
         ],
         variables: {
         }
@@ -172,5 +198,6 @@ class SalesOrderGrid extends React.Component<Props, State> {
 }
 
 export default compose(
+  withRouter,
   withStyles(styles)
 )(SalesOrderGrid);

@@ -3,7 +3,7 @@ import { GridColumn } from "../component/VirtualizedGrid";
 import ApolloVirtualizedGrid, {
     ApolloListResult
   } from "../component/VirtualizedGrid/ApolloVirtualizedGrid";
-import { paymentListQuery } from "./graphql";
+import { paymentListQuery, paymentByOrderIdQuery } from "./graphql";
 import { Theme, createStyles, WithStyles, withStyles } from "@material-ui/core";
 import { compose, Query } from "react-apollo";
 import { RootState, RootAction } from "../reducer";
@@ -28,6 +28,7 @@ type Props = {
     selectedIndex: number[];
     scrollToIndex: number;
     rootClassName?: string;
+    orderId: string;
     filter: any;
 };
 
@@ -144,10 +145,11 @@ class PaymentGrid extends React.Component<Props, State> {
             scrollToIndex,
             selectedIndex,
             rootClassName,
-            filter
+            filter,
+            orderId
           } = this.props;
-
-        return (
+                
+        return (          
             <ApolloVirtualizedGrid
                 debugname="paymentgrid"
                 rootClassName={rootClassName}
@@ -156,8 +158,8 @@ class PaymentGrid extends React.Component<Props, State> {
                 onColumnPropsChanged={this.handleOnColumnPropsChanged.bind(this)}
                 columns={columns}
                 variables={variables}
-                listPropsName="payment"
-                graphqlQuery={paymentListQuery}
+                listPropsName={orderId ? "payments_by_orderId" : "payment"}
+                graphqlQuery={orderId ? paymentByOrderIdQuery : paymentListQuery}
                 pageSize={20}
                 updateQuery={(
                     previousResult: any,

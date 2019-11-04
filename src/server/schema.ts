@@ -76,12 +76,14 @@ const schema = gql`
       filter: [[[AnyString!]!]!]
     ): SalesOrderConnection   
 
+    get_sales_order(id:Int!):SalesOrder
+
     price_change(
       page: Int = 1
       pageSize: Int = 20
       order: String
-      startDate: Date!
-      endDate: Date!
+      startDate: Date
+      endDate: Date
     ): PriceChangeConnection
 
     get_price_change(
@@ -101,6 +103,14 @@ const schema = gql`
       order: String
       filter: [[[AnyString!]!]!]
     ): PaymentConnection
+
+    payments_by_orderId(
+      page: Int = 1
+      pageSize: Int = 20
+      order: String
+      filter: [[[AnyString!]!]!]
+    ): PaymentConnection
+
   }
 
   type Mutation {
@@ -112,6 +122,7 @@ const schema = gql`
     updatePriceChange(id:Int!,PriceChangeDate:Date!,Remark:String):PriceChange
     createPriceChangeDetail(PriceChangeId:Int!,ProductId:Int!,PriceBookId:Int!,OldPrice:Float!,NewPrice:Float!):PriceChangeDetail
     updatePriceChangeDetail(id:Int!,PriceChangeId:Int!,ProductId:Int!,PriceBookId:Int!,OldPrice:Float!,NewPrice:Float!):PriceChangeDetail
+    deleteStockMoveLine(id:Int!):StockMoveLine
   }
 
   ${picking_schema}

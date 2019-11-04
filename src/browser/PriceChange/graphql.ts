@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 const priceChangeListQuery = gql`
 query PriceChange($page: Int, $pageSize: Int, $order: String,  
-  $startDate:Date!,$endDate:Date!) {
+  $startDate:Date,$endDate:Date) {
     price_change(page: $page, pageSize: $pageSize, order: $order, startDate:$startDate,endDate:$endDate) {
       pageInfo {
         hasMore

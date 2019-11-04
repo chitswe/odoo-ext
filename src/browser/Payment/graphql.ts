@@ -35,4 +35,41 @@ query Payment($page: Int, $pageSize: Int, $order: String,
   }
 `;
 
-export { paymentListQuery };
+const paymentByOrderIdQuery = gql`
+  query PaymentByOrderId($page: Int = 1
+    $pageSize: Int = 10
+    $order: String
+    $filter: [[[AnyString!]!]!]) {
+    payments_by_orderId(page: $page, pageSize: $pageSize, order: $order, filter:$filter) {
+      pageInfo {
+        hasMore
+        page
+        pageSize
+      }
+      aggregate {
+        count
+      }
+      edges {
+        id
+        PaymentDate
+        PaymentNumber
+        PaymentType
+        partner{
+            id
+            name
+        }
+        journal{
+          id
+          name
+        }
+        createdBy{
+          id
+          name
+        }
+        Amount
+      }
+    }
+  }
+`;
+
+export { paymentListQuery, paymentByOrderIdQuery };

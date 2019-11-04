@@ -115,7 +115,7 @@ const query = {
 
         const options: IFindOptions<PriceChange> = {
             include: [ { model: PriceChangeDetail }],
-            where: { $and: [ { PriceChangeDate: {$gte: startDate.assumeLocalAsUTC()}}, { PriceChangeDate: {$gte: startDate.assumeLocalAsUTC()}} ] }
+            where: startDate && endDate ? { $and: [ { PriceChangeDate: {$gte: startDate.assumeLocalAsUTC()}}, { PriceChangeDate: {$gte: startDate.assumeLocalAsUTC()}} ] } : {}
         };
 
         return PriceChange.findAndCountAll(options).then(({ rows, count }) => {     

@@ -51,7 +51,8 @@ export const createServerStore = (authResult: AuthResult) => {
       labelPrintSetting: undefined,
       priceList: undefined,
       priceChange: undefined,
-      priceChangeDetail: undefined
+      priceChangeDetail: undefined,
+      stockMove: undefined,
     },
     { type: "" }
   );
@@ -93,8 +94,8 @@ export const createClientStore = () => {
   const persistConfig = {
     key: "root",
     storage: storage.default,
-    whitelist: ["labelPrintSetting"],
-    transforms: [createWhitelistFilter("labelPrintSetting", ["url"])],
+    whitelist: ["labelPrintSetting", "stockMove"],
+    transforms: [createWhitelistFilter("labelPrintSetting", ["url"]), createWhitelistFilter("stockMove")],
     stateReconciler: autoMergeLevel2.default
   };
 

@@ -90,6 +90,7 @@ type Props = WithStyles<typeof styles> & RouteComponentProps;
 type State = {
     open: boolean;
     searchOrderNo: string;
+    searchSalesPerson: string;
     fromDate: string;
     toDate: string;
     filter: any;
@@ -98,6 +99,7 @@ type State = {
 class SalesOrderList extends React.Component<Props, State> {
     state: State = {
         searchOrderNo: "",
+        searchSalesPerson: "",
         open: false,
         fromDate: "",
         toDate: "",
@@ -123,7 +125,7 @@ class SalesOrderList extends React.Component<Props, State> {
     
     render() {
         const { classes } = this.props;
-        const { searchOrderNo, filter, open, fromDate, toDate } = this.state; 
+        const { searchOrderNo, searchSalesPerson, filter, open, fromDate, toDate } = this.state; 
         return (
             <Grid container direction="column" className={classes.root}>
             <Drawer open={open} onClose={() => {this.setState({open: false}); }} >
@@ -144,6 +146,15 @@ class SalesOrderList extends React.Component<Props, State> {
                                 value={searchOrderNo}
                                 onChange={(e) => {
                                     this.setState(({searchOrderNo: e.target.value}));
+                                }}
+                            />
+                            <TextField
+                                id="salesPerson"
+                                label="Sales Person"
+                                className={classes.textField}
+                                value={searchSalesPerson}
+                                onChange={(e) => {
+                                    this.setState(({searchSalesPerson: e.target.value}));
                                 }}
                             />
                             <TextField
@@ -175,6 +186,8 @@ class SalesOrderList extends React.Component<Props, State> {
                                     const searchFilter = [];
                                     if (searchOrderNo)
                                         searchFilter.push(["name", "ilike", searchOrderNo]);
+                                    if (searchSalesPerson)
+                                        searchFilter.push(["user_id", "ilike", searchSalesPerson]);
                                     if (fromDate)
                                         searchFilter.push(["date_order", ">=", fromDate]);
                                     if (toDate)

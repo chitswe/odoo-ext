@@ -70,7 +70,7 @@ const styles = (theme: Theme) =>
         }
     });
 
-type Props = WithStyles<typeof styles> & RouteComponentProps;
+type Props = WithStyles<typeof styles> & RouteComponentProps<{ orderId: string }>;
 
 type State = {
     searchText: string;
@@ -93,8 +93,38 @@ class Payment extends React.Component<Props, State> {
         filter: []
     };
 
+    componentDidMount() {
+        let {match} = this.props;
+        if (match.params.orderId) {
+            const searchFilter = [];
+            searchFilter.push(["id", "=", match.params.orderId]);
+            this.setState({filter: searchFilter});
+        }
+    }
+
+    componentWillReceiveProps(newProps: Props) {
+        if (newProps.match.params.orderId !== this.props.match.params.orderId) {
+            if (newProps.match.params.orderId) {
+                const searchFilter = [];
+                searchFilter.push(["id", "=", newProps.match.params.orderId]);
+                this.setState({filter: searchFilter});
+            } else {
+                const searchFilter = [];
+                let {partner, dateFrom, dateTo} = this.state;
+                if (partner)
+                    searchFilter.push(["partner_id", "ilike", partner]);
+                if (dateFrom)
+                    searchFilter.push(["payment_date", ">=", dateFrom]);
+                if (dateTo)
+                    searchFilter.push(["payment_date", "<=", dateTo]);
+                
+                this.setState({filter: searchFilter});
+            }                
+        }
+      }
+
     render() {
-        const { classes } = this.props;
+        const { classes, match } = this.props;
         const { searchText, search, open, dateFrom, dateTo, partner, filter} = this.state;
 
         return (
@@ -179,7 +209,7 @@ class Payment extends React.Component<Props, State> {
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <PaymentGrid filter={filter} />
+                <PaymentGrid filter={filter} orderId={match.params.orderId} />
             </Grid>
         );
     }

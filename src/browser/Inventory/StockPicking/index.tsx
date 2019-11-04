@@ -16,6 +16,7 @@ import {
   Grid,
   AppBar,
   Toolbar,
+  IconButton,
   InputBase
 } from "@material-ui/core";
 import ApolloVirtualizedGrid from "../../component/VirtualizedGrid/ApolloVirtualizedGrid";
@@ -27,8 +28,10 @@ import { connect } from "react-redux";
 import { RootState, RootAction } from "../../reducer";
 import { Dispatch, bindActionCreators } from "redux";
 import { stockPickingActions } from "../../reducer/stockPicking";
+import { stockMoveActions } from "../../reducer/stockMove";
 import OpenDrawerButton from "../../component/AppBar/OpenDrawerButton";
 import SearchIcon from "@material-ui/icons/Search";
+import ClearAll from "@material-ui/icons/ClearAllOutlined";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 const styles = (theme: Theme) =>
   createStyles({
@@ -406,7 +409,9 @@ export default compose(
     }),
     (dispatch: Dispatch<RootAction>) =>
       bindActionCreators(
-        { setSelectedStockPicking: stockPickingActions.setSelectedPicking },
+        { 
+          setSelectedStockPicking: stockPickingActions.setSelectedPicking
+        },
         dispatch
       )
   )

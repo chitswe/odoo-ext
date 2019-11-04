@@ -12,6 +12,8 @@ const schema = `
         SalesPerson:MasterName!
         amount_total:Float!
         InvoiceTotal:Float!
+        PaymentTotal:Float!
+        Payments:[Payment]
     }
 
     type SalesOrderConnection implements WithPagination & WithAggregateResult{
@@ -60,6 +62,74 @@ const resolver = {
                 return totalAmount;
             });
             
+        },
+        PaymentTotal: (order: any, params: any, context: AuthResult) => {
+            let totalAmount = 0;
+
+            let promises = order.invoice_ids.map(async (e: any) => {
+                return context.odoo.execute_kwAsync("account.invoice", "search_read", [[["id", "=", e]]], {
+                    offset: 0,
+                    limit: 1,
+                    fields: ["payment_ids"]
+                })       
+                .then(([p]: [any]) => {
+                    let promise1 = p.payment_ids.map(async (m: any) => {
+                        return context.odoo.execute_kwAsync("account.payment", "search_read", [[["id", "=", m]]], {
+                            offset: 0,
+                            limit: 1,
+                            fields: ["amount"],
+                        })
+                        .then(([g]: [any]) => {
+                            return g;
+                        });
+                    });
+
+                    return Promise.all(promise1).then((s: any) => {
+                        return s.map((a: any) => {
+                            totalAmount += a.amount;
+                        });
+                    });
+
+                });
+            });
+
+            return Promise.all(promises).then(() => {
+                return totalAmount;
+            });
+        },
+        Payments: (order: any, params: any, context: AuthResult) => {
+            let payments: any[] = [];
+
+            let promises = order.invoice_ids.map(async (e: any) => {
+                return context.odoo.execute_kwAsync("account.invoice", "search_read", [[["id", "=", e]]], {
+                    offset: 0,
+                    limit: 1,
+                    fields: ["payment_ids"]
+                })       
+                .then(([p]: [any]) => {
+                    let promise1 = p.payment_ids.map(async (m: any) => {
+                        return context.odoo.execute_kwAsync("account.payment", "search_read", [[["id", "=", m]]], {
+                            offset: 0,
+                            limit: 1,
+                            fields: ["id", "payment_date", "communication", "payment_type", "partner_id", "journal_id", "create_uid", "amount"],
+                        })
+                        .then(([g]: [any]) => {
+                            return g;
+                        });
+                    });
+
+                    return Promise.all(promise1).then((s: any) => {
+                        return s.map((a: any) => {
+                            payments.push(a);
+                        });
+                    });
+
+                });
+            });
+
+            return Promise.all(promises).then((g) => {
+                return payments;
+            });
         }
     }
 };
@@ -90,6 +160,18 @@ const salesOrderCount = (odoo: Odoo, filter: any = [[]]) => {
     return odoo.execute_kwAsync("sale.order", "search_count", filter);
 };
 
+const salesOrderFind = (odoo: Odoo, id: number) => {
+    const params: any = [[["id", "=", id]]];
+    return odoo.execute_kwAsync("sale.order", "search_read", params, {
+      offset: 0,
+        limit: 1,
+        fields: ["id", "name", "date_order", "amount_total", "partner_id", "user_id", "invoice_ids"],
+      })
+      .then(([p]: [any]) => {
+        return p;
+      });     
+};
+
 const query = {
     sales_order : async (
         parent: any,
@@ -114,6 +196,14 @@ const query = {
           }
         };
       },
+    get_sales_order : async (
+        parent: any,
+        params: any,
+        context: AuthResult
+    ) => {
+        const {id} = params;
+        return salesOrderFind(context.odoo, id);
+    }
 };
 
 export {schema, resolver, query, salesOrderFindAll, salesOrderCount };

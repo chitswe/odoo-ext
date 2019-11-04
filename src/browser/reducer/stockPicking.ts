@@ -1,5 +1,5 @@
 import { createAction, getType } from "typesafe-actions";
-import { StockPickingType } from "../Inventory/StockPicking/resolvedTypes";
+import { StockPickingType, StockMoveLineType } from "../Inventory/StockPicking/resolvedTypes";
 import { DeepReadonly, $Call } from "utility-types";
 import update from "immutability-helper";
 

@@ -26,7 +26,9 @@ import { priceChangeDetailActions, PriceChangeDetailEditItem } from "../reducer/
 import { priceChangeActions } from "../reducer/priceChange";
 import update from "immutability-helper";
 import CurrencyEditor from "../component/CurrencyEditor";
-//import AutoComplete2 from "../component/AutoComplete2";
+import AutoComplete from "../component/AutoComplete";
+import { ProductType } from "./resolvedTypes";
+import { ApolloListResult } from "../component/VirtualizedGrid/ApolloVirtualizedGrid";
 import { createPriceChangeDetailMutation, updatePriceChangeDetailMutation, productListQuery } from "./graphql";
 
 const styles =  (theme: Theme) => 
@@ -54,11 +56,20 @@ type Props = {
 } & WithStyles<typeof styles>;
 
 type State = {
-
+    searchText: string;
+    variables: any;
 };
 
 class PriceChangeDetailDialog extends React.Component<Props, State> {
-    state: State = {};
+    state: State = {
+        searchText: "",
+        variables: { filter : [[["name", "=ilike", "xx%"]]]}
+    };
+
+    // componentDidMount() {
+    //     let { edit } = this.props;
+    //     this.setState({searchText: edit.product ? edit.product.name : ""});
+    // }
 
     render() {
         const { classes, open, PriceChangeId, edit, setEdit, closeDialog, addItem, setItem, index } = this.props;
@@ -86,7 +97,7 @@ class PriceChangeDetailDialog extends React.Component<Props, State> {
                             {
                                 (updatePriceChangeDetail, { data, loading, error }) => ( 
                                     <Grid container>
-                                        <Grid item xs={12} >
+                                        {/* <Grid item xs={12} >
                                             <TextField
                                                 id="product"
                                                 label="Product"
@@ -99,14 +110,48 @@ class PriceChangeDetailDialog extends React.Component<Props, State> {
                                                     setEdit({ product: item, errors: { product: ""}});
                                                 }}
                                             />
-                                        </Grid>
-                                        {/* <Grid item xs={12} >
-                                            <AutoComplete2                                              
-                                                openonfocus={true}
-                                                fullWidth={true}
-                                                searchText={product ? product.name : ""}
-                                            />
                                         </Grid> */}
+                                        <Grid item xs={12} >
+                                            <AutoComplete                                              
+                                                searchText={product ? product.name : ''}
+                                                openonfocus={true}
+                                                onUpdateInput={(value: any) => {
+                                                    if (value)
+                                                        //this.setState({searchText: value});
+                                                        setEdit({ product: value, errors: { product: ""}});
+                                                }}
+                                                variables={this.state.variables}
+                                                onNewChange={(value: string) => {    
+                                                                value = value !== "" ? value + "%" : "xxx$";
+                                                                const filter = [
+                                                                [
+                                                                    ["name", "=ilike", value]
+                                                                ]
+                                                                ];
+                                                                setTimeout(() => {
+                                                                this.setState({
+                                                                    variables: update(this.state.variables, {
+                                                                    filter: {
+                                                                        $set: filter
+                                                                    }
+                                                                    })
+                                                                });
+                                                                }, 3000);
+                                                }}
+                                                graphqlQuery={productListQuery}
+                                                listPropsName="products"
+                                                updateQuery={(
+                                                    previousResult: any,
+                                                    list: ApolloListResult<ProductType>
+                                                    ) => {
+                                                    return update(previousResult, {
+                                                        product: {
+                                                            $set: list
+                                                        }
+                                                    });
+                                                }}
+                                            />
+                                        </Grid>
                                         <Grid item xs={12} >
                                             <TextField
                                                 id="priceBook"
@@ -165,6 +210,47 @@ class PriceChangeDetailDialog extends React.Component<Props, State> {
                                 (createPriceChangeDetail, { loading: saving, error: saveError }) => ( 
                                     <Grid container>
                                         <Grid item xs={12} >
+                                            <AutoComplete                                              
+                                                searchText={product ? product.name : ''}
+                                                openonfocus={true}
+                                                onUpdateInput={(value: any) => {
+                                                    if (value)
+                                                        //this.setState({searchText: value});
+                                                        setEdit({ product: value, errors: { product: ""}});
+                                                }}
+                                                variables={this.state.variables}
+                                                onNewChange={(value: string) => {    
+                                                                value = value !== "" ? value + "%" : "xxx$";
+                                                                const filter = [
+                                                                  [
+                                                                    ["name", "=ilike", value]
+                                                                  ]
+                                                                ];
+                                                                setTimeout(() => {
+                                                                  this.setState({
+                                                                    variables: update(this.state.variables, {
+                                                                      filter: {
+                                                                        $set: filter
+                                                                      }
+                                                                    })
+                                                                  });
+                                                                }, 3000);
+                                                }}
+                                                graphqlQuery={productListQuery}
+                                                listPropsName="products"
+                                                updateQuery={(
+                                                    previousResult: any,
+                                                    list: ApolloListResult<ProductType>
+                                                    ) => {
+                                                    return update(previousResult, {
+                                                        product: {
+                                                            $set: list
+                                                        }
+                                                    });
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} >
                                             <TextField
                                                 id="product"
                                                 label="Product"
@@ -172,6 +258,7 @@ class PriceChangeDetailDialog extends React.Component<Props, State> {
                                                 value={product ? product.id : null}
                                                 InputLabelProps={{ shrink: true }}
                                                 helperText={errors.product}
+                                                disabled={true}
                                                 onChange={(e) => {
                                                     let item = { id: Number(e.target.value), name: "test"};
                                                     setEdit({ product: item, errors: { product: ""}});

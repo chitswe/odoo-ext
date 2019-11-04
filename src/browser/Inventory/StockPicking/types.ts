@@ -34,6 +34,7 @@ export interface StockMoveLineFindByStockMoveIdQuery {
       id: number,
       default_code: string,
     },
+    product_uom_qty: number | null,
     move_lines:  {
       __typename: "StockMoveLineConnection",
       aggregate:  {
@@ -135,6 +136,12 @@ export interface StockPickingFindQuery {
       id: string,
       name: string,
     } | null,
+    operation_type:  {
+      __typename: "OperationType",
+      id: string,
+      use_create_lots: boolean,
+      use_existing_lots: boolean
+    } | null,
     scheduled_date: string,
     state: PickingState,
     picking_type:  {
@@ -183,6 +190,12 @@ export interface StockPickingFindAllQuery {
         __typename: "MasterName",
         id: string,
         name: string,
+      } | null,
+      operation_type:  {
+        __typename: "OperationType",
+        id: string,
+        use_create_lots: boolean,
+        use_existing_lots: boolean
       } | null,
       scheduled_date: string,
       state: PickingState,
@@ -254,5 +267,40 @@ export interface changeProductLotMutation {
       __typename: "ProductQuant",
       quantity: number,
     } | null,
+  } | null,
+};
+
+export interface createStockMoveLineMutationVariables {
+  move_id: number,
+  lot_name: string,
+};
+
+export interface createStockMoveLineMutation {
+  createStockMoveLine:  {
+    __typename: "StockMoveLine",
+    id: number,
+    lot_name: string | null,
+    product_lot:  {
+      __typename: "ProductLot",
+      id: number,
+      name: string,
+      product_qty: number | null,
+      created: boolean | null,
+    } | null,
+    quant:  {
+      __typename: "ProductQuant",
+      quantity: number,
+    } | null,
+  } | null,
+};
+
+export interface deleteStockMoveLineMutationVariables {
+  id: number,
+};
+
+export interface deleteStockMoveLineMutation {
+  createStockMoveLine:  {
+    __typename: "StockMoveLine",
+    id: number
   } | null,
 };

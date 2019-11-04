@@ -38,7 +38,7 @@ class App extends React.PureComponent<Props> {
             <Route path="/price" component={PriceList} />
             <Route path="/inventory" component={Inventory} />
             <Route path="/salesorder" component={SalesOrder} />
-            <Route path="/payment" component={Payment} />
+            <Route path="/payment/:orderId?" component={Payment} />
             <Route path="/pricechange/detail" component={PriceChangeDetail} />
             <Route path="/pricechange" component={PriceChange} />
             <Route path="/setting" component={Setting} />

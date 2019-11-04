@@ -38,6 +38,7 @@ export interface SalesOrderQuery {
       },
       amount_total: number,
       InvoiceTotal: number,
+      PaymentTotal: number,
     } >,
   } | null,
 };

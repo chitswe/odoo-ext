@@ -48,7 +48,7 @@ const resolver = {
         order,
         filter
       });
-      const count = await stockMoveCount(context.odoo,filter);
+      const count = await stockMoveCount(context.odoo, filter);
       const pageInfo = { hasMore: page * pageSize < count, pageSize, page };
       return {
         edges,

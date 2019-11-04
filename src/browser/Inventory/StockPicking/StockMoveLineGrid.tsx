@@ -44,6 +44,7 @@ type Props = WithStyles<typeof styles> & {
   pickingId: number;
   loadingIndicatorClassName: string;
   rootClassName?: string;
+  mode: string;
   selectedItems: ReadonlyArray<number>;
   setSelected: typeof stockPickingActions.setSelectedStockMoveLine;
   clearSelected: typeof stockPickingActions.clearSelectedStockMoveLine;
@@ -81,60 +82,66 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         sortable: true,
         hideAt: 500
       },
+      // {
+      //   label: "Qty",
+      //   labelAlign: "right",
+      //   textAlign: "center",
+      //   key: "quant",
+      //   width: 50,
+      //   sortable: false,
+      //   format: ({ key, rowData: { quant } }) =>		
+      //     quant ? quant.quantity : ""
+      // },
       {
-        label: "Qty",
-        labelAlign: "right",
-        textAlign: "center",
-        key: "quant",
-        width: 50,
-        sortable: false,
-        format: ({ key, rowData: { quant } }) =>		
-          quant ? quant.quantity : ""
-      },
-      {
-        label: "Serial No",
+        label: "Serial No", 
         key: "lot_name",
         flexGrow: 1,
         width: 350,
         sortable: false,
-        format: ({ key, rowData: { id, lot_name, product_lot } }) =>	
-          (            
-            <Mutation
-              mutation={changeProductLotMutation}
-              key={id}
-            >
-              {(
-                changeProductLot,
-                { loading: saving, error: saveError }
-              ) =>  {
-                  const { classes, pickingId } = this.props;
-                  return  <TextEditor    
-                              onValidated={(value, oldValue) => {
-                                if (value !== oldValue)
-                                  changeProductLot({
-                                    variables: {
-                                      id,
-                                      pickingId,
-                                      lotname: value
-                                    }
-                                  });
-                              }}
-                              retainFocusOnError={true}
-                              error={!!saveError}
-                              helperText={
-                                saveError ? "Could not saved!" : ""
-                              }
-                              label=""
-                              value={lot_name ? lot_name : ""}                    
-                              className={product_lot && product_lot.created ? classes.created : classes.normal}
-                              // onChanged={value => {
-                              //   setEdit(value);
-                              // }}
-                          />;
-                  }
-              }
-            </Mutation>
-          )          
+        format: ({ key, rowData: { lot_name } }) => lot_name ? lot_name : ""
+        // format: ({ key, rowData: { id, lot_name, product_lot } }) =>	{
+        //     if ( this.props.mode === "edit")
+        //       return (
+        //         <Mutation
+        //           mutation={changeProductLotMutation}
+        //           key={id}
+        //         >
+        //           {(
+        //             changeProductLot,
+        //             { loading: saving, error: saveError }
+        //           ) =>  {
+        //               const { classes, pickingId } = this.props;
+        //               return  <TextEditor    
+        //                           onValidated={(value, oldValue) => {
+        //                             if (value !== oldValue)
+        //                               changeProductLot({
+        //                                 variables: {
+        //                                   id,
+        //                                   pickingId,
+        //                                   lotname: value
+        //                                 }
+        //                               });
+        //                           }}
+        //                           retainFocusOnError={true}
+        //                           error={!!saveError}
+        //                           helperText={
+        //                             saveError ? "Could not saved!" : ""
+        //                           }
+        //                           label=""
+        //                           value={lot_name ? lot_name : ""}                    
+        //                           className={product_lot && product_lot.created ? classes.created : classes.normal}
+        //                           // onChanged={value => {
+        //                           //   setEdit(value);
+        //                           // }}
+        //                       />;
+        //               }
+        //           }
+        //         </Mutation>);
+        //     else
+        //     return (
+        //       <Typography variant="subtitle2">{lot_name ? lot_name : ""} </Typography>
+        //       );
+        //   }  
       }
     ],
     variables: {}

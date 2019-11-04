@@ -6,6 +6,7 @@ import {
   stockPickingReducer,
   StockPickingActions
 } from "./stockPicking";
+import {  StockMoveState, stockMoveReducer, StockMoveActions } from "./stockMove";
 import { LabelPrintSettingActions, labelPrintSettingReducer, LabelPrintSettingState } from "./labelPrintSetting";
 import { priceListReducer, PriceListState, PriceListActions } from "./priceList";
 import { priceChangeReducer, PriceChangeState, PriceChangeActions } from "./priceChange";
@@ -27,6 +28,7 @@ export interface RootState extends StoreEnhancerState {
   priceList: PriceListState;
   priceChange: PriceChangeState;
   priceChangeDetail: PriceChangeDetailState;
+  stockMove: StockMoveState;
 }
 
 export const rootReducer = combineReducers<RootState>({
@@ -36,5 +38,6 @@ export const rootReducer = combineReducers<RootState>({
   labelPrintSetting: labelPrintSettingReducer,
   priceList: priceListReducer,
   priceChange: priceChangeReducer,
-  priceChangeDetail: priceChangeDetailReducer
+  priceChangeDetail: priceChangeDetailReducer,
+  stockMove: stockMoveReducer
 });

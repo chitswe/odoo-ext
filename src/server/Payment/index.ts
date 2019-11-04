@@ -68,9 +68,60 @@ const paymentFindAll = (
     return odoo.execute_kwAsync("account.payment", "search_read", filter, {
         offset,
         limit,
-        fields: ["id", "payment_date", "communication", "payment_type", "partner_id", "journal_id", "create_uid", "amount"],
+        fields: ["id", "payment_date", "communication", "payment_type", "partner_id", "journal_id", "create_uid", "amount", "invoice_ids"],
         order
       });
+};
+
+const paymentsByOrderId = async (
+    odoo: Odoo,
+    {
+        filter
+      }: {
+        filter?: any;
+      }
+) => {
+    let payments: any[] = [];
+
+    let order = await odoo.execute_kwAsync("sale.order", "search_read", filter , {
+        offset: 0,
+          limit: 1,
+          fields: ["invoice_ids"],
+        })
+        .then(([p]: [any]) => {
+          return p;
+        });
+
+    let promises = order.invoice_ids.map(async (e: any) => {
+        return odoo.execute_kwAsync("account.invoice", "search_read", [[["id", "=", e]]], {
+            offset: 0,
+            limit: 1,
+            fields: ["payment_ids"]
+        })       
+        .then(([p]: [any]) => {
+            let promise1 = p.payment_ids.map(async (m: any) => {
+                return odoo.execute_kwAsync("account.payment", "search_read", [[["id", "=", m]]], {
+                    offset: 0,
+                    limit: 1,
+                    fields: ["id", "payment_date", "communication", "payment_type", "partner_id", "journal_id", "create_uid", "amount"],
+                })
+                .then(([g]: [any]) => {
+                    return g;
+                });
+            });
+
+            return Promise.all(promise1).then((s: any) => {
+                return s.map((a: any) => {
+                    payments.push(a);
+                });
+            });
+
+        });
+    });
+
+    return Promise.all(promises).then((g) => {
+        return payments;
+    });
 };
 
 const paymentCount = (odoo: Odoo, filter: any = [[]]) => {
@@ -100,7 +151,25 @@ const query = {
             count
           }
         };
-      }
+      },
+    payments_by_orderId: async(
+        parent: any,
+        params: any,
+        context: AuthResult
+    ) => {
+        const { pageSize = 20, page = 1, order, filter } = params;
+        const offset = (page - 1) * pageSize;
+
+        const edges = await paymentsByOrderId(context.odoo, { filter });
+        const pageInfo = { hasMore: false, pageSize, page };
+        return {
+          edges,
+          pageInfo,
+          aggregate: {
+            count: edges.length
+          }
+        };
+    }
 };
 
 export { schema, resolver, query, paymentFindAll, paymentCount };

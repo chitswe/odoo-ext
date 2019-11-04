@@ -2,6 +2,8 @@ import * as React from "react";
 import { stockPickingFindQuery } from "./graphql";
 import { Query as ApolloQuery } from "react-apollo";
 import { StockPickingFindQuery, StockPickingFindQueryVariables } from "./types";
+import { stockPickingActions } from "../../reducer/stockPicking";
+import { StockPickingType } from "./resolvedTypes";
 import {
   Typography,
   createStyles,
@@ -9,6 +11,10 @@ import {
   withStyles,
   Grid
 } from "@material-ui/core";
+import { RootState, RootAction } from "../../reducer";
+import { Dispatch, bindActionCreators } from "redux";
+import { compose } from "react-apollo";
+import { connect } from "react-redux";
 
 const styles = createStyles({
   fieldWrapper: {
@@ -27,16 +33,30 @@ const styles = createStyles({
     paddingTop: 8,
   }
 });
-type Props = { id: number } & WithStyles<typeof styles>;
+
+type ReduxProps = {
+  selectedIndex?: number;
+  selectedPicking?: StockPickingType;
+  setSelectedStockPicking: typeof stockPickingActions.setSelectedPicking;
+};
+
+type Props = { id: number} & ReduxProps & WithStyles<typeof styles>;
 class Query extends ApolloQuery<
   StockPickingFindQuery,
   StockPickingFindQueryVariables
 > {}
 class StockPicking extends React.PureComponent<Props> {
   render() {
-    const { id, classes } = this.props;
+    const { id, classes, selectedPicking, setSelectedStockPicking } = this.props;
     return (
-      <Query query={stockPickingFindQuery} variables={{ id }}>
+      <Query 
+        query={stockPickingFindQuery} 
+        variables={{ id }}
+        // onCompleted={data => {
+        //   if (data && data.stockPicking && data.picking !== selectedPicking)
+        //     setSelectedStockPicking({data:data.picking});
+        // }}
+      >
         {({ data, loading }) => {
           if (loading || !data || !data.picking) return null;
           const {
@@ -48,6 +68,9 @@ class StockPicking extends React.PureComponent<Props> {
             partner,
             state
           } = data.picking;
+          if (data && data.picking && data.picking !== selectedPicking)
+            setSelectedStockPicking({data: data.picking, index: null});
+
           return (
             <div className={classes.root}>
               <Typography variant="h6">{name}</Typography>
@@ -135,4 +158,17 @@ class StockPicking extends React.PureComponent<Props> {
   }
 }
 
-export default withStyles(styles)(StockPicking);
+export default compose(
+  withStyles(styles),
+  connect(
+    ({ stockPicking: { selectedPicking } }: RootState) => ({
+      selectedIndex: selectedPicking.index,
+      selectedPicking: selectedPicking.data
+    }),
+    (dispatch: Dispatch<RootAction>) =>
+      bindActionCreators(
+        { setSelectedStockPicking: stockPickingActions.setSelectedPicking },
+        dispatch
+      )
+  )
+)(StockPicking);

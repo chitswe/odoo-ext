@@ -13,6 +13,7 @@ const stockMoveLineFindByStockMoveId = gql`
         id
         default_code
       }
+      product_uom_qty
       move_lines(page: $page, pageSize: $pageSize, order: $order) {
         aggregate {
           count
@@ -95,6 +96,11 @@ const stockPickingFindQuery = gql`
         id
         name
       }
+      operation_type {
+        id
+        use_create_lots
+        use_existing_lots
+      }
       scheduled_date
       state
       picking_type {
@@ -130,6 +136,11 @@ const stockPickingFindAllQuery = gql`
         partner {
           id
           name
+        }
+        operation_type {
+          id
+          use_create_lots
+          use_existing_lots
         }
         scheduled_date
         state
@@ -188,11 +199,39 @@ mutation changeProductLot($id:Int!,$pickingId:Int!,$lotname:String!){
 }
 `;
 
+const createStockMoveLineMutation = gql`
+mutation createStockMoveLine($move_id:Int!, $lot_name: String!){
+  createStockMoveLine(move_id:$move_id, lot_name: $lot_name){
+    id
+    lot_name
+    product_lot{
+      id
+      name
+      product_qty
+      created
+    }
+    quant{
+      quantity
+    }
+  }
+}
+`;
+
+const deleteStockMoveLineMutation = gql`
+mutation deleteStockMoveLine($id:Int!){
+  deleteStockMoveLine(id:$id){
+    id
+  }
+}
+`;
+
 export {
   stockPickingFindAllQuery,
   stockPickingFindQuery,
   stockMoveFindByPickingId,
   stockMoveLineFindByStockMoveId,
   generateProductLotMutation,
-  changeProductLotMutation
+  changeProductLotMutation,
+  createStockMoveLineMutation,
+  deleteStockMoveLineMutation
 };
