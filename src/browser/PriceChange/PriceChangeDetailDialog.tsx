@@ -113,7 +113,7 @@ class PriceChangeDetailDialog extends React.Component<Props, State> {
                                         </Grid> */}
                                         <Grid item xs={12} >
                                             <AutoComplete                                              
-                                                searchText={product ? product.name : ''}
+                                                searchText={product ? product.name : ""}
                                                 openonfocus={true}
                                                 onUpdateInput={(value: any) => {
                                                     if (value)
@@ -211,7 +211,7 @@ class PriceChangeDetailDialog extends React.Component<Props, State> {
                                     <Grid container>
                                         <Grid item xs={12} >
                                             <AutoComplete                                              
-                                                searchText={product ? product.name : ''}
+                                                searchText={product ? product.name : ""}
                                                 openonfocus={true}
                                                 onUpdateInput={(value: any) => {
                                                     if (value)

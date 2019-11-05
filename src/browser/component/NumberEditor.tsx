@@ -1,7 +1,15 @@
 import * as React from "react";
 import TextField, { TextFieldProps } from "@material-ui/core/TextField";
 import * as accounting from "accounting";
-import { createStyles, WithStyles, withStyles } from "@material-ui/core";
+import {
+  createStyles,
+  WithStyles,
+  withStyles,
+  InputBase,
+  Input
+} from "@material-ui/core";
+import { InputProps } from "@material-ui/core/Input";
+import { InputBaseProps } from "@material-ui/core/InputBase";
 
 const styles = createStyles({
   input: {
@@ -19,10 +27,13 @@ type OwnProps = {
   selectAllOnFocus: boolean;
   numberPrecision: number;
   value?: number;
+  inputElementType: "InputBase" | "Input" | "TextField";
   onChanged?: (value: number) => void;
+  inputReference?: (ref: React.Ref<any>) => void;
 };
 
-type Props = OwnProps & TextFieldProps & { staticContext?: any } & WithStyles<typeof styles>;
+type Props = OwnProps &
+  TextFieldProps & { staticContext?: any } & WithStyles<typeof styles>;
 
 class NumberEditor extends React.Component<Props> {
   static defaultProps: OwnProps = {
@@ -31,7 +42,8 @@ class NumberEditor extends React.Component<Props> {
     retainFocusOnError: false,
     restoreOldValueOnError: false,
     numberPrecision: null,
-    selectAllOnFocus: true
+    selectAllOnFocus: true,
+    inputElementType: "TextField"
   };
   changed: boolean = false;
   text: string = "";
@@ -39,7 +51,7 @@ class NumberEditor extends React.Component<Props> {
   textField: any = React.createRef<any>();
   bypassOnBlur: boolean = false;
   onFocus(e: any) {
-    const { value } = this.props;
+    const { value, onFocus } = this.props;
     this.old = value;
     this.changed = true;
     this.text = value == null ? "" : value.toString();
@@ -49,11 +61,12 @@ class NumberEditor extends React.Component<Props> {
         this.textField.setSelectionRange(0, this.textField.value.length);
       }, 10);
     }
+    if (onFocus) onFocus(e);
   }
 
   onBlur(e: any) {
     this.changed = false;
-    const { validateOnBlur } = this.props;
+    const { validateOnBlur, onBlur } = this.props;
     if (validateOnBlur) {
       if (!this.bypassOnBlur) {
         this.commitEditor();
@@ -61,10 +74,16 @@ class NumberEditor extends React.Component<Props> {
       }
     }
     this.bypassOnBlur = false;
+    if (onBlur) onBlur(e);
   }
 
   commitEditor() {
     let value = this.textField.value;
+    if (isNaN(value)) return;
+    if (value === "") value = undefined;
+    else {
+      value = Number.parseFloat(value);
+    }
     if (this.props.onValidating) {
       if (this.props.onValidating(value)) {
         this.props.onValidated(value);
@@ -102,6 +121,7 @@ class NumberEditor extends React.Component<Props> {
   }
 
   onKeyPress(e: any) {
+    const { onKeyPress } = this.props;
     if (e.charCode === 13) {
       if (this.props.validateOnEnterKeyPress) {
         this.commitEditor();
@@ -117,6 +137,8 @@ class NumberEditor extends React.Component<Props> {
       // digit and minus sign
       e.preventDefault();
     }
+
+    if (onKeyPress) onKeyPress(e);
   }
 
   moveDecimal(n: number, l: number) {
@@ -159,6 +181,7 @@ class NumberEditor extends React.Component<Props> {
       default:
         break;
     }
+    if (this.props.onKeyDown) this.props.onKeyDown(e);
   }
 
   render() {
@@ -175,10 +198,12 @@ class NumberEditor extends React.Component<Props> {
       onFocus,
       onKeyPress,
       inputRef,
+      inputReference,
       staticContext,
       onChanged,
       inputProps,
       classes,
+      inputElementType,
       ...textFieldProps
     } = this.props;
     let text = "";
@@ -189,12 +214,26 @@ class NumberEditor extends React.Component<Props> {
     if (!this.changed) {
       text = value == null ? "" : accounting.formatNumber(value, p);
     } else text = this.text;
+    let InputComponent: any = TextField;
+    switch (inputElementType) {
+      case "Input":
+        InputComponent = Input;
+        break;
+      case "InputBase":
+        InputComponent = InputBase;
+        break;
+      case "TextField":
+      default:
+        break;
+    }
+
     return (
-      <TextField
+      <InputComponent
         inputRef={(ref: any) => {
           this.textField = ref;
+          if (inputReference) inputReference(ref);
         }}
-        inputProps={{...inputProps, className: classes.input}}
+        inputProps={{ className: classes.input, ...inputProps }}
         {...textFieldProps}
         value={text}
         onFocus={this.onFocus.bind(this)}
