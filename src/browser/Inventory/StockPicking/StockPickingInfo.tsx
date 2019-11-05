@@ -30,7 +30,7 @@ const styles = createStyles({
   root: {
     paddingLeft: 16,
     paddingRight: 16,
-    paddingTop: 8,
+    paddingTop: 8
   }
 });
 
@@ -135,7 +135,9 @@ class StockPicking extends React.PureComponent<Props> {
                   <Typography className={classes.label} variant="subtitle2">
                     Partner:
                   </Typography>
-                  <Typography variant="body2">{partner.name}</Typography>
+                  <Typography variant="body2">
+                    {partner ? partner.name : ""}
+                  </Typography>
                 </Grid>
                 <Grid
                   item

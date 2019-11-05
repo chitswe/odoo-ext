@@ -1,7 +1,7 @@
 import { property } from "lodash";
-import { stockMoveFindAll, stockMoveCount } from "./StockMove";
+import { stockMoveFindAll, stockMoveCount, stockMoveFind } from "./StockMove";
 import { masterNameResolve, MasterType } from "../MasterData/MasterName";
-import { operationTypeFind  } from "../MasterData/OperationType";
+import { operationTypeFind } from "../MasterData/OperationType";
 import Odoo from "../odoo";
 import { AuthResult } from "../auth";
 const schema = `
@@ -19,6 +19,7 @@ const schema = `
         location_dest:MasterName!
         location:MasterName!
         stock_moves(page:Int=1,pageSize:Int=20,order:String):StockMoveConnection
+        stock_move(id:Int):StockMove
         partner:MasterName
         scheduled_date:DateTime!
         origin:String
@@ -58,6 +59,9 @@ const resolver = {
         }
       };
     },
+    stock_move: async (picking: any, params: any, context: AuthResult) => {
+      return stockMoveFind(context.odoo, params.id);
+    },
     location_dest: (picking: any) => {
       const result = masterNameResolve(
         picking.location_dest_id,
@@ -79,7 +83,7 @@ const resolver = {
         MasterType.STOCK_OPERATION
       );
     },
-    operation_type: (picking: any, params: any, context: AuthResult)  => {
+    operation_type: (picking: any, params: any, context: AuthResult) => {
       return operationTypeFind(context.odoo, picking.picking_type_id[0]);
     },
     location: (picking: any) => {
@@ -161,7 +165,7 @@ const query = {
         count
       }
     };
-  } 
+  }
 };
 
 export {

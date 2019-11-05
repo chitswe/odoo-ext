@@ -1,20 +1,29 @@
 import gql from "graphql-tag";
 
 const stockMoveLineFindByStockMoveId = gql`
-  query StockMoveLineFindByStockMoveId(
-    $id: Int!
-    $page: Int = 1
-    $pageSize: Int = 20
-    $order: String
-  ) {
-    stock_move(id: $id) {
+  
+query StockMoveLineFindByStockMoveId($pickingId:Int!, $stockMoveId: Int!, $page:Int=1, $pageSize:Int=20,$order:String){
+  picking(id:$pickingId){
+    id
+    name  
+    scheduled_date   
+    state 
+    operation_type {
+      id
+      use_create_lots
+      use_existing_lots
+    }
+    stock_move(id:$stockMoveId){
       id
       product{
         id
         default_code
+        name
+        tracking
       }
+      quantity_done
       product_uom_qty
-      move_lines(page: $page, pageSize: $pageSize, order: $order) {
+      move_lines(page:$page,pageSize:$pageSize, order:$order){
         aggregate {
           count
         }
@@ -39,6 +48,7 @@ const stockMoveLineFindByStockMoveId = gql`
       }
     }
   }
+}
 `;  
 
 const stockMoveFindByPickingId = gql`
@@ -50,6 +60,8 @@ const stockMoveFindByPickingId = gql`
   ) {
     picking(id: $id) {
       id
+      name
+      scheduled_date
       stock_moves(page: $page, pageSize: $pageSize, order: $order) {
         aggregate {
           count

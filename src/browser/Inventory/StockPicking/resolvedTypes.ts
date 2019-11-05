@@ -6,9 +6,10 @@ import {
 
 type StockPickingsType = StockPickingFindAllQuery["pickings"]["edges"];
 type StockPickingType = StockPickingsType[number];
+type OperationType = StockPickingType["operation_type"];
 type StockMovesType = StockMoveFindByPickingIdQuery["picking"]["stock_moves"]["edges"];
 type StockMoveType = StockMovesType[number];
-type StockMoveLinesType = StockMoveLineFindByStockMoveIdQuery["stock_move"]["move_lines"]["edges"];
+type StockMoveLinesType = StockMoveLineFindByStockMoveIdQuery["picking"]["stock_move"]["move_lines"]["edges"];
 type StockMoveLineType = StockMoveLinesType[number];
 
-export { StockPickingType, StockPickingsType, StockMovesType, StockMoveType, StockMoveLinesType, StockMoveLineType };
+export { StockPickingType, StockPickingsType, StockMovesType, StockMoveType, StockMoveLinesType, StockMoveLineType, OperationType };

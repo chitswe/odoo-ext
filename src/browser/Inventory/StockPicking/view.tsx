@@ -10,25 +10,36 @@ import {
   IconButton,
   AppBar,
   CircularProgress,
-  Toolbar
+  Toolbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from "@material-ui/core";
 import { Route, RouteComponentProps, Switch } from "react-router";
 import StockMoveGrid from "./StockMoveGrid";
 import StockMoveLineGrid from "./StockMoveLineGrid";
 import StockMoveLineEditor from "./StockMoveLineEditor";
 import MediaQuery from "../../../common/MediaQuery";
-import { StockMoveType, StockMoveLineType } from "./resolvedTypes";
+import { StockMoveType, StockMoveLineType, OperationType, StockPickingType } from "./resolvedTypes";
 import OpenDrawerButton from "../../component/AppBar/OpenDrawerButton";
 import { compose, Mutation } from "react-apollo";
 import { RootState, RootAction } from "../../reducer";
 import { connect } from "react-redux";
-import { StockPickingType } from "./resolvedTypes";
 import { stockMoveActions, InputStockMoveLineType } from "../../reducer/stockMove";
 import { FaBarcode, FaCogs } from "react-icons/fa";
 import { MdSave, MdAssignment } from "react-icons/md";
 import { Dispatch, bindActionCreators } from "redux";
 import { Query } from "react-apollo";
 import { generateProductLotMutation, stockMoveLineFindByStockMoveId, stockMoveFindByPickingId, createStockMoveLineMutation } from "./graphql";
+import {
+  stockPickingActions,
+  SerialNoLabelData,
+  LabelPrintStatus,
+  PrintingStatus
+} from "../../reducer/stockPicking";
+import { PickingState } from "./types";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -36,9 +47,7 @@ const styles = (theme: Theme) =>
     appBar: {
       color: "#fff"
     },
-    root: {
-
-    },
+    root: {},
     fill: {
       flex: 1
     },
@@ -89,11 +98,18 @@ type Props = {
   selectedMoveIndex: number;
   editStockMoveLine: typeof stockMoveActions.editMoveLine;
   removeStockMoveLine: typeof stockMoveActions.removeMoveLine;
+  printLabel: typeof stockPickingActions.printSerialNoLabel;
+  labelPrintStatus: LabelPrintStatus;
+  printUrl: string;
+  resetLabelPrintStatus: typeof stockPickingActions.resetLabelPrintStatus;
 } & WithStyles<typeof styles> &
   RouteComponentProps<{ id: string }>;
 
 type State = {
-  selectedStockMoveId?: number;
+  selectedStockMove: StockMoveType;
+  selectedStockMoveId: number;
+  pickingState: PickingState;
+  operationType: OperationType;
   selectedIndex?: number;
   selectedProductCode?: string;
   totalQty: number;
@@ -101,8 +117,12 @@ type State = {
   tracking?: string;
   saveLoading: boolean;
 };
+
 class StockPicking extends React.Component<Props, State> {
   state: State = {
+    pickingState: null,
+    operationType: null,
+    selectedStockMove: null,
     selectedStockMoveId: null,
     selectedIndex: null,
     tracking: null,
@@ -112,7 +132,16 @@ class StockPicking extends React.Component<Props, State> {
     saveLoading: false
   };
   renderAppBar(appBarType: "stock_move" | "stock_move_line" | "stock_move_line_edit" | "both", routeComponentProps: any) {
-    const { classes, selectedStockMoveLine, selectedStockPicking, stockMoveLineList, match, history, editStockMoveLine, removeStockMoveLine } = this.props;
+    const {
+      classes,
+      selectedStockMoveLine,
+      selectedStockPicking,
+      match,
+      stockMoveLineList, history, editStockMoveLine, selectedMoveIndex, removeStockMoveLine,
+      printUrl
+    } = this.props;
+
+    const { selectedStockMove, pickingState } = this.state;
     const pickingId = Number.parseInt(match.params.id, 10);
     const moveId = routeComponentProps && routeComponentProps.match.params.moveId ? Number.parseInt(routeComponentProps.match.params.moveId, 10) : this.state.selectedStockMoveId;
 
@@ -125,49 +154,13 @@ class StockPicking extends React.Component<Props, State> {
               ? "Picking Details"
               : appBarType === "stock_move_line_edit" ? <Typography variant="h6" color="inherit">{selectedStockPicking ? selectedStockPicking.name : ""}</Typography> : "Picked Serial No"}
           </Typography>
-          <div className={classes.grow} />
-          {(appBarType === "stock_move_line" || appBarType === "both") &&
-            selectedStockMoveLine.length > 0 ? (
-              <IconButton aria-label="Print barcode label" color="inherit">
-                <FaBarcode />
-              </IconButton>
-            ) : null}
+          <div className={classes.grow} />          
           {
-            (appBarType === "stock_move" || appBarType === "both") && (this.state.tracking === "serial" || this.state.tracking === "lot") ?
-              <Mutation
-                mutation={generateProductLotMutation}
-                refetchQueries={() => {
-                  return [{
-                    query: stockMoveLineFindByStockMoveId,
-                    variables: { id: moveId }
-                  },
-                  {
-                    query: stockMoveFindByPickingId,
-                    variables: { id: pickingId }
-                  }];
-                }}
-              >
-                {(generateProductLot, { data, loading, error }) => (
-                  <IconButton
-                    aria-label="Generate Lot"
-                    color="inherit"
-                    onClick={() => {
-                      generateProductLot({
-                        variables: {
-                          pickingId,
-                          moveId
-                        }
-                      });
-                    }}
-                  >
-                    <FaCogs />
-                  </IconButton>
-                )
-                }
-              </Mutation> : null
-          }
-          {
-            (appBarType === "stock_move" || appBarType === "both") && (this.state.tracking === "serial" || this.state.tracking === "lot") && selectedStockPicking.state === "assigned" && this.state.balanceQty > 0 ?
+            (appBarType === "stock_move" || appBarType === "both") && 
+            (selectedStockMove &&
+              (selectedStockMove.product.tracking === "serial" ||
+                selectedStockMove.product.tracking === "lot")) && 
+              selectedStockPicking.state === "assigned" && this.state.balanceQty > 0 ?
 
               <IconButton
                 aria-label="Edit Lot"
@@ -202,7 +195,7 @@ class StockPicking extends React.Component<Props, State> {
               refetchQueries={() => {
                 return [{
                   query: stockMoveLineFindByStockMoveId,
-                  variables: { id: moveId }
+                  variables: { pickingId, stockMoveId: moveId }
                 },
                 {
                   query: stockMoveFindByPickingId,
@@ -228,15 +221,6 @@ class StockPicking extends React.Component<Props, State> {
                               lot_name: item.lot_name
                             }
                           });
-                          // .then((lot: any) => {                              
-                          //   if (lot.data.createStockMoveLine) {                                
-                          //     removeStockMoveLine(item.index);    
-                          //     if (this.state.balanceQty > 0)
-                          //       this.setState({balanceQty: this.state.balanceQty - 1});                            
-                          //   } else if (lot.data.createStockMoveLine === null && selectedStockPicking.operation_type.use_existing_lots) {
-                          //     editStockMoveLine({ item: { id: item.id, lot_name: item.lot_name, verified: false, moveId: item.moveId, status: false, error : "Existing Lot not found!"}, index: item.index });                            
-                          //   }
-                          // });
                         }
                       }
                     }}
@@ -247,15 +231,108 @@ class StockPicking extends React.Component<Props, State> {
               }
             </Mutation>
             : null}
+          {appBarType === "stock_move_line" || appBarType === "both" ? (
+            <IconButton
+              aria-label="Print barcode label"
+              color="inherit"
+              onClick={() => {
+                const { printLabel } = this.props;
+                printLabel({
+                  printUrl,
+                  printingIndex: 0
+                });
+              }}
+            >
+              <FaBarcode />
+            </IconButton>
+          ) : null}
+          {(appBarType === "stock_move" || appBarType === "both") &&
+          (selectedStockMove &&
+            (selectedStockMove.product.tracking === "serial" ||
+              selectedStockMove.product.tracking === "lot")) ? (
+            <Mutation
+              mutation={generateProductLotMutation}
+              refetchQueries={() => {
+                return [
+                  {
+                    query: stockMoveLineFindByStockMoveId,
+                    variables: { stockMoveId: selectedStockMove.id, pickingId }
+                  },
+                  {
+                    query: stockMoveFindByPickingId,
+                    variables: { id: pickingId }
+                  }
+                ];
+              }}
+            >
+              {(generateProductLot, { data, loading, error }) => (
+                <IconButton
+                  aria-label="Generate Lot"
+                  color="inherit"
+                  onClick={() => {
+                    generateProductLot({
+                      variables: {
+                        pickingId,
+                        moveId: selectedStockMove.id
+                      }
+                    });
+                  }}
+                >
+                  <FaCogs />
+                </IconButton>
+              )}
+            </Mutation>
+          ) : null}
         </Toolbar>
       </AppBar>
     );
   }
+  renderPrintingDialogs() {
+    const { labelPrintStatus, resetLabelPrintStatus } = this.props;
+    const { stockMoveInfo } = labelPrintStatus;
+    return (
+      <React.Fragment>
+        <Dialog
+          open={labelPrintStatus.printingStatus === PrintingStatus.printing}
+        >
+          <DialogTitle>Printing Barcode Label</DialogTitle>
+          <DialogContent>
+            {labelPrintStatus.printingMoveLine ? (
+              <Typography>
+                {`Printing ${stockMoveInfo.product_default_code} , 
+                ${labelPrintStatus.printingMoveLine.lot_name}`}
+              </Typography>
+            ) : null}
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={labelPrintStatus.printingStatus === PrintingStatus.error}
+          onClose={resetLabelPrintStatus}
+        >
+          <DialogTitle> Filed to print barcode</DialogTitle>
+          <DialogContent>
+            <Typography>{labelPrintStatus.errorText.toString()}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={resetLabelPrintStatus} color="primary" autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+    );
+  }
   render() {
-    const { match, classes, history, selectedStockPicking } = this.props;
-    const { selectedIndex, selectedStockMoveId } = this.state;
-    const selected =
-      selectedIndex || selectedIndex === 0 ? [selectedIndex] : [];
+    const {
+      match,
+      classes,
+      history,
+      labelPrintStatus,
+      selectedStockPicking,
+      resetLabelPrintStatus
+    } = this.props;
+    const { selectedIndex, selectedStockMove } = this.state;
+    const selected = selectedIndex || selectedIndex === 0 ? [selectedIndex] : [];
     const id = Number.parseInt(match.params.id, 10);
     return (
       <React.Fragment>
@@ -269,10 +346,11 @@ class StockPicking extends React.Component<Props, State> {
                   <StockMoveLineGrid
                     loadingIndicatorClassName={classes.loadingIndicator}
                     {...routeComponentProps}
-                    sotckMoveId={Number.parseInt(
+                    stockMoveId={Number.parseInt(
                       routeComponentProps.match.params.moveId,
                       10
                     )}
+                    pickingId={id}
                   />
                 </Grid>
               )}
@@ -305,7 +383,8 @@ class StockPicking extends React.Component<Props, State> {
                             selectedIndex: index,
                             selectedStockMoveId: rowData.id,
                             balanceQty: rowData.product_uom_qty - rowData.quantity_done,
-                            tracking: rowData.product.tracking ? rowData.product.tracking : ""
+                            tracking: rowData.product.tracking ? rowData.product.tracking : "",
+                            selectedStockMove: rowData
                           });
                           history.push(`${match.url}/stock_move/${rowData.id}`);
                         }}
@@ -346,6 +425,7 @@ class StockPicking extends React.Component<Props, State> {
                           index: number
                         ) => {
                           this.setState({
+                            selectedStockMove: rowData,
                             selectedStockMoveId: rowData.id,
                             balanceQty: rowData.product_uom_qty - rowData.quantity_done,
                             selectedIndex: index,
@@ -361,17 +441,18 @@ class StockPicking extends React.Component<Props, State> {
                       className={classes.stockMoveGridLine}
                     >
                       <StockMoveLineGrid
-                        rootClassName={classes.fillBackground}
-                        loadingIndicatorClassName={classes.loadingIndicator}
-                        {...routeComponentProps}
-                        sotckMoveId={
-                          selectedStockMoveId
-                            ? selectedStockMoveId
-                            : Number.parseInt(
-                              routeComponentProps.match.params.moveId,
-                              10
-                            )
-                        }
+                          rootClassName={classes.fillBackground}
+                          loadingIndicatorClassName={classes.loadingIndicator}
+                          {...routeComponentProps}
+                          stockMoveId={
+                            selectedStockMove
+                              ? selectedStockMove.id
+                              : Number.parseInt(
+                                  routeComponentProps.match.params.moveId,
+                                  10
+                                )
+                          }
+                          pickingId={id}
                       />
                     </Grid>
                   </Grid>
@@ -386,29 +467,17 @@ class StockPicking extends React.Component<Props, State> {
                   <Grid item className={classes.nondisplay}>
                     <StockPickingInfo id={id} />
                   </Grid>
-                  {/* <Grid
-                    container
-                    item
-                    className={classes.row}
-                    direction="row"
-                    spacing={16}
-                  > *
-                    <Grid
-                      container
-                      direction="column"
-                      item
-                      className={classes.stockMoveEditor}
-                    > */}
                   <Query
                     query={stockMoveLineFindByStockMoveId}
                     ssr={false}
-                    variables={{ id: Number.parseInt(routeComponentProps.match.params.moveId, 10) }}
+                    variables={{ pickingId: id, stockMoveId: Number.parseInt(routeComponentProps.match.params.moveId, 10) }}
                     onCompleted={data => {
-                      if (data && data.stock_move) {
-                        let { move_lines, product, product_uom_qty } = data.stock_move;
+                      if (data && data.picking) {
+                        let { stock_move, state, operation_type } = data.picking;
+                        let { move_lines, product, product_uom_qty } = stock_move;
                         if (product.default_code !== this.state.selectedProductCode) {
                           this.setState({
-                            selectedProductCode: product ? product.default_code : "", balanceQty: product_uom_qty - (data.stock_move ? data.stock_move.move_lines.edges.length : 0)
+                            selectedProductCode: product ? product.default_code : "", operationType: operation_type , pickingState: state, balanceQty: product_uom_qty - (move_lines ? move_lines.edges.length : 0)
                           });
                         }
                       }
@@ -423,27 +492,27 @@ class StockPicking extends React.Component<Props, State> {
                         saveLoading={this.state.saveLoading}
                         selectedProductCode={this.state.selectedProductCode}
                         totalQty={this.state.balanceQty}
+                        pickingState={this.state.pickingState}
+                        operationType={this.state.operationType}
                         stockMoveId={
-                          selectedStockMoveId
-                            ? selectedStockMoveId
+                          selectedStockMove
+                            ? selectedStockMove.id
                             : Number.parseInt(
-                              routeComponentProps.match.params.moveId,
-                              10
-                            )
+                                routeComponentProps.match.params.moveId,
+                                10
+                              )
                         }
                       />
                     )
                     }
                   </Query>
-                  {/* </Grid> */}
-                  {/* </Grid> */}
                 </Grid>
               )}
             />
             <Route
               path={`${match.url}`}
               render={routeComponentProps => {
-                if (selectedStockMoveId)
+                if (selectedStockMove)
                   return (
                     <Grid container direction="column" className={classes.root}>
                       <Grid item>{this.renderAppBar("both", routeComponentProps)}</Grid>
@@ -470,6 +539,7 @@ class StockPicking extends React.Component<Props, State> {
                             ) => {
                               this.setState({
                                 selectedStockMoveId: rowData.id,
+                                selectedStockMove: rowData,
                                 selectedIndex: index,
                                 balanceQty: rowData.product_uom_qty - rowData.quantity_done,
                                 tracking: rowData.product.tracking ? rowData.product.tracking : ""
@@ -487,7 +557,7 @@ class StockPicking extends React.Component<Props, State> {
                             rootClassName={classes.fillBackground}
                             loadingIndicatorClassName={classes.loadingIndicator}
                             {...routeComponentProps}
-                            sotckMoveId={selectedStockMoveId}
+                            stockMoveId={selectedStockMove.id}
                             pickingId={id}
                           />
                         </Grid>
@@ -521,6 +591,7 @@ class StockPicking extends React.Component<Props, State> {
                             ) => {
                               this.setState({
                                 selectedStockMoveId: rowData.id,
+                                selectedStockMove: rowData,
                                 selectedIndex: index,
                                 balanceQty: rowData.product_uom_qty - rowData.quantity_done,
                                 tracking: rowData.product.tracking ? rowData.product.tracking : ""
@@ -535,6 +606,7 @@ class StockPicking extends React.Component<Props, State> {
             />
           </Switch>
         </MediaQuery>
+        {this.renderPrintingDialogs()}
       </React.Fragment>
     );
   }
@@ -542,16 +614,20 @@ class StockPicking extends React.Component<Props, State> {
 export default compose(
   withStyles(styles),
   connect(
-    ({ stockPicking: { selectedPicking, selectedStockMoveLine }, stockMove: { stockMoveLineList } }: RootState) => ({
+    ({ stockPicking: { selectedPicking, selectedStockMoveLine, labelPrintStatus }, stockMove: { stockMoveLineList }, labelPrintSetting }: RootState) => ({
       selectedStockMoveLine,
       selectedStockPicking: selectedPicking.data,
-      stockMoveLineList
-    }),
+      stockMoveLineList,
+      printUrl: labelPrintSetting.url,
+      labelPrintStatus 
+    }), 
     (dispatch: Dispatch<RootAction>) =>
       bindActionCreators(
         {
           editStockMoveLine: stockMoveActions.editMoveLine,
-          removeStockMoveLine: stockMoveActions.removeMoveLine
+          removeStockMoveLine: stockMoveActions.removeMoveLine,
+          printLabel: stockPickingActions.printSerialNoLabel,
+          resetLabelPrintStatus: stockPickingActions.resetLabelPrintStatus
         },
         dispatch
       )

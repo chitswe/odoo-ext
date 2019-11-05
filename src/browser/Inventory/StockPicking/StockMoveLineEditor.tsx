@@ -19,17 +19,16 @@ import DeleteIcon from "@material-ui/icons/DeleteForever";
 import TextEditor from "../../component/TextEditor";
 import { FaEdit } from "react-icons/fa";
 import { stockMoveLineFindByStockMoveId, changeProductLotMutation, deleteStockMoveLineMutation } from "./graphql";
-import update from "immutability-helper";
 import * as _ from "lodash";
 import { connect } from "react-redux";
 import { RootState, RootAction } from "../../reducer";
-import { stockPickingActions } from "../../reducer/stockPicking";
 import { stockMoveActions, InputStockMoveLineType } from "../../reducer/stockMove";
 import { Dispatch, bindActionCreators } from "redux";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdError } from "react-icons/md";
-import { StockMoveLineType, StockPickingType } from "./resolvedTypes";
+import { OperationType } from "./resolvedTypes";
 import { compose, Mutation } from "react-apollo";
+import { PickingState } from "./types";
 
 type State = {
   variables: any;
@@ -42,13 +41,13 @@ type State = {
 type Props = WithStyles<typeof styles> & {
   stockMoveId: number;
   pickingId: number;
-  pickingType: string;
+  pickingState: PickingState;
+  operationType: OperationType;
   selectedProductCode?: string;
   totalQty: number;
   loadingIndicatorClassName: string;
   saveLoading: boolean;
   rootClassName?: string;
-  selectedPicking: StockPickingType;
   stockMoveLineList: ReadonlyArray<InputStockMoveLineType>;
   addStockMoveLine: typeof stockMoveActions.addMoveLine;
   editStockMoveLine: typeof stockMoveActions.editMoveLine;
@@ -115,7 +114,7 @@ class StockMoveLineEditor extends React.Component<Props, State> {
 
   render() {
     const { lotname, index, plot, editState } = this.state;
-    const { stockMoveLineList, editStockMoveLine, addStockMoveLine, removeStockMoveLine, stockMoveId, selectedProductCode, totalQty, classes, selectedPicking, saveLoading, loadingIndicatorClassName } = this.props;
+    const { stockMoveLineList, editStockMoveLine, addStockMoveLine, removeStockMoveLine, stockMoveId, selectedProductCode, totalQty, classes, pickingState, operationType, saveLoading, loadingIndicatorClassName } = this.props;
     let moveLineQty = stockMoveLineList ? stockMoveLineList.filter(e => e !== null && e.moveId === stockMoveId).length : 0;
     return (
       <div className={classes.grow}>
@@ -136,7 +135,7 @@ class StockMoveLineEditor extends React.Component<Props, State> {
                   validateOnEnterKeyPress={true}
                   disabled={totalQty === moveLineQty}
                   onChanged={(value) => {
-                    if (selectedPicking.state === "assigned")
+                    if (pickingState === PickingState.assigned)
                       this.setState({ lotname: value });
                   }}
                   onValidated={(value, oldValue) => {
@@ -192,7 +191,7 @@ class StockMoveLineEditor extends React.Component<Props, State> {
                                   }).then((lot: any) => {
                                     if (lot.data.changeProductLot) {
                                       removeStockMoveLine(stockMoveLineList.findIndex(e => e.lot_name === value && e.moveId === stockMoveId)); 
-                                    } else if (lot.data.changeProductLot === null && selectedPicking.operation_type.use_existing_lots) {
+                                    } else if (lot.data.changeProductLot === null && operationType.use_existing_lots) {
                                       editStockMoveLine({ item: { id: null, lot_name: value, moveId: stockMoveId, verified: false, status: false, error: "Existing Lot not found!" }, index: idx });
                                     }
                                   });
@@ -265,9 +264,8 @@ class StockMoveLineEditor extends React.Component<Props, State> {
 export default compose(
   withStyles(styles),
   connect(
-    ({ stockPicking: { selectedPicking }, stockMove: { stockMoveLineList } }: RootState) => ({
-      stockMoveLineList,
-      selectedPicking: selectedPicking.data
+    ({ stockMove: { stockMoveLineList } }: RootState) => ({
+      stockMoveLineList
     }),
     (dispatch: Dispatch<RootAction>) =>
       bindActionCreators(

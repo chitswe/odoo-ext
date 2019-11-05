@@ -14,6 +14,7 @@
     "jsx": "react",
     "outDir": "build",
     "baseUrl": ".",
+    "experimentalDecorators": true,
     //"noImplicitReturns": true,
     //"noUnusedParameters": true,
     //"noUnusedLocals": true,

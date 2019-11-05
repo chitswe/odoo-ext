@@ -26,21 +26,22 @@ import update from "immutability-helper";
 import * as _ from "lodash";
 import { connect } from "react-redux";
 import { RootState, RootAction } from "../../reducer";
-import { stockPickingActions } from "../../reducer/stockPicking";
+import { stockPickingActions, StockMoveInfo } from "../../reducer/stockPicking";
 import { Dispatch, bindActionCreators } from "redux";
 import { FaCheckCircle } from "react-icons/fa";
 import { compose, Mutation } from "react-apollo";
 import { changeProductLotMutation } from "./graphql";
+import { ProductTracking } from "./types";
+import NumberEditor from "../../component/NumberEditor";
 
 type State = {
   columns: ReadonlyArray<GridColumn<StockMoveLineType>>;
   variables: any;
-  selectedProductCode?: string;
   selectedAll: boolean;
 };
 
 type Props = WithStyles<typeof styles> & {
-  sotckMoveId: number;
+  stockMoveId: number;
   pickingId: number;
   loadingIndicatorClassName: string;
   rootClassName?: string;
@@ -50,9 +51,12 @@ type Props = WithStyles<typeof styles> & {
   clearSelected: typeof stockPickingActions.clearSelectedStockMoveLine;
   addSelected: typeof stockPickingActions.addSelectedStockMoveLine;
   removeSelected: typeof stockPickingActions.removeSelectedStockMoveLine;
+  setStockMoveLines: typeof stockPickingActions.setStockMoveLines;
+  setStockMoveInfo: typeof stockPickingActions.setStockMoveInfo;
+  stockMoveInfo: StockMoveInfo;
 };
 
-const styles = (theme: Theme) => 
+const styles = (theme: Theme) =>
   createStyles({
     created: {
       fontSize: 12,
@@ -142,28 +146,112 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         //       <Typography variant="subtitle2">{lot_name ? lot_name : ""} </Typography>
         //       );
         //   }  
-      }
+        // label: "Qty",
+        // key: "quant",
+        // flexGrow: 1,
+        // width: 50,
+        // sortable: false,
+        // format: ({ key, rowData: { quant } }) => (quant ? quant.quantity : "")
+      },
+      // {
+      //   label: "Serial No",
+      //   key: "lot_name",
+      //   flexGrow: 1,
+      //   width: 200,
+      //   sortable: true,
+      //   format: ({ key, rowData: { id, lot_name, product_lot } }) => (
+      //     <Mutation mutation={changeProductLotMutation} key={id}>
+      //       {(changeProductLot, { loading: saving, error: saveError }) => {
+      //         const { classes, pickingId } = this.props;
+      //         return (
+      //           <TextEditor
+      //             onValidated={(value, oldValue) => {
+      //               if (value !== oldValue)
+      //                 changeProductLot({
+      //                   variables: {
+      //                     id,
+      //                     pickingId,
+      //                     lotname: value
+      //                   }
+      //                 });
+      //             }}
+      //             retainFocusOnError={true}
+      //             error={!!saveError}
+      //             helperText={saveError ? "Could not saved!" : ""}
+      //             label=""
+      //             value={lot_name ? lot_name : ""}
+      //             className={
+      //               product_lot && product_lot.created
+      //                 ? classes.created
+      //                 : classes.normal
+      //             }
+      //             // onChanged={value => {
+      //             //   setEdit(value);
+      //             // }}
+      //           />
+      //         );
+      //       }}
+      //     </Mutation>
+      //   )
+      // }
     ],
     variables: {}
   };
   get headerComponent() {
-    const { selectedProductCode } = this.state;
-    if (selectedProductCode) {
+    const { stockMoveInfo, setStockMoveInfo } = this.props;
+    if (stockMoveInfo && stockMoveInfo.picking_number) {
       return (
-        <ListItem>
-          <ListItemAvatar>
-            <Avatar>{selectedProductCode[0]}</Avatar>
-          </ListItemAvatar>
-          <ListItemText primary={selectedProductCode} />
-        </ListItem>
+        <React.Fragment>
+          <ListItem>
+            <ListItemAvatar>
+              <Avatar>{stockMoveInfo.product_default_code[0]}</Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={stockMoveInfo.product_default_code}
+              secondary={this.props.pickingId}
+            />
+          </ListItem>
+          {stockMoveInfo.product_tracking === ProductTracking.none ? (
+            <NumberEditor
+              label="Print copy"
+              value={stockMoveInfo.printing_copy}
+              onValidated={value => {
+                setStockMoveInfo({ ...stockMoveInfo, printing_copy: value });
+              }}
+              onValidating={value => value >= 0}
+            />
+          ) : null}
+        </React.Fragment>
       );
     } else return null;
   }
 
-  componentWillReceiveProps(newProps: Props, state: State) {
-    if (newProps.sotckMoveId !== this.props.sotckMoveId) {
-      this.setState({ selectedProductCode: "", selectedAll: false });
+  static getDerivedStateFromProps(props: Props, state: State) {
+    const { pickingId , stockMoveId} = props;
+    if (pickingId !== state.variables.pickingId || stockMoveId !== state.variables.stockMoveId) {
+      return { ...state, variables: { ...state.variables, pickingId, stockMoveId } };
+    } else return state;
+  }
+
+  componentWillReceiveProps(newProps: Props, { variables }: State) {
+    if (newProps.stockMoveId !== this.props.stockMoveId) {
+      this.props.setStockMoveInfo({
+        product_default_code: "",
+        picking_number: "",
+        schedule_date: null,
+        product_tracking: ProductTracking.none,
+        printing_copy: 0
+      });
       this.props.clearSelected();
+      this.setState({
+        variables: { ...variables, stockMoveId: newProps.stockMoveId }
+      });
+    }
+
+    if (newProps.pickingId !== this.props.pickingId) {
+      this.setState({
+        variables: { ...variables, pickingId: newProps.pickingId }
+      });
     }
   }
   componentWillUnmount() {
@@ -188,11 +276,18 @@ class StockMoveLineGrid extends React.Component<Props, State> {
   }
   render() {
     const { columns, variables, selectedAll } = this.state;
-    const { selectedItems, setSelected, clearSelected } = this.props;
     const {
-      sotckMoveId,
+      selectedItems,
+      setSelected,
+      clearSelected,
+      setStockMoveLines
+    } = this.props;
+    const {
+      stockMoveId,
       loadingIndicatorClassName,
-      rootClassName
+      rootClassName,
+      pickingId,
+      setStockMoveInfo
     } = this.props;
     return (
       <ApolloVirtualizedGrid
@@ -210,12 +305,17 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         headerComponent={this.headerComponent}
         rootClassName={rootClassName}
         onDataFetched={data => {
-          if (data && data.stock_move) {
-            const { move_lines, product } = data.stock_move;
+          if (data && data.picking) {
+            const { move_lines, product } = data.picking.stock_move;
             this.rowsCount = move_lines.edges.length;
-            this.setState({
-              selectedProductCode: product ? product.default_code : ""
+            setStockMoveInfo({
+              picking_number: data.picking.name,
+              product_default_code: product.default_code,
+              schedule_date: new Date(data.picking.scheduled_date),
+              product_tracking: product.tracking,
+              printing_copy: 0
             });
+            setStockMoveLines(move_lines.edges);
           }
         }}
         onRowClick={(rowData, index) => {
@@ -260,21 +360,24 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         onColumnPropsChanged={this.handleOnColumnPropsChanged.bind(this)}
         columns={columns}
         graphqlQuery={stockMoveLineFindByStockMoveId}
-        variables={{ ...variables, id: sotckMoveId }}
+        variables={variables}
         pageSize={20}
         parseListFromQueryResult={(queryResult: any) => {
-          return queryResult && queryResult.stock_move
-            ? queryResult.stock_move.move_lines
+          return queryResult && queryResult.picking
+            ? queryResult.picking.stock_move.move_lines
             : null;
         }}
         updateQuery={(
           previousResult: any,
           list: ApolloListResult<StockMoveLineType>
         ) => {
+          setStockMoveLines(list.edges);
           return update(previousResult, {
-            stock_move: {
-              move_lines: {
-                $set: list
+            picking: {
+              stock_move: {
+                move_lines: {
+                  $set: list
+                }
               }
             }
           });
@@ -287,18 +390,21 @@ class StockMoveLineGrid extends React.Component<Props, State> {
 export default compose(
   withStyles(styles),
   connect(
-  (state: RootState) => ({
-    selectedItems: state.stockPicking.selectedStockMoveLine
-  }),
-  (dispatch: Dispatch<RootAction>) =>
-    bindActionCreators(
-      {
-        addSelected: stockPickingActions.addSelectedStockMoveLine,
-        removeSelected: stockPickingActions.removeSelectedStockMoveLine,
-        clearSelected: stockPickingActions.clearSelectedStockMoveLine,
-        setSelected: stockPickingActions.setSelectedStockMoveLine
-      },
-      dispatch
-    )
+    (state: RootState) => ({
+      selectedItems: state.stockPicking.selectedStockMoveLine,
+      stockMoveInfo: state.stockPicking.labelPrintStatus.stockMoveInfo
+    }),
+    (dispatch: Dispatch<RootAction>) =>
+      bindActionCreators(
+        {
+          addSelected: stockPickingActions.addSelectedStockMoveLine,
+          removeSelected: stockPickingActions.removeSelectedStockMoveLine,
+          clearSelected: stockPickingActions.clearSelectedStockMoveLine,
+          setSelected: stockPickingActions.setSelectedStockMoveLine,
+          setStockMoveLines: stockPickingActions.setStockMoveLines,
+          setStockMoveInfo: stockPickingActions.setStockMoveInfo
+        },
+        dispatch
+      )
   )
 )(StockMoveLineGrid);

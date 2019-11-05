@@ -38,7 +38,9 @@ const styles = (theme: Theme) =>
       color: "#fff",
       zIndex: 1100
     },
-    root: {},
+    root: {
+      flexWrap: "nowrap"
+    },
     fill: {
       flex: 1
     },
@@ -212,7 +214,7 @@ class PriceList extends React.Component<Props, State> {
                   const priceListIds = Object.values(masterPriceList).map(
                     p => p.id
                   );
-                  let csv =                    
+                  let csv =
                     "id,code,name," +
                     Object.values(masterPriceList)
                       .map(p => p.name)
@@ -226,7 +228,7 @@ class PriceList extends React.Component<Props, State> {
               </IconButton>
             )}
           </ApolloConsumer>
-          <IconButton 
+          <IconButton
             aria-label="Edit PriceList"
             color="inherit"
             onClick={() => {
@@ -279,9 +281,9 @@ class PriceList extends React.Component<Props, State> {
         totalPage
       });
       edges.forEach(p => {
-        csv += "\"" + p.id + "\",";
-        csv += "\"" + p.default_code.replace("\"", "\"\"") + "\","; // .replace("$", "%24").replace("&", "%26").replace("@", "%40")  + "\",";
-        csv += "\"" + p.name.replace("\"", "\"\"") + "\""; // .replace("$", "%24").replace("&", "%26").replace("@", "%40") + "\"";
+        csv += '"' + p.id + '",';
+        csv += '"' + p.default_code.replace('"', '""') + '",'; // .replace("$", "%24").replace("&", "%26").replace("@", "%40")  + "\",";
+        csv += '"' + p.name.replace('"', '""') + '"'; // .replace("$", "%24").replace("&", "%26").replace("@", "%40") + "\"";
         p.priceLists.forEach(price => {
           csv += "," + price.price;
         });
@@ -324,7 +326,13 @@ class PriceList extends React.Component<Props, State> {
 
   render() {
     const { classes, history } = this.props;
-    const { selectedIndex, selectedId, search, downloading, allowEdit } = this.state;
+    const {
+      selectedIndex,
+      selectedId,
+      search,
+      downloading,
+      allowEdit
+    } = this.state;
     const selected: number[] =
       selectedIndex || selectedIndex === 0 ? [selectedIndex] : [];
     return (
@@ -436,7 +444,10 @@ class PriceList extends React.Component<Props, State> {
                           item
                           className={classes.stockMoveGridLine}
                         >
-                          <PriceListInfoTab productId={selectedId} allowEdit={allowEdit} />
+                          <PriceListInfoTab
+                            productId={selectedId}
+                            allowEdit={allowEdit}
+                          />
                         </Grid>
                       );
                     else return null;
