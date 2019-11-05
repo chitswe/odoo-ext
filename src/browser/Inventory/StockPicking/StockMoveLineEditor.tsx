@@ -125,7 +125,7 @@ class StockMoveLineEditor extends React.Component<Props, State> {
           <ListItemText primary={selectedProductCode} />
           <ListItemText>
             <Typography className={classes.num} variant="subtitle2">
-              Quantity : {totalQty}
+              Quantity :  {stockMoveLineList ? stockMoveLineList.length : 0}/ {totalQty}
             </Typography>
           </ListItemText>
           <ListItemText>
@@ -134,15 +134,9 @@ class StockMoveLineEditor extends React.Component<Props, State> {
                 <TextEditor
                   validateOnEnterKeyPress={true}
                   disabled={totalQty === moveLineQty}
-                  onChanged={(value) => {
-                    if (pickingState === PickingState.assigned)
-                      this.setState({ lotname: value });
-                  }}
-                  onValidated={(value, oldValue) => {
-                    if (value !== oldValue) {
-                      this.setState({ lotname: "" });
-                      addStockMoveLine({ id: null, lot_name: value, moveId: stockMoveId, verified: false, status: false, error: "" });
-                    }
+                  onValidated={(value) => {
+                    this.setState({ lotname: "" });
+                    addStockMoveLine({ id: null, lot_name: value, moveId: stockMoveId, verified: false, status: false, error: "" });
                   }}
                   value={lotname ? lotname : ""}
                   retainFocusOnError={true}

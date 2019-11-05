@@ -1,12 +1,16 @@
 import * as React from "react";
 import TextField, { TextFieldProps } from "@material-ui/core/TextField";
-import * as accounting from "accounting";
-import { createStyles, WithStyles, withStyles } from "@material-ui/core";
+import {
+  createStyles,
+  WithStyles,
+  withStyles,
+  Input,
+  InputBase
+} from "@material-ui/core";
 
 const styles = createStyles({
   input: {
-    fontSize: 13,
-    textAlign: "right"
+    textAlign: "left"
   }
 });
 
@@ -19,13 +23,21 @@ type OwnProps = {
   restoreOldValueOnError: boolean;
   selectAllOnFocus: boolean;
   value?: string;
-  onChanged?: (value: string) => void;
+  inputElementType?: "InputBase" | "Input" | "TextField";
+  inputReference?: (ref: React.Ref<any>) => void;
 };
 
-type Props = OwnProps &
-  TextFieldProps & { staticContext?: any } & WithStyles<typeof styles>;
+export type TextEditorProps = OwnProps &
+  TextFieldProps & { staticContext?: any };
 
-class TextEditor extends React.Component<Props> {
+type Props = TextEditorProps & WithStyles<typeof styles>;
+
+type State = {
+  draftValue: string;
+  previousValueProp: string;
+};
+
+class TextEditor extends React.Component<Props, State> {
   static defaultProps: OwnProps = {
     validateOnBlur: true,
     validateOnEnterKeyPress: true,
@@ -33,93 +45,98 @@ class TextEditor extends React.Component<Props> {
     restoreOldValueOnError: false,
     selectAllOnFocus: true
   };
-  changed: boolean = false;
-  text: string = "";
-  old: string = null;
+  static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+    const { previousValueProp } = prevState;
+    let { value } = nextProps;
+    if (!value) value = "";
+    if (previousValueProp !== value) {
+      return {
+        draftValue: value,
+        previousValueProp: value
+      };
+    } else return null;
+  }
+  state: State = {
+    draftValue: "",
+    previousValueProp: ""
+  };
   textField: any = React.createRef<any>();
   bypassOnBlur: boolean = false;
   onFocus(e: any) {
-    const { value } = this.props;
-    this.old = value;
-    this.changed = true;
-    this.text = value == null ? "" : value.toString();
-    this.forceUpdate();
+    const { draftValue = "" } = this.state;
+    const { onFocus } = this.props;
     if (this.props.selectAllOnFocus) {
-      setTimeout(() => { this.textField.setSelectionRange(0, this.textField.value.length); }, 10);
+      setTimeout(() => {
+        this.textField.setSelectionRange(0, draftValue.length);
+      }, 10);
     }
+    if (onFocus) onFocus(e);
   }
 
   onBlur(e: any) {
-    this.changed = false;
-    const { validateOnBlur } = this.props;
+    const { validateOnBlur, onBlur } = this.props;
     if (validateOnBlur) {
       if (!this.bypassOnBlur) {
         this.commitEditor();
-        if (!this.changed) this.forceUpdate();
       }
     }
     this.bypassOnBlur = false;
+    if (onBlur) onBlur(e);
   }
 
   commitEditor() {
-    let value = this.textField.value;
+    const { draftValue, previousValueProp } = this.state;
     if (this.props.onValidating) {
-      if (this.props.onValidating(value, this.old)) {
-        this.props.onValidated(value, this.old);
-        this.old = value;
+      if (this.props.onValidating(draftValue, previousValueProp)) {
+        this.props.onValidated(draftValue, previousValueProp);
       } else {
         if (this.props.retainFocusOnError) {
-          setTimeout(() => { this.textField.focus();           }, 10);
-          this.changed = true; // still focus
+          setTimeout(() => {
+            this.textField.focus();
+          }, 10);
         }
         if (this.props.restoreOldValueOnError) {
-          this.handleOnChange(this.old.toString());
+          this.setState({ draftValue: previousValueProp });
         }
       }
-    } else if (this.props.onValidated) this.props.onValidated(value, this.old);
+    } else if (this.props.onValidated)
+      this.props.onValidated(draftValue, previousValueProp);
   }
 
   onChange(event: any) {
-    this.handleOnChange(event.target.value);
-  }
-  handleOnChange(text: string) {
-    this.changed = true;
-    this.text = text;
-    const getType = {};
-    if (
-      this.props.onChanged &&
-      getType.toString.call(this.props.onChanged) === "[object Function]"
-    )
-      this.props.onChanged(text);
-    else this.forceUpdate();
-  }
-
-  onKeyPress(e: any) {
-    if (e.charCode === 13) {
-      if (this.props.validateOnEnterKeyPress) {
-        this.commitEditor();
-        setTimeout(() => { this.textField.setSelectionRange(0, this.textField.value.length);        }, 10);
-      }
-    } else if (
-      (e.charCode < 48 || e.charCode > 57) &&
-      e.charCode !== 45 &&
-      e.charCode !== 46
-    ) {
-      // digit and minus sign
-      e.preventDefault();
+    this.setState({ draftValue: event.target.value });
+    const { onChange } = this.props;
+    if (onChange) {
+      onChange(event);
     }
   }
 
+  onKeyPress(e: any) {
+    const { onKeyPress } = this.props;
+    const { draftValue } = this.state;
+    if (e.charCode === 13) {
+      if (this.props.validateOnEnterKeyPress) {
+        this.commitEditor();
+        setTimeout(() => {
+          this.textField.setSelectionRange(0, draftValue.length);
+        }, 10);
+      }
+    }
+    if (onKeyPress) onKeyPress(e);
+  }
+
   onKeyDown(e: any) {
+    const { previousValueProp } = this.state;
     switch (e.keyCode) {
       case 27: // escape key
         this.bypassOnBlur = true; // if escape key is press skip handling blur event
         this.textField.blur();
-        this.props.onChanged(this.old);
+        this.setState({ draftValue: previousValueProp });
         break;
       default:
         break;
     }
+    if (this.props.onKeyDown) this.props.onKeyDown(e);
   }
 
   render() {
@@ -136,27 +153,35 @@ class TextEditor extends React.Component<Props> {
       onKeyPress,
       inputRef,
       staticContext,
-      onChanged,
+      onChange,
       classes,
       inputProps,
+      inputElementType,
+      inputReference,
       ...textFieldProps
     } = this.props;
-    let text = "";
-    
-    if (!this.changed) {
-      text =
-        value == null
-          ? ""
-          : value.toString();
-    } else text = this.text;
+    const { draftValue } = this.state;
+    let InputComponent: any = TextField;
+    switch (inputElementType) {
+      case "Input":
+        InputComponent = Input;
+        break;
+      case "InputBase":
+        InputComponent = InputBase;
+        break;
+      case "TextField":
+      default:
+        break;
+    }
     return (
-      <TextField
+      <InputComponent
         inputRef={(ref: any) => {
           this.textField = ref;
+          if (inputReference) inputReference(ref);
         }}
         inputProps={{ ...inputProps, className: classes.input }}
         {...textFieldProps}
-        value={text}
+        value={draftValue}
         onFocus={this.onFocus.bind(this)}
         onKeyPress={this.onKeyPress.bind(this)}
         onBlur={this.onBlur.bind(this)}
