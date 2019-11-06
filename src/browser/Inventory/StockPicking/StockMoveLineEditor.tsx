@@ -134,6 +134,7 @@ class StockMoveLineEditor extends React.Component<Props, State> {
                 <TextEditor
                   validateOnEnterKeyPress={true}
                   disabled={totalQty === moveLineQty}
+                  validateOnBlur={false}
                   onValidated={(value) => {
                     this.setState({ lotname: "" });
                     addStockMoveLine({ id: null, lot_name: value, moveId: stockMoveId, verified: false, status: false, error: "" });
