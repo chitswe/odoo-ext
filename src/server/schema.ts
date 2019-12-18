@@ -115,7 +115,7 @@ const schema = gql`
 
   type Mutation {
     changePrice(productId: Int!, priceListId: Int!, price: Float!): ProductPrice
-    generateProductLot(pickingId: Int!, moveId: Int!):StockMoveLineConnection
+    generateProductLot(pickingId: Int!, moveId: Int!, generateQty: Int!):StockMoveLineConnection
     changeProductLot(id:Int!,pickingId:Int!,lotname:String!):StockMoveLine
     createStockMoveLine(move_id:Int!, lot_name: String!):StockMoveLine
     createPriceChange(PriceChangeDate:Date!,Remark:String,createdBy:Int!):PriceChange

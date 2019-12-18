@@ -1,13 +1,6 @@
 /* tslint:disable */
 //  This file was automatically generated and should not be edited.
 
-export enum ProductTracking {
-  serial = "serial",
-  lot = "lot",
-  none = "none",
-}
-
-
 export enum PickingState {
   draft = "draft",
   waiting = "waiting",
@@ -15,6 +8,13 @@ export enum PickingState {
   assigned = "assigned",
   done = "done",
   cancel = "cancel",
+}
+
+
+export enum ProductTracking {
+  serial = "serial",
+  lot = "lot",
+  none = "none",
 }
 
 
@@ -35,10 +35,10 @@ export interface StockMoveLineFindByStockMoveIdQuery {
     state: PickingState,
     operation_type:  {
       __typename: "OperationType",
-      id: string,
+      id: number,
       use_create_lots: boolean,
-      use_existing_lots: boolean
-    } | null,
+      use_existing_lots: boolean,
+    },
     stock_move:  {
       __typename: "StockMove",
       id: number,
@@ -157,10 +157,10 @@ export interface StockPickingFindQuery {
     } | null,
     operation_type:  {
       __typename: "OperationType",
-      id: string,
+      id: number,
       use_create_lots: boolean,
-      use_existing_lots: boolean
-    } | null,
+      use_existing_lots: boolean,
+    },
     scheduled_date: string,
     state: PickingState,
     picking_type:  {
@@ -212,10 +212,10 @@ export interface StockPickingFindAllQuery {
       } | null,
       operation_type:  {
         __typename: "OperationType",
-        id: string,
+        id: number,
         use_create_lots: boolean,
-        use_existing_lots: boolean
-      } | null,
+        use_existing_lots: boolean,
+      },
       scheduled_date: string,
       state: PickingState,
       picking_type:  {
@@ -230,6 +230,7 @@ export interface StockPickingFindAllQuery {
 export interface generateProductLotMutationVariables {
   pickingId: number,
   moveId: number,
+  generateQty: number,
 };
 
 export interface generateProductLotMutation {
@@ -318,8 +319,8 @@ export interface deleteStockMoveLineMutationVariables {
 };
 
 export interface deleteStockMoveLineMutation {
-  createStockMoveLine:  {
+  deleteStockMoveLine:  {
     __typename: "StockMoveLine",
-    id: number
+    id: number,
   } | null,
 };

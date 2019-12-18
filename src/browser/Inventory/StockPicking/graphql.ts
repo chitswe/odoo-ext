@@ -166,8 +166,8 @@ const stockPickingFindAllQuery = gql`
 `;
 
 const generateProductLotMutation = gql`
-mutation generateProductLot($pickingId:Int!, $moveId:Int!){
-  generateProductLot(pickingId:$pickingId, moveId:$moveId) {
+mutation generateProductLot($pickingId:Int!, $moveId:Int!, $generateQty:Int!){
+  generateProductLot(pickingId:$pickingId, moveId:$moveId, generateQty: $generateQty) {
         aggregate {
           count
         }

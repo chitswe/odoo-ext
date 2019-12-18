@@ -29,9 +29,11 @@ import { RootState, RootAction } from "../../reducer";
 import { connect } from "react-redux";
 import { stockMoveActions, InputStockMoveLineType } from "../../reducer/stockMove";
 import { FaBarcode, FaCogs } from "react-icons/fa";
+import { MdCheck, MdCancel } from "react-icons/md";
 import { MdSave, MdAssignment } from "react-icons/md";
 import { Dispatch, bindActionCreators } from "redux";
 import { Query } from "react-apollo";
+import NumberEditor from "../../component/NumberEditor";
 import { generateProductLotMutation, stockMoveLineFindByStockMoveId, stockMoveFindByPickingId, createStockMoveLineMutation } from "./graphql";
 import {
   stockPickingActions,
@@ -39,7 +41,8 @@ import {
   LabelPrintStatus,
   PrintingStatus
 } from "../../reducer/stockPicking";
-import { PickingState } from "./types";
+import update from "immutability-helper";
+import { PickingState, StockMoveLineFindByStockMoveIdQuery, StockMoveLineFindByStockMoveIdQueryVariables } from "./types";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -116,6 +119,8 @@ type State = {
   balanceQty: number;
   tracking?: string;
   saveLoading: boolean;
+  openGenerateDialog: boolean;
+  generateQty: number;
 };
 
 class StockPicking extends React.Component<Props, State> {
@@ -129,7 +134,9 @@ class StockPicking extends React.Component<Props, State> {
     selectedProductCode: "",
     totalQty: null,
     balanceQty: null,
-    saveLoading: false
+    saveLoading: false,
+    openGenerateDialog: false,
+    generateQty: 0
   };
   renderAppBar(appBarType: "stock_move" | "stock_move_line" | "stock_move_line_edit" | "both", routeComponentProps: any) {
     const {
@@ -247,44 +254,116 @@ class StockPicking extends React.Component<Props, State> {
             </IconButton>
           ) : null}
           {(appBarType === "stock_move" || appBarType === "both") &&
-          (selectedStockMove &&
+          (selectedStockMove && selectedStockMove.product_uom_qty > selectedStockMove.quantity_done && 
             (selectedStockMove.product.tracking === "serial" ||
-              selectedStockMove.product.tracking === "lot")) ? (
-            <Mutation
-              mutation={generateProductLotMutation}
-              refetchQueries={() => {
-                return [
-                  {
-                    query: stockMoveLineFindByStockMoveId,
-                    variables: { stockMoveId: selectedStockMove.id, pickingId }
-                  },
-                  {
-                    query: stockMoveFindByPickingId,
-                    variables: { id: pickingId }
-                  }
-                ];
-              }}
-            >
-              {(generateProductLot, { data, loading, error }) => (
+              selectedStockMove.product.tracking === "lot")) ? (            
                 <IconButton
                   aria-label="Generate Lot"
                   color="inherit"
                   onClick={() => {
-                    generateProductLot({
-                      variables: {
-                        pickingId,
-                        moveId: selectedStockMove.id
-                      }
-                    });
+                    this.setState({openGenerateDialog: true});
                   }}
                 >
                   <FaCogs />
                 </IconButton>
-              )}
-            </Mutation>
           ) : null}
         </Toolbar>
       </AppBar>
+    );
+  }
+  renderGenerateDialog() {
+    const { match: { params } } = this.props;
+    const { openGenerateDialog, generateQty, selectedStockMove } = this.state;
+    const pickingId = Number.parseInt(params.id, 10);
+
+    return (
+      <React.Fragment>
+        <Dialog
+          open={openGenerateDialog}
+        >
+          <DialogTitle>Generate Serial</DialogTitle>
+          <DialogContent>
+              <Typography>Please entery generate quantity....</Typography>
+              <NumberEditor
+                label="Generate Qty"
+                value={generateQty}
+                onValidated={value => {
+                  this.setState({generateQty: value});
+                }}
+                onValidating={value => value >= 0 && value <= selectedStockMove.product_uom_qty - selectedStockMove.quantity_done }
+              />
+          </DialogContent>
+          <DialogActions>
+            <Mutation
+                mutation={generateProductLotMutation}
+                // refetchQueries={() => {
+                //   return [
+                //     {
+                //       query: stockMoveLineFindByStockMoveId,
+                //       variables: { stockMoveId: selectedStockMove.id, pickingId }
+                //     },
+                //     {
+                //       query: stockMoveFindByPickingId,
+                //       variables: { id: pickingId }
+                //     }
+                //   ];
+                // }}
+                update={(store, { data: { generateProductLot} }) => {
+                  const old = store.readQuery<
+                    StockMoveLineFindByStockMoveIdQuery,
+                    StockMoveLineFindByStockMoveIdQueryVariables
+                  >({ query: stockMoveLineFindByStockMoveId, variables: { stockMoveId: selectedStockMove.id, pickingId }});
+                  store.writeQuery({ 
+                    query: stockMoveLineFindByStockMoveId,
+                    variables: { stockMoveId: selectedStockMove.id, pickingId },
+                    data: update(old, {
+                      picking: {
+                        stock_move: {
+                          quantity_done: {
+                            $set: generateProductLot.aggregate.count
+                          },
+                          move_lines: {
+                            $set: generateProductLot
+                          }
+                        }
+                      }
+                    })
+                  });
+
+                }}
+            >
+                {(generateProductLot, { data, loading, error }) => (
+                  <Button
+                    variant="contained" 
+                    color="primary"
+                    disabled={generateQty <= 0}
+                    onClick={() => {
+                      generateProductLot({
+                        variables: {
+                          pickingId,
+                          moveId: selectedStockMove.id,
+                          generateQty
+                        }
+                      });
+                      this.setState({openGenerateDialog: false, generateQty: 0});
+                    }}
+                  >
+                    Confirm
+                  </Button>                  
+                )}
+            </Mutation>
+            <Button
+                variant="contained" 
+                color="primary"
+                onClick={() => {
+                  this.setState({openGenerateDialog: false});
+                }}
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
     );
   }
   renderPrintingDialogs() {
@@ -607,6 +686,7 @@ class StockPicking extends React.Component<Props, State> {
           </Switch>
         </MediaQuery>
         {this.renderPrintingDialogs()}
+        {this.renderGenerateDialog()}
       </React.Fragment>
     );
   }
