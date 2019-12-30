@@ -123,6 +123,7 @@ const schema = gql`
     createPriceChangeDetail(PriceChangeId:Int!,ProductId:Int!,PriceBookId:Int!,OldPrice:Float!,NewPrice:Float!):PriceChangeDetail
     updatePriceChangeDetail(id:Int!,PriceChangeId:Int!,ProductId:Int!,PriceBookId:Int!,OldPrice:Float!,NewPrice:Float!):PriceChangeDetail
     deleteStockMoveLine(id:Int!):StockMoveLine
+    resetStockMoveLineUOMQty(move_id:Int!):StockMoveLineConnection
   }
 
   ${picking_schema}

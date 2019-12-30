@@ -71,7 +71,7 @@ const stockMoveLineFindAll = (
     .execute_kwAsync("stock.move.line", "search_read", filter, {
       offset,
       limit,
-      fields: ["lot_id", "lot_name", "location_id", "location_dest_id", "qty_done"],
+      fields: ["lot_id", "lot_name", "location_id", "location_dest_id", "qty_done", "product_uom_qty"],
       order
     })
     .then((result: any) => {
@@ -96,7 +96,7 @@ const mutation = {
       return context.odoo.execute_kwAsync(
         "stock.move.line",
         "write",
-        [[id], { lot_name: lotname, product_uom_qty: 1, qty_done: 1 }]
+        [[id], { lot_name: lotname, qty_done: 1 }]
       ).then(() => {
         return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
           offset: 0,
@@ -113,7 +113,7 @@ const mutation = {
           return context.odoo.execute_kwAsync(
             "stock.move.line",
             "write",
-            [[id], { lot_name: lotname, product_uom_qty: 1, qty_done: 1 }]
+            [[id], { lot_name: lotname, qty_done: 1 }]
           ).then(() => {
             return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", id]]], {
               offset: 0,
@@ -162,7 +162,7 @@ const mutation = {
               return context.odoo.execute_kwAsync(
                 "stock.move.line",
                 "write",
-                [[id], { lot_name: lotnum + index, product_uom_qty: 1, qty_done: 1 }]
+                [[id], { lot_name: lotnum + index, qty_done: 1 }]
               );
             else
               return context.odoo.execute_kwAsync("stock.move.line", "create", [
@@ -174,7 +174,6 @@ const mutation = {
                   product_id: move.product_id[0],
                   product_uom_id: move.product_uom[0],
                   lot_name: lotnum + index,
-                  product_uom_qty: 1,
                   qty_done: 1
                 }
               ]);
@@ -201,6 +200,43 @@ const mutation = {
         });
     }
   },
+  resetStockMoveLineUOMQty: async (parent: any, params: any, context: AuthResult) => {
+    const { move_id } = params;
+    const filter: any = [[["move_id", "=", move_id]]];
+    const stockMoveLines = await stockMoveLineFindAll(context.odoo, {
+      offset: 0,
+      limit: 50,
+      filter
+    });
+
+    const promiseAll = stockMoveLines.map((lot: any, index: number) => {
+      const { id, product_uom_qty } = lot;
+      return context.odoo.execute_kwAsync(
+        "stock.move.line",
+        "write",
+        [[id], { product_uom_qty: 0 }]
+      );
+    });
+
+    return Promise.all(promiseAll)
+      .then(() => {
+        return stockMoveLineFindAll(context.odoo, {
+          offset: 0,
+          limit: 50,
+          filter
+        }).then((edges) => {
+          const pageInfo = { hasMore: false, pageSize: 50, page: 1 };
+          return {
+            edges,
+            pageInfo,
+            aggregate: {
+              count: edges.length
+            }
+          };
+        });
+      });
+
+  },
   createStockMoveLine: async (parent: any, params: any, context: AuthResult) => {
     const { move_id, lot_name } = params;
     const move = await stockMoveFind(context.odoo, move_id);
@@ -209,7 +245,7 @@ const mutation = {
     if (opType.use_create_lots && picking.state === "assigned") {
       return context.odoo.execute_kwAsync("stock.move.line", "create", [
         {
-          move_id, date: new Date(), location_dest_id: picking.location_dest_id[0], location_id: picking.location_id[0], product_id: move.product_id[0], product_uom_id: move.product_uom[0], lot_name, product_uom_qty: 1, qty_done: 1
+          move_id, date: new Date(), location_dest_id: picking.location_dest_id[0], location_id: picking.location_id[0], product_id: move.product_id[0], product_uom_id: move.product_uom[0], lot_name, qty_done: 1
         }
       ]).then((result) => {
         return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", result]]], {
@@ -226,7 +262,7 @@ const mutation = {
         if (lot)
           return context.odoo.execute_kwAsync("stock.move.line", "create", [
             {
-              move_id, date: new Date(), location_dest_id: picking.location_dest_id[0], location_id: picking.location_id[0], product_id: move.product_id[0], product_uom_id: move.product_uom[0], lot_name, product_uom_qty: 1, qty_done: 1
+              move_id, date: new Date(), location_dest_id: picking.location_dest_id[0], location_id: picking.location_id[0], product_id: move.product_id[0], product_uom_id: move.product_uom[0], lot_name, qty_done: 1
             }
           ]).then((result) => {
             return context.odoo.execute_kwAsync("stock.move.line", "search_read", [[["id", "=", result]]], {
