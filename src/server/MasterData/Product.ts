@@ -77,8 +77,17 @@ const resolver = {
   }
 };
 
-const productFind = (odoo: Odoo, id: number) => {
-  const params: any = [[["id", "=", id]]];
+const productFind: (
+  odoo: Odoo,
+  id: number,
+  active?: boolean
+) => Promise<any> = (odoo: Odoo, id: number, active: boolean = true) => {
+  const params: any = [
+    [
+      ["id", "=", id],
+      ["active", "=", active]
+    ]
+  ];
   return odoo
     .execute_kwAsync("product.product", "search_read", params, {
       offset: 0,
@@ -93,7 +102,8 @@ const productFind = (odoo: Odoo, id: number) => {
       ]
     })
     .then(([p]: [any]) => {
-      return p;
+      if (p) return p;
+      else return productFind(odoo, id, false);
     });
 };
 
@@ -164,7 +174,7 @@ const query = {
         count
       }
     };
-  },
+  }
 };
 
 export { schema, resolver, query, productFind, productFindAll, productCount };

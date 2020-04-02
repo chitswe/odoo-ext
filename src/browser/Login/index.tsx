@@ -69,7 +69,7 @@ class Login extends React.Component<Props, State> {
       showLoading,
       hideLoading,
       showSnackbar,
-      setUserSession,
+      setUserSession, 
       history
     } = this.props;
     showLoading();

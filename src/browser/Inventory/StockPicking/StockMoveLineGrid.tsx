@@ -86,16 +86,6 @@ class StockMoveLineGrid extends React.Component<Props, State> {
         sortable: true,
         hideAt: 500
       },
-      // {
-      //   label: "Qty",
-      //   labelAlign: "right",
-      //   textAlign: "center",
-      //   key: "quant",
-      //   width: 50,
-      //   sortable: false,
-      //   format: ({ key, rowData: { quant } }) =>		
-      //     quant ? quant.quantity : ""
-      // },
       {
         label: "Serial No", 
         key: "lot_name",
