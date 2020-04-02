@@ -12,7 +12,7 @@ class PriceChange extends Model<PriceChange> {
     @Column(DataType.STRING) Remark: String;
     @HasMany(() => PriceChangeDetail) detail: PriceChangeDetail[];
 
-    public createPriceChangeDetail!: BelongsToCreateAssociationMixin<PriceChangeDetail, PriceChangeDetail>;
+    public createPriceChangeDetail: BelongsToCreateAssociationMixin<PriceChangeDetail, PriceChangeDetail>;
     
 }
 
