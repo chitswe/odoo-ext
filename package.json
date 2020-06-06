@@ -38,7 +38,7 @@
     "apollo-link-error": "1.1.7",
     "apollo-link-http": "1.5.9",
     "apollo-link-schema": "1.2.2",
-    "apollo-server": "2.9.7",
+    "apollo-server": "2.14.2",
     "body-parser": "1.18.3",
     "classnames": "2.2.6",
     "concurrently": "4.1.2",
